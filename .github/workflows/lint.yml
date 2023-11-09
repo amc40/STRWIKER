@@ -1,0 +1,68 @@
+name: Lint
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  checks: write
+  contents: write
+
+jobs:
+  run-application-code-linters:
+    name: Run application code linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+
+      # ESLint and Prettier must be in `package.json`
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          auto_fix: true
+          eslint: true
+          prettier: true
+          tsc: true
+  run-terraform-linter:
+    name: Run terraform linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: terraform fmt
+        uses: dflook/terraform-fmt@v1
+        with:
+          path: terraform
+
+      - name: Check for Differences
+        id: git-status
+        run: |
+          git diff --quiet || echo "Changes found"
+        continue-on-error: true
+
+      - name: Commit Changes
+        if: steps.git-status.outcome == 'success'
+        uses: devops-infra/action-commit-push@master
+        with:
+          github_token: "${{ secrets.GITHUB_TOKEN }}"
+          commit_message: "[AUTO] Fix terraform formatting"
+          force: false

@@ -1,0 +1,36 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.tf'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  TERRAFORM_CLOUD_TOKENS: app.terraform.io=${{ secrets.TF_CLOUD_TOKEN }}
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    name: Apply Approved Terraform Plan
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: terraform apply
+        uses: dflook/terraform-apply@v1
+        with:
+          path: terraform
+          variables: |
+            vercel_api_token = "${{secrets.VERCEL_TERRAFORM_API_TOKEN}}"
+            github_repository_name = "${{github.event.repository.name}}"
+          # only auto approve for manual runs
+          auto_approve: ${{ github.event_name  == 'workflow_dispatch' }}
