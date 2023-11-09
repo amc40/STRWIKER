@@ -1,12 +1,12 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
-import GithubProvider from "next-auth/providers/github";
+import GithubProvider from 'next-auth/providers/github';
 
 const authOptions: NextAuthOptions = {
   providers: [
     GithubProvider({
       clientId: String(process.env.GITHUB_ID),
-      clientSecret: String(process.env.GITHUB_SECRET),
-    }),
+      clientSecret: String(process.env.GITHUB_SECRET)
+    })
   ]
 };
 
