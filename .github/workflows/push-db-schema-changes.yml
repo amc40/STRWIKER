@@ -1,0 +1,24 @@
+name: Deploy a deploy request
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  push_db_schema_changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy a deploy request
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+      
+      - name: Push DB Schema changes
+        run: npx prisma db push
+
+        
