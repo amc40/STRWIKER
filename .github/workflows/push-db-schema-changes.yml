@@ -19,6 +19,6 @@ jobs:
           node-version: latest
       
       - name: Push DB Schema changes
-        run: npx prisma db push
+        run: DATABASE_URL="${{secrets.DATABASE_URL}}" npx prisma db push
 
         
