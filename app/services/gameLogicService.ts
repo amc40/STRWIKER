@@ -1,4 +1,4 @@
-import { Game, Player, PlayerPoint, Point, Prisma, Team } from '@prisma/client';
+import { Game, PlayerPoint, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   getAllPlayerPointsByPoint,
@@ -136,7 +136,7 @@ export class GameLogicService {
 
   async rotatePlayers(playerPoints: PlayerPoint[]) {
     playerPoints.sort((a, b) => a.position - b.position);
-    this.reorderPlayerPoint(playerPoints[0], 0, playerPoints.length - 1);
+    this.reorderPlayerPoint(playerPoints[0], playerPoints.length - 1);
   }
 }
 
