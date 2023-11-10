@@ -12,15 +12,6 @@ interface Player {
   wins: number;
 }
 
-const mockPlayerData: Player[] = [
-  { name: 'john', rarity: 0, gamesPlayed: 10, wins: 5 },
-  { name: 'jordan', rarity: 0, gamesPlayed: 20, wins: 3 },
-  { name: 'ted', rarity: 0, gamesPlayed: 8, wins: 5 },
-  { name: 'alan', rarity: 1, gamesPlayed: 10, wins: 5 },
-  { name: 'joey', rarity: 0, gamesPlayed: 10, wins: 5 },
-  { name: 'emma', rarity: 1, gamesPlayed: 15, wins: 9 }
-];
-
 const getData = async (): Promise<Player[]> => {
   const response = await fetch(getApiUrl("/players"),
     {
