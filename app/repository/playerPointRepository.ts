@@ -1,16 +1,8 @@
-import { PlayerPoint } from '@prisma/client';
+import { PlayerPoint, Point } from '@prisma/client';
 import prisma from '../../lib/planetscale';
-import { getCurrentPoint } from './pointRepository';
 
-export const getCurrentPointPlayerForPlayerIdInCurrentGame = async (
-  playerId: number
-): Promise<PlayerPoint> => {
-  const currentPoint = await getCurrentPoint();
-
-  return await prisma.playerPoint.findFirstOrThrow({
-    where: {
-      pointId: currentPoint.id,
-      playerId
-    }
-  });
-};
+export async function getAllPlayerPointsByPoint(
+  point: Point
+): Promise<PlayerPoint[]> {
+  return await prisma.playerPoint.findMany({ where: { pointId: point.id } });
+}

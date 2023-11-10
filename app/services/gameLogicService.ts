@@ -1,9 +1,7 @@
-import { Game, PlayerPoint, Team } from '@prisma/client';
+import { Game, PlayerPoint, Prisma, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
-import {
-  getAllPlayerPointsByPoint,
-  getPointFromPlayerPoint
-} from './dbService';
+import { getPointFromPlayerPoint } from '../repository/pointRepository';
+import { getAllPlayerPointsByPoint } from '../repository/playerPointRepository';
 
 export class GameLogicService {
   startGame() {
@@ -101,17 +99,24 @@ export class GameLogicService {
       ? playerPoint.team
       : opposingTeam(playerPoint.team);
     const finishedPoint = await getPointFromPlayerPoint(playerPoint);
-    finishedPoint;
     const newPoint = await prisma.point.create({
       data: {
         currentBlueScore:
-          finishedPoint.currentBlueScore + (scoringTeam === 'Blue' ? 1 : 0),
+          finishedPoint.currentBlueScore + (scoringTeam === Team.Blue ? 1 : 0),
         currentRedScore:
-          finishedPoint.currentRedScore + (scoringTeam === 'Red' ? 1 : 0),
+          finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0),
         gameId: finishedPoint.gameId
       }
     });
     const oldPlayerPoints = await getAllPlayerPointsByPoint(finishedPoint);
+
+    const redPlayers = oldPlayerPoints.filter(
+      (playerPoint) => playerPoint.team === Team.Red
+    );
+    const bluePlayers = oldPlayerPoints.filter(
+      (playerPoint) => playerPoint.team === Team.Blue
+    );
+
     const newPlayerPoints = await Promise.all(
       oldPlayerPoints.map(async (playerPoint) => {
         return await prisma.playerPoint.create({
@@ -127,13 +132,6 @@ export class GameLogicService {
         });
       })
     );
-
-    const redPlayers = newPlayerPoints.filter(
-      (playerPoint) => playerPoint.team === Team.Red
-    );
-    const bluePlayers = newPlayerPoints.filter(
-      (playerPoint) => playerPoint.team === Team.Blue
-    );
   }
 
   async rotatePlayers(playerPoints: PlayerPoint[]) {
@@ -142,6 +140,17 @@ export class GameLogicService {
   }
 }
 
+function getNextPlayerPosition(
+  previousPosition: number,
+  numberOfPlayersOnTeam: number,
+  isTeamRotating: boolean
+) {
+  if (!isTeamRotating) return previousPosition;
+  const newPosition =
+    previousPosition == 0 ? numberOfPlayersOnTeam - 1 : previousPosition - 1;
+  return newPosition;
+}
+
 function opposingTeam(team: string) {
-  return team === 'red' ? 'blue' : 'red';
+  return team === Team.Red ? Team.Blue : Team.Red;
 }

@@ -1,25 +1,27 @@
 import { Game } from '@prisma/client';
 import { GameLogicService } from '../../../../services/gameLogicService';
 import { getCurrentPointPlayerForPlayerIdInCurrentGame } from '../../../../repository/playerPointRepository';
+import prisma from '../../../../../lib/planetscale';
 
 type RequestData = {
-  playerId: number;
+  playerPointId: number;
   ownGoal: boolean;
 };
 
 type ResponseData = Game;
 
 export const POST = async function handler(req: Request) {
-  const { playerId, ownGoal } = (await req.json()) as RequestData;
+  const { playerPointId, ownGoal } = (await req.json()) as RequestData;
 
-  // find player point id
-
-  const pointPlayer =
-    await getCurrentPointPlayerForPlayerIdInCurrentGame(playerId);
+  const playerPoint = await prisma.playerPoint.findUniqueOrThrow({
+    where: {
+      id: playerPointId
+    }
+  });
 
   const gameLogicService = new GameLogicService();
 
-  gameLogicService.scoreGoal(pointPlayer, ownGoal);
+  gameLogicService.scoreGoal(playerPoint, ownGoal);
 
   return Response.json(game as ResponseData);
 };
