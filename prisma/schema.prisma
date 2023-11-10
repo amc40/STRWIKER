@@ -61,7 +61,7 @@ model PlayerPoint {
 
   scoredGoal Boolean
   ownGoal    Boolean
-  rattled Boolean
+  rattled    Boolean
 
   playerId Int
   pointId  Int

@@ -16,3 +16,9 @@ export async function getPointFromPlayerPoint(
     where: { id: playerPoint.pointId }
   });
 }
+
+export async function getAllPlayerPointsByPoint(
+  point: Point
+): Promise<PlayerPoint[]> {
+  return await prisma.playerPoint.findMany({ where: { pointId: point.id } });
+}
