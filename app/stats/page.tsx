@@ -21,6 +21,12 @@ const mockPlayerData: Player[] = [
 ];
 
 const getData = async (): Promise<Player[]> => {
+  console.log(
+    'URL TO FETCH',
+    (process.env.NEXT_PUBLIC_VERCEL_URL
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+      : 'http://localhost:3000') + '/api/players'
+  );
   const response = await fetch(
     (process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
