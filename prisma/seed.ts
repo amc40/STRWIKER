@@ -3,14 +3,24 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-    ["Alan", "Ted", "Joey", "Emma", "Freya", "Jordan", "John", "Mike", "Henry"]
-    .map(async (name) =>
-    await prisma.player.create({
+  [
+    'Alan',
+    'Ted',
+    'Joey',
+    'Emma',
+    'Freya',
+    'Jordan',
+    'John',
+    'Mike',
+    'Henry'
+  ].map(
+    async (name) =>
+      await prisma.player.create({
         data: {
-            name
+          name
         }
-    }
-    ));
+      })
+  );
 }
 
 main()
