@@ -16,7 +16,7 @@ export const Team: React.FC<TeamProps> = (teamProps: TeamProps) => {
   return (
     <div
       style={{
-        flex: 1,
+        width: '50%',
         padding: '20px',
         border: '1px solid #ccc',
         backgroundColor: team == 'red' ? '#EE2E31' : '#004f98',
@@ -25,7 +25,10 @@ export const Team: React.FC<TeamProps> = (teamProps: TeamProps) => {
     >
       <ul>
         {playerPoints.map((playerPoint) => (
-          <PlayerPointComponent key={playerPoint.id} playerPoint={playerPoint} />
+          <PlayerPointComponent
+            key={playerPoint.id}
+            playerPoint={playerPoint}
+          />
         ))}
       </ul>
     </div>

@@ -8,6 +8,7 @@ interface IPointProps {
 
 export const PointComponent = async (pointProps: IPointProps) => {
   'use client';
+
   const point = pointProps.point;
   const bluePlayerPoints = point.playerPoints.filter(
     (playerPoint) => playerPoint.team == 'blue'
@@ -17,11 +18,9 @@ export const PointComponent = async (pointProps: IPointProps) => {
   );
 
   return (
-    <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <div style={{ display: 'flex', height: '100vh' }}>
-        <Team team="blue" playerPoints={bluePlayerPoints} />
-        <Team team="red" playerPoints={redPlayerPoints} />
-      </div>
-    </main>
+    <div style={{ display: 'flex' }}>
+      <Team team="blue" playerPoints={bluePlayerPoints} />
+      <Team team="red" playerPoints={redPlayerPoints} />
+    </div>
   );
 };

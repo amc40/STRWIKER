@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
-import {Player, PlayerPoint} from "@prisma/client"
+import { Player, PlayerPoint } from '@prisma/client';
 
 interface PlayerPointProps {
-  playerPoint: PlayerPoint & {player: Player}
+  playerPoint: PlayerPoint & { player: Player };
 }
 
-export const PlayerPointComponent = (playerPointProps : PlayerPointProps) => {
-  const {playerPoint} = playerPointProps;
-  const handleGoalClick = () => {
+export const PlayerPointComponent = (playerPointProps: PlayerPointProps) => {
+  const { playerPoint } = playerPointProps;
+  const handleGoalClick = () => {};
 
-  };
-
-  const handleOwnGoalClick = () => {
-
-  };
+  const handleOwnGoalClick = () => {};
 
   return (
     <div style={styles.card}>
@@ -34,8 +30,7 @@ const styles: Record<string, React.CSSProperties> = {
   card: {
     border: '1px solid #ccc',
     padding: '10px',
-    margin: '10px',
-    width: '200px',
+    width: '100%',
     borderRadius: '8px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     backgroundColor: '#fff',
@@ -44,13 +39,13 @@ const styles: Record<string, React.CSSProperties> = {
   },
   playerName: {
     margin: '10px 0',
-    fontSize: '18px',
+    fontSize: '12px',
     fontWeight: 'bold',
     color: 'black'
   },
   stat: {
     margin: '5px 0',
-    fontSize: '14px',
+    fontSize: '6px',
     color: 'black'
   },
   buttonContainer: {
@@ -58,7 +53,8 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-around'
   },
   button: {
-    padding: '8px 16px',
+    padding: '4px 10px',
+    width: 'min-content',
     fontSize: '14px',
     cursor: 'pointer',
     borderRadius: '4px',
