@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 
 interface PlayerCardType {
   playerName: string;
-  photoUrl: string;
 }
 
-const PlayerCard: React.FC<PlayerCardType> = ({ playerName, photoUrl }) => {
+const PlayerCard: React.FC<PlayerCardType> = ({ playerName }) => {
   const [goals, setGoals] = useState(0);
   const [ownGoals, setOwnGoals] = useState(0);
+  const x: React.CSSProperties = {textAlign: 'center'}
 
   const handleGoalClick = () => {
     setGoals(goals + 1);
@@ -19,13 +19,6 @@ const PlayerCard: React.FC<PlayerCardType> = ({ playerName, photoUrl }) => {
 
   return (
     <div style={styles.card}>
-      {photoUrl && (
-        <img
-          src={photoUrl}
-          alt={`${playerName}'s photo`}
-          style={styles.photo}
-        />
-      )}
       <h3 style={styles.playerName}>{playerName}</h3>
       <p style={styles.stat}>Goals: {goals}</p>
       <p style={styles.stat}>Own Goals: {ownGoals}</p>
@@ -41,7 +34,7 @@ const PlayerCard: React.FC<PlayerCardType> = ({ playerName, photoUrl }) => {
   );
 };
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
   card: {
     border: '1px solid #ccc',
     padding: '10px',
@@ -52,12 +45,6 @@ const styles = {
     backgroundColor: '#fff',
     textAlign: 'center',
     color: 'black'
-  },
-  photo: {
-    width: '100%',
-    height: '150px',
-    objectFit: 'cover',
-    borderRadius: '8px 8px 0 0'
   },
   playerName: {
     margin: '10px 0',

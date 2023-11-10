@@ -5,14 +5,14 @@ import Chart from './chart';
 import { TeamMember, Team } from '../components/team';
 
 const teamBlueMembers: TeamMember[] = [
-  { id: 1, name: 'Blue Player 1', photo: '../images/Image.png' },
-  { id: 2, name: 'Blue Player 2', photo: '../images/Player.png' },
-  { id: 3, name: 'Blue Player 3', photo: '../images/Player.png' }
+  { id: 1, name: 'Blue Player 1' },
+  { id: 2, name: 'Blue Player 2' },
+  { id: 3, name: 'Blue Player 3' }
 ];
 
 const teamRedMembers: TeamMember[] = [
-  { id: 4, name: 'Red Player 1', photo: '../images/Player.png' },
-  { id: 5, name: 'Red Player 2', photo: '../images/Player.png' }
+  { id: 4, name: 'Red Player 1' },
+  { id: 5, name: 'Red Player 2' }
 ];
 
 export default function PlayerPage() {
