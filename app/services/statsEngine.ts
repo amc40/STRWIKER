@@ -1,3 +1,4 @@
+import { Player } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 
 type PlayerPointStats = {
@@ -71,8 +72,48 @@ export class StatsEngineFwoar {
     return this.getTotalOwnGoals(playerStats) / this.getTotalGoals(playerStats);
   }
 
-  updateElo(winnerElo: number, loserElo: number) {
-    const K = 32;
+  updateElosOnGoal(winners: Player[], opposition: Player[]) {
+    const numberOfWinners = winners.length;
+    const numberOfEnemies = opposition.length;
+    winners.forEach((winner) => {
+      opposition.forEach((enemy) =>
+        this.updatePlayerElos(
+          winner,
+          enemy,
+          1 / (numberOfWinners * numberOfEnemies)
+        )
+      );
+    });
+  }
+
+  updatePlayerElos(winner: Player, loser: Player, scaler?: number) {
+    const [newWinnerElo, newLoserElo] = this.calculateElos(
+      winner.elo,
+      loser.elo,
+      scaler
+    );
+
+    prisma.player.update({
+      where: {
+        id: winner.id
+      },
+      data: {
+        elo: newWinnerElo
+      }
+    });
+
+    prisma.player.update({
+      where: {
+        id: loser.id
+      },
+      data: {
+        elo: newLoserElo
+      }
+    });
+  }
+
+  calculateElos(winnerElo: number, loserElo: number, scaler?: number) {
+    const K = scaler ? 32 / scaler : 32;
     const expectedScoreWinner =
       1 / (1 + Math.pow(10, (loserElo - winnerElo) / 400));
     const expectedScoreLoser =
