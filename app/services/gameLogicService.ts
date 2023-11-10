@@ -118,7 +118,7 @@ export class GameLogicService {
     );
 
     const newPlayerPoints = await Promise.all(
-      oldPlayerPoints.map(async (playerPoint) => {
+      oldPlayerPoints.map(async (oldPlayerPoint) => {
         return await prisma.playerPoint.create({
           data: {
             playerId: playerPoint.playerId,
@@ -127,7 +127,12 @@ export class GameLogicService {
             scoredGoal: false,
             rattled: false,
             team: playerPoint.team,
-            position: playerPoint.position
+            position: getNextPlayerPosition(
+              oldPlayerPoint.position,
+              oldPlayerPoint.team == Team.Red
+                ? redPlayers.length
+                : bluePlayers.length
+            )
           }
         });
       })
@@ -151,6 +156,10 @@ function getNextPlayerPosition(
   return newPosition;
 }
 
-function opposingTeam(team: string) {
+function isTeamRotating(team: Team, currentGame: Game) {
+  return;
+}
+
+function opposingTeam(team: Team) {
   return team === Team.Red ? Team.Blue : Team.Red;
 }
