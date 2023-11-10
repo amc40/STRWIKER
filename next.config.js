@@ -12,7 +12,10 @@ const nextConfig = {
   webpack: (config) => {
     config.plugins.push(
       new CopyPlugin({
-        patterns: [{ from: 'node_modules/vanilla-tilt/dist', to: '../public' }]
+        patterns: [
+          { from: 'node_modules/vanilla-tilt/dist', to: '../public' },
+          { from: 'app/images', to: '../public/images' }
+        ]
       })
     );
 
