@@ -27,6 +27,7 @@ model Game {
   finalScoreRed  Int?
   finalScoreBlue Int?
   points         Point[]  @relation(name: "pointGame")
+  rotaty         Boolean
 
   @@index([startTime])
 }
