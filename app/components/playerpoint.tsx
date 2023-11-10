@@ -1,27 +1,23 @@
 import React, { useState } from 'react';
+import {Player, PlayerPoint} from "@prisma/client"
 
-interface PlayerCardType {
-  playerName: string;
+interface PlayerPointProps {
+  playerPoint: PlayerPoint & {player: Player}
 }
 
-const PlayerCard: React.FC<PlayerCardType> = ({ playerName }) => {
-  const [goals, setGoals] = useState(0);
-  const [ownGoals, setOwnGoals] = useState(0);
-  const x: React.CSSProperties = { textAlign: 'center' };
-
+export const PlayerPointComponent = (playerPointProps : PlayerPointProps) => {
+  const {playerPoint} = playerPointProps;
   const handleGoalClick = () => {
-    setGoals(goals + 1);
+
   };
 
   const handleOwnGoalClick = () => {
-    setOwnGoals(ownGoals + 1);
+
   };
 
   return (
     <div style={styles.card}>
-      <h3 style={styles.playerName}>{playerName}</h3>
-      <p style={styles.stat}>Goals: {goals}</p>
-      <p style={styles.stat}>Own Goals: {ownGoals}</p>
+      <h3 style={styles.playerName}>{playerPoint.player.name}</h3>
       <div style={styles.buttonContainer}>
         <button style={styles.button} onClick={handleGoalClick}>
           Goal
@@ -72,4 +68,4 @@ const styles: Record<string, React.CSSProperties> = {
   }
 };
 
-export default PlayerCard;
+export default PlayerPoint;
