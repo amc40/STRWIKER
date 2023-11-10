@@ -21,11 +21,16 @@ const mockPlayerData: Player[] = [
 ];
 
 const getData = async (): Promise<Player[]> => {
-  const response = await fetch( ((process.env.VERCEL_URL) ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000") + '/api/players', {
-    headers: {
-      'Content-Type': 'application/json'
+  const response = await fetch(
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000') + '/api/players',
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     }
-  });
+  );
   const dbData = (await response.json()) as Player[];
   return dbData.map((player) => ({
     name: player.name ?? 'NONE',
