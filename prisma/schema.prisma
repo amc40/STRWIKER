@@ -58,7 +58,7 @@ model PlayerPoint {
   id       Int    @id @default(autoincrement())
   player   Player @relation(fields: [playerId], references: [id])
   point    Point  @relation(fields: [pointId], references: [id])
-  position Int
+  position Int // 0 is against the wall
   // Red || Blue
   team     Team
 
