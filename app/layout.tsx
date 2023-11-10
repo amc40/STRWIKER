@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import Nav from './nav';
 import Toast from './toast';
 import { Suspense } from 'react';
+import Script from 'next/script';
 
 export const metadata = {
   title: 'Next.js 13 + PlanetScale + NextAuth + Tailwind CSS',
@@ -25,6 +26,7 @@ export default async function RootLayout({
         {children}
         <Analytics />
         <Toast />
+        <Script type="module" src="vanilla-tilt.js" strategy="lazyOnload" />
       </body>
     </html>
   );
