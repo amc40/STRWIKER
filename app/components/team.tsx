@@ -13,6 +13,7 @@ interface TeamProps {
 
 export const Team: React.FC<TeamProps> = (teamProps: TeamProps) => {
   const { team, playerPoints } = teamProps;
+  const positions = playerPoints.map(p => p.position).sort()
   return (
     <div
       style={{
@@ -28,6 +29,7 @@ export const Team: React.FC<TeamProps> = (teamProps: TeamProps) => {
           <PlayerPointComponent
             key={playerPoint.id}
             playerPoint={playerPoint}
+            positions={positions}
           />
         ))}
       </ul>

@@ -12,9 +12,6 @@ model Player {
   id           Int           @id @default(autoincrement())
   name         String
   playerPoints PlayerPoint[]
-  gameId       Int?
-
-  @@index([gameId])
 }
 
 model Game {

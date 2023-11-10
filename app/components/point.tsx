@@ -11,10 +11,10 @@ export const PointComponent = async (pointProps: IPointProps) => {
 
   const point = pointProps.point;
   const bluePlayerPoints = point.playerPoints.filter(
-    (playerPoint) => playerPoint.team == 'blue'
+    (playerPoint) => playerPoint.team == 'Blue'
   );
   const redPlayerPoints = point.playerPoints.filter(
-    (playerPoint) => playerPoint.team == 'red'
+    (playerPoint) => playerPoint.team == 'Red'
   );
 
   return (

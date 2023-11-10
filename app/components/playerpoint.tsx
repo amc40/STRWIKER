@@ -3,10 +3,11 @@ import { Player, PlayerPoint } from '@prisma/client';
 
 interface PlayerPointProps {
   playerPoint: PlayerPoint & { player: Player };
+  positions: number[]
 }
 
 export const PlayerPointComponent = (playerPointProps: PlayerPointProps) => {
-  const { playerPoint } = playerPointProps;
+  const { playerPoint, positions } = playerPointProps;
   const handleGoalClick = () => {};
 
   const handleOwnGoalClick = () => {};
@@ -22,6 +23,14 @@ export const PlayerPointComponent = (playerPointProps: PlayerPointProps) => {
           Own Goal
         </button>
       </div>
+      <select
+        onChange={(e) => {console.log(playerPoint.id);console.log(e.target.value)}}
+        defaultValue={playerPoint.position}
+      >
+        {positions.map((pos, idx) => (
+          <option key={idx}>{pos}</option>
+        ))}
+      </select>
     </div>
   );
 };
