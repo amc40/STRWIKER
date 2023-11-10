@@ -7,9 +7,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @db.VarChar(255)
-  name     String? @db.VarChar(255)
-  username String? @db.VarChar(255)
+model Player {
+  id           Int           @id @default(autoincrement())
+  name         String
+  playerPoints PlayerPoint[]
+}
+
+model Game {
+  id             Int      @id @default(autoincrement())
+  date           DateTime @default(now())
+  currentPoint   Point?    @relation(name: "currentPoint", fields: [currentPointId], references: [id])
+  currentPointId Int?      @unique
+  points         Point[]  @relation(name: "pointGame")
+}
+
+model Point {
+  id           Int           @id @default(autoincrement())
+  game         Game          @relation(name: "pointGame", fields: [gameId], references: [id])
+  playerPoints PlayerPoint[]
+  currentRedScore    Int
+  currentBlueScore   Int
+  startTime DateTime @default(now())
+  endTime DateTime?
+
+  gameId       Int
+  gameIfCurrentPoint Game? @relation("currentPoint")
+}
+
+model PlayerPoint {
+  id       Int    @id @default(autoincrement())
+  player   Player @relation(fields: [playerId], references: [id])
+  point    Point  @relation(fields: [pointId], references: [id])
+  // Def | Atk | All | Off
+  position String
+  // Red || Blue
+  team     String
+
+  scoredAtOpponent  Boolean
+  ownGoal Boolean
+
+  rattled Boolean
+
+  playerId Int
+  pointId  Int
 }
