@@ -70,4 +70,17 @@ export class StatsEngineFwoar {
   getOwnVsIntentionalGoalRatio(playerStats: PlayerPointStats[]) {
     return this.getTotalOwnGoals(playerStats) / this.getTotalGoals(playerStats);
   }
+
+  updateElo(winnerElo: number, loserElo: number) {
+    const K = 32;
+    const expectedScoreWinner =
+      1 / (1 + Math.pow(10, (loserElo - winnerElo) / 400));
+    const expectedScoreLoser =
+      1 / (1 + Math.pow(10, (winnerElo - loserElo) / 400));
+
+    const newWinnerElo = winnerElo + K * (1 - expectedScoreWinner);
+    const newLoserElo = loserElo + K * (0 - expectedScoreLoser);
+
+    return [newWinnerElo, newLoserElo];
+  }
 }

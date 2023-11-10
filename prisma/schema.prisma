@@ -13,6 +13,7 @@ model Player {
   name         String
   playerPoints PlayerPoint[]
   gameId       Int?
+  elo  Int @default(1200)
 
   @@index([gameId])
 }
