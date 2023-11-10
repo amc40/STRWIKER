@@ -1,8 +1,8 @@
-import { Game, Player, PlayerPoint, Point, Prisma } from '@prisma/client';
+import { Game } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 export class GameLogicService {
   startGame() {
-    prisma.game.create({ data: { currentPoint: undefined } });
+    prisma.game.create({ data: { completed: false } });
   }
 
   createPlayer(name: string) {
