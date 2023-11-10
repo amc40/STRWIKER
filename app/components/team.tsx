@@ -3,6 +3,7 @@ import PlayerCard from "./playercard";
 export interface TeamMember {
   id: number;
   name: string;
+  photo: string;
 }
 
 interface TeamProps {
@@ -23,7 +24,7 @@ export const Team: React.FC<TeamProps> = ({ teamName, members }) => (
     <h2>{teamName}</h2>
     <ul>
       {members.map((member) => (
-        <PlayerCard key={member.id} playerName={member.name} />
+        <PlayerCard key={member.id} playerName={member.name} photoUrl={member.photo} />
       ))}
     </ul>
   </div>
