@@ -1,5 +1,6 @@
-import { Game } from '@prisma/client';
+import { Game, Player, PlayerPoint, Point, Prisma } from '@prisma/client';
 import prisma from '../../lib/planetscale';
+import { getPlayerFromPlayerPoint, getPointFromPlayerPoint } from './dbService';
 
 export class GameLogicService {
   startGame() {
@@ -74,4 +75,40 @@ export class GameLogicService {
       data: { currentRedScore, currentBlueScore, gameId: game.id }
     });
   }
+
+  async scoreGoal(playerPoint: PlayerPoint, ownGoal: boolean) {
+    prisma.playerPoint.update({
+      where: {
+        id: playerPoint.id
+      },
+      data: {
+        scoredGoal: !ownGoal,
+        ownGoal: ownGoal
+      }
+    });
+
+    const scoringTeam = ownGoal
+      ? playerPoint.team
+      : opposingTeam(playerPoint.team);
+    const currentPoint = await getPointFromPlayerPoint(playerPoint);
+    currentPoint;
+    prisma.point.create({
+      data: {
+        currentBlueScore:
+          currentPoint.currentBlueScore + (scoringTeam === 'Blue' ? 1 : 0),
+        currentRedScore:
+          currentPoint.currentRedScore + (scoringTeam === 'Red' ? 1 : 0),
+        gameId: currentPoint.gameId
+      }
+    });
+  }
+}
+
+function opposingTeam(team: string) {
+  return team === 'red' ? 'blue' : 'red';
+}
+
+enum TeamScore {
+  currentRedScore = 'currentRedScore',
+  currentBlueScore = 'currentBlueScore'
 }
