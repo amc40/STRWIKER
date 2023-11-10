@@ -3,6 +3,7 @@ import React from 'react';
 import { getEnvironmentData } from 'worker_threads';
 import Image from 'next/image';
 import prisma from '../../lib/planetscale';
+import { getApiUrl } from '../api/helpers';
 
 interface Player {
   name: string;
@@ -21,16 +22,7 @@ const mockPlayerData: Player[] = [
 ];
 
 const getData = async (): Promise<Player[]> => {
-  console.log(
-    'URL TO FETCH',
-    (process.env.NEXT_PUBLIC_VERCEL_URL
-      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-      : 'http://localhost:3000') + '/api/players'
-  );
-  const response = await fetch(
-    (process.env.NEXT_PUBLIC_VERCEL_URL
-      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-      : 'http://localhost:3000') + '/api/players',
+  const response = await fetch(getApiUrl("/players"),
     {
       headers: {
         'Content-Type': 'application/json'
