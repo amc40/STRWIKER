@@ -1,28 +1,28 @@
 {
-    "client": "Thunder Client",
-    "collectionName": "strwiker-dev",
-    "dateExported": "2023-11-10T16:56:58.788Z",
-    "version": "1.1",
-    "folders": [],
-    "requests": [
-        {
-            "_id": "94dff68b-587f-40c4-b896-e7a994ba7055",
-            "colId": "fd84eaec-9515-4eb8-a59d-ae4837ab370a",
-            "containerId": "",
-            "name": "http://localhost:3000/api/players",
-            "url": "http://localhost:3000/api/players",
-            "method": "POST",
-            "sortNum": 10000,
-            "created": "2023-11-10T16:53:48.977Z",
-            "modified": "2023-11-10T16:53:48.977Z",
-            "headers": [],
-            "params": [],
-            "body": {
-                "type": "json",
-                "raw": "{\n  \"name\": \"Alan\"\n}",
-                "form": []
-            },
-            "tests": []
-        }
-    ]
+  "client": "Thunder Client",
+  "collectionName": "strwiker-dev",
+  "dateExported": "2023-11-10T16:56:58.788Z",
+  "version": "1.1",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "94dff68b-587f-40c4-b896-e7a994ba7055",
+      "colId": "fd84eaec-9515-4eb8-a59d-ae4837ab370a",
+      "containerId": "",
+      "name": "http://localhost:3000/api/players",
+      "url": "http://localhost:3000/api/players",
+      "method": "POST",
+      "sortNum": 10000,
+      "created": "2023-11-10T16:53:48.977Z",
+      "modified": "2023-11-10T16:53:48.977Z",
+      "headers": [],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Alan\"\n}",
+        "form": []
+      },
+      "tests": []
+    }
+  ]
 }
