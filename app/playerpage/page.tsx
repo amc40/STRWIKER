@@ -1,7 +1,5 @@
 'use client';
 
-import { Card, Metric, Text, Title, BarList, Flex, Grid } from '@tremor/react';
-import Chart from './chart';
 import { TeamMember, Team } from '../components/team';
 
 const teamBlueMembers: TeamMember[] = [
