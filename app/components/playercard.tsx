@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 
-const PlayerCard = ({ playerName, photoUrl }) => {
+interface PlayerCardType {
+  playerName: string;
+  photoUrl: string;
+}
+
+const PlayerCard: React.FC<PlayerCardType> = ({ playerName, photoUrl }) => {
   const [goals, setGoals] = useState(0);
   const [ownGoals, setOwnGoals] = useState(0);
 
