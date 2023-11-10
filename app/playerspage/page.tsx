@@ -16,15 +16,15 @@ export default function PlayersPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleAddPlayer = () => {
-    if (newPlayerName === '') return;
-    if (players.some((player) => player.name === newPlayerName)) {
+    if (newPlayerName.trim() === '') return;
+    if (players.some((player) => player.name.toLowerCase().trim() === newPlayerName.toLowerCase().trim())) {
       setNewPlayerName('');
       return;
     }
     
     const newPlayer = {
       id: players.length + 1,
-      name: newPlayerName,
+      name: newPlayerName.charAt(0).toUpperCase() + newPlayerName.slice(1).toLowerCase().trim()
     };
 
     setPlayers([...players, newPlayer]);
