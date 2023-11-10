@@ -17,9 +17,9 @@ export class GameLogicService {
 
   async reorderPlayerPoint(
     reorderPlayerPoint: PlayerPoint,
-    oldPosition: number,
     newPosition: number
   ) {
+    const oldPosition = reorderPlayerPoint.position;
     if (newPosition > oldPosition) {
       // pushing it back
       const playerPoints = await prisma.playerPoint.findMany({
