@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Player {
@@ -15,23 +16,27 @@ model Player {
 
 model Game {
   id             Int      @id @default(autoincrement())
-  date           DateTime @default(now())
-  currentPoint   Point?    @relation(name: "currentPoint", fields: [currentPointId], references: [id])
-  currentPointId Int?      @unique
+  startTime      DateTime @default(now())
+  currentPoint   Point?   @relation(name: "currentPoint", fields: [currentPointId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  currentPointId Int?     @unique
   points         Point[]  @relation(name: "pointGame")
+  @@index([startTime])
 }
 
 model Point {
-  id           Int           @id @default(autoincrement())
-  game         Game          @relation(name: "pointGame", fields: [gameId], references: [id])
-  playerPoints PlayerPoint[]
-  currentRedScore    Int
-  currentBlueScore   Int
-  startTime DateTime @default(now())
-  endTime DateTime?
+  id               Int           @id @default(autoincrement())
+  game             Game          @relation(name: "pointGame", fields: [gameId], references: [id])
+  playerPoints     PlayerPoint[]
+  currentRedScore  Int
+  currentBlueScore Int
+  startTime        DateTime      @default(now())
+  endTime          DateTime?
 
-  gameId       Int
+  gameId             Int
   gameIfCurrentPoint Game? @relation("currentPoint")
+  @@index([gameId])
+  @@index([gameId, startTime])
+
 }
 
 model PlayerPoint {
@@ -43,11 +48,14 @@ model PlayerPoint {
   // Red || Blue
   team     String
 
-  scoredAtOpponent  Boolean
-  ownGoal Boolean
+  scoredAtOpponent Boolean
+  ownGoal          Boolean
 
   rattled Boolean
 
   playerId Int
   pointId  Int
+
+  @@index([playerId])
+  @@index([pointId])
 }
