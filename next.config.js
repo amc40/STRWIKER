@@ -1,5 +1,5 @@
 const { queryComplexityPlugin } = require('nexus');
-const CopyPlugin = require("copy-webpack-plugin");
+const CopyPlugin = require('copy-webpack-plugin');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -12,11 +12,9 @@ const nextConfig = {
   webpack: (config) => {
     config.plugins.push(
       new CopyPlugin({
-        patterns: [
-          { from: "node_modules/vanilla-tilt/dist", to: "../public" }
-        ]
+        patterns: [{ from: 'node_modules/vanilla-tilt/dist', to: '../public' }]
       })
-    )
+    );
 
     return config;
   }
