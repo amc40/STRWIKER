@@ -12,6 +12,9 @@ model Player {
   id           Int           @id @default(autoincrement())
   name         String
   playerPoints PlayerPoint[]
+  gameId       Int?
+
+  @@index([gameId])
 }
 
 model Game {
@@ -43,18 +46,21 @@ model Point {
   @@index([gameId, startTime])
 }
 
+enum Team {
+  Red
+  Blue
+}
+
 model PlayerPoint {
   id       Int    @id @default(autoincrement())
   player   Player @relation(fields: [playerId], references: [id])
   point    Point  @relation(fields: [pointId], references: [id])
-  // Def | Atk | All | Off
-  position String
+  position Int
   // Red || Blue
-  team     String
+  team     Team
 
   scoredGoal Boolean
   ownGoal    Boolean
-
   rattled Boolean
 
   playerId Int
