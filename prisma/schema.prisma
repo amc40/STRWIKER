@@ -14,7 +14,6 @@ model Player {
   playerPoints PlayerPoint[]
   gameId       Int?
   elo          Int           @default(1200)
-  Game         Game?         @relation(fields: [gameId], references: [id])
 
   @@index([gameId])
 }
