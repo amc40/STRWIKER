@@ -1,4 +1,4 @@
-name: Deploy a deploy request
+name: Push DB Schema changes
 on:
   push:
     branches:
@@ -16,7 +16,9 @@ jobs:
         with:
           node-version: latest
       
-      - name: Push DB Schema changes
-        run: DATABASE_URL="${{secrets.DATABASE_URL}}" npx prisma db push
+      - name: Push DB Schema changes with prisma
+        run: npx prisma db push
+        with:
+          DATABASE_URL: ${{secrets.DATABASE_URL}}
 
         
