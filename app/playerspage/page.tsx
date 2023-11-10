@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState } from 'react'
-
+import React, { useState } from 'react';
 
 export default function PlayersPage() {
   const [players, setPlayers] = useState([
@@ -9,7 +8,7 @@ export default function PlayersPage() {
     { id: 2, name: 'Jordan' },
     { id: 3, name: 'Ted' },
     { id: 4, name: 'Henry' },
-    { id: 5, name: 'Mike' },
+    { id: 5, name: 'Mike' }
   ]);
 
   const [newPlayerName, setNewPlayerName] = useState('');
@@ -17,14 +16,22 @@ export default function PlayersPage() {
 
   const handleAddPlayer = () => {
     if (newPlayerName.trim() === '') return;
-    if (players.some((player) => player.name.toLowerCase().trim() === newPlayerName.toLowerCase().trim())) {
+    if (
+      players.some(
+        (player) =>
+          player.name.toLowerCase().trim() ===
+          newPlayerName.toLowerCase().trim()
+      )
+    ) {
       setNewPlayerName('');
       return;
     }
-    
+
     const newPlayer = {
       id: players.length + 1,
-      name: newPlayerName.charAt(0).toUpperCase() + newPlayerName.slice(1).toLowerCase().trim()
+      name:
+        newPlayerName.charAt(0).toUpperCase() +
+        newPlayerName.slice(1).toLowerCase().trim()
     };
 
     setPlayers([...players, newPlayer]);
@@ -42,7 +49,6 @@ export default function PlayersPage() {
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
       <div style={{ backgroundColor: '#fff', padding: '20px' }}>
-
         <h1 style={{ fontSize: '30px' }}>Players</h1>
 
         <div>
@@ -58,16 +64,19 @@ export default function PlayersPage() {
               padding: '5px',
               border: '1px solid #EE2E31',
               borderRadius: '5px',
-              outline: 'none',
+              outline: 'none'
             }}
           />
-          <button onClick={handleAddPlayer} style={{
-            backgroundColor: '#004f98',
-            color: '#fff',
-            padding: '5px 10px', 
-            borderRadius: '5px', 
-            cursor: 'pointer',
-          }}>
+          <button
+            onClick={handleAddPlayer}
+            style={{
+              backgroundColor: '#004f98',
+              color: '#fff',
+              padding: '5px 10px',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
             Add Player
           </button>
         </div>
@@ -82,7 +91,7 @@ export default function PlayersPage() {
             marginRight: '5px',
             padding: '5px',
             borderRadius: '5px',
-            outline: 'none', 
+            outline: 'none'
           }}
         />
 
@@ -94,7 +103,7 @@ export default function PlayersPage() {
                 color: index % 2 === 0 ? '#004f98' : '#EE2E31',
                 marginBottom: '10px',
                 borderBottom: '1px solid #000',
-                paddingBottom: '5px',
+                paddingBottom: '5px'
               }}
             >
               {player.name}
@@ -104,4 +113,4 @@ export default function PlayersPage() {
       </div>
     </main>
   );
-};
+}
