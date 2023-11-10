@@ -1,6 +1,10 @@
-import { Game, Player, PlayerPoint, Point, Prisma } from '@prisma/client';
+import { Game, Player, PlayerPoint, Point, Prisma, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
-import { getPlayerFromPlayerPoint, getPointFromPlayerPoint } from './dbService';
+import {
+  getAllPlayerPointsByPoint,
+  getPlayerFromPlayerPoint,
+  getPointFromPlayerPoint
+} from './dbService';
 
 export class GameLogicService {
   startGame() {
@@ -12,19 +16,10 @@ export class GameLogicService {
   }
 
   async reorderPlayerPoint(
-    id: number,
+    reorderPlayerPoint: PlayerPoint,
     oldPosition: number,
     newPosition: number
   ) {
-    prisma.playerPoint.update({
-      where: {
-        id
-      },
-      data: {
-        position: newPosition
-      }
-    });
-
     if (newPosition > oldPosition) {
       // pushing it back
       const playerPoints = await prisma.playerPoint.findMany({
@@ -32,7 +27,9 @@ export class GameLogicService {
           AND: [
             { position: { gt: oldPosition } },
             { position: { lte: newPosition } }
-          ]
+          ],
+          pointId: reorderPlayerPoint.pointId,
+          team: reorderPlayerPoint.team
         }
       });
 
@@ -53,7 +50,9 @@ export class GameLogicService {
           AND: [
             { position: { lt: oldPosition } },
             { position: { gte: newPosition } }
-          ]
+          ],
+          pointId: reorderPlayerPoint.pointId,
+          team: reorderPlayerPoint.team
         }
       });
 
@@ -68,6 +67,15 @@ export class GameLogicService {
         });
       });
     }
+
+    prisma.playerPoint.update({
+      where: {
+        id: reorderPlayerPoint.id
+      },
+      data: {
+        position: newPosition
+      }
+    });
   }
 
   createPoint(currentRedScore: number, currentBlueScore: number, game: Game) {
@@ -90,25 +98,48 @@ export class GameLogicService {
     const scoringTeam = ownGoal
       ? playerPoint.team
       : opposingTeam(playerPoint.team);
-    const currentPoint = await getPointFromPlayerPoint(playerPoint);
-    currentPoint;
-    prisma.point.create({
+    const finishedPoint = await getPointFromPlayerPoint(playerPoint);
+    finishedPoint;
+    const newPoint = await prisma.point.create({
       data: {
         currentBlueScore:
-          currentPoint.currentBlueScore + (scoringTeam === 'Blue' ? 1 : 0),
+          finishedPoint.currentBlueScore + (scoringTeam === 'Blue' ? 1 : 0),
         currentRedScore:
-          currentPoint.currentRedScore + (scoringTeam === 'Red' ? 1 : 0),
-        gameId: currentPoint.gameId
+          finishedPoint.currentRedScore + (scoringTeam === 'Red' ? 1 : 0),
+        gameId: finishedPoint.gameId
       }
     });
+    const oldPlayerPoints = await getAllPlayerPointsByPoint(finishedPoint);
+    const newPlayerPoints = await Promise.all(
+      oldPlayerPoints.map(async (playerPoint) => {
+        return await prisma.playerPoint.create({
+          data: {
+            playerId: playerPoint.playerId,
+            pointId: newPoint.id,
+            ownGoal: false,
+            scoredGoal: false,
+            rattled: false,
+            team: playerPoint.team,
+            position: playerPoint.position
+          }
+        });
+      })
+    );
+
+    const redPlayers = newPlayerPoints.filter(
+      (playerPoint) => playerPoint.team === Team.Red
+    );
+    const bluePlayers = newPlayerPoints.filter(
+      (playerPoint) => playerPoint.team === Team.Blue
+    );
+  }
+
+  async rotatePlayers(playerPoints: PlayerPoint[]) {
+    playerPoints.sort((a, b) => a.position - b.position);
+    this.reorderPlayerPoint(playerPoints[0], 0, playerPoints.length - 1);
   }
 }
 
 function opposingTeam(team: string) {
   return team === 'red' ? 'blue' : 'red';
-}
-
-enum TeamScore {
-  currentRedScore = 'currentRedScore',
-  currentBlueScore = 'currentBlueScore'
 }
