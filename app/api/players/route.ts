@@ -1,5 +1,7 @@
+import { NextResponse } from 'next/server';
 import prisma from '../../../lib/planetscale';
 import { Player } from '@prisma/client';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 type RequestData = {
   name: string;
@@ -13,4 +15,9 @@ export const POST = async function handler(req: Request) {
   });
 
   return Response.json(player as ResponseData);
+};
+
+export const GET = async function handler(req: Request) {
+  const players = await prisma.player.findMany();
+  return Response.json(players as Player[]);
 };

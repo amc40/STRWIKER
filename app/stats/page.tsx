@@ -2,6 +2,7 @@ import { NormalizeError } from 'next/dist/shared/lib/utils';
 import React from 'react';
 import { getEnvironmentData } from 'worker_threads';
 import Image from 'next/image';
+import prisma from '../../lib/planetscale';
 
 interface Player {
   name: string;
@@ -19,8 +20,19 @@ const mockPlayerData: Player[] = [
   { name: 'emma', rarity: 1, gamesPlayed: 15, wins: 9 }
 ];
 
-const getData = async () => {
-  return mockPlayerData;
+const getData = async (): Promise<Player[]> => {
+  const response = await fetch(process.env.NEXTAUTH_URL + '/api/players', {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  const dbData = (await response.json()) as Player[];
+  return dbData.map((player) => ({
+    name: player.name ?? 'NONE',
+    rarity: 0,
+    gamesPlayed: 99,
+    wins: 5
+  }));
 };
 
 export default async function Stats() {
