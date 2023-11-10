@@ -7,7 +7,7 @@ interface PlayerCardType {
 const PlayerCard: React.FC<PlayerCardType> = ({ playerName }) => {
   const [goals, setGoals] = useState(0);
   const [ownGoals, setOwnGoals] = useState(0);
-  const x: React.CSSProperties = {textAlign: 'center'}
+  const x: React.CSSProperties = { textAlign: 'center' };
 
   const handleGoalClick = () => {
     setGoals(goals + 1);

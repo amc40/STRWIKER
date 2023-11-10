@@ -23,10 +23,7 @@ export const Team: React.FC<TeamProps> = ({ teamName, members }) => (
     <h2>{teamName}</h2>
     <ul>
       {members.map((member) => (
-        <PlayerCard
-          key={member.id}
-          playerName={member.name}
-        />
+        <PlayerCard key={member.id} playerName={member.name} />
       ))}
     </ul>
   </div>
