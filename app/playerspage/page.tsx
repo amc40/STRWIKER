@@ -1,15 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
+import { Player } from '@prisma/client';
+import React, { useEffect, useState } from 'react';
+import { getApiUrl } from '../api/helpers';
+
+const getData = async (): Promise<Player[]> => {
+  const response = await fetch(getApiUrl("/players"),
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  return (await response.json()) as Player[];
+};
 
 export default function PlayersPage() {
-  const [players, setPlayers] = useState([
-    { id: 1, name: 'Emma' },
-    { id: 2, name: 'Jordan' },
-    { id: 3, name: 'Ted' },
-    { id: 4, name: 'Henry' },
-    { id: 5, name: 'Mike' }
-  ]);
+  const [players, setPlayers] = useState<Player[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await getData();
+      setPlayers(data);
+    };
+    loadData();
+  }, []);
 
   const [newPlayerName, setNewPlayerName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +46,8 @@ export default function PlayersPage() {
       id: players.length + 1,
       name:
         newPlayerName.charAt(0).toUpperCase() +
-        newPlayerName.slice(1).toLowerCase().trim()
+        newPlayerName.slice(1).toLowerCase().trim(),
+      gameId: null,
     };
 
     setPlayers([...players, newPlayer]);
