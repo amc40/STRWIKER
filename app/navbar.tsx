@@ -9,9 +9,9 @@ import Image from 'next/image';
 
 const navigation = [
   { name: 'Dashboard', href: '/' },
-  { name: 'PlayerPage', href: '/playerpage' },
+  { name: 'Current Game', href: '/current-game' },
   { name: 'Stats Cards', href: '/stats' },
-  { name: 'PlayersPage', href: '/playerspage' }
+  { name: 'PlayersPage', href: '/playerspage' },
 ];
 
 function classNames(...classes: string[]) {

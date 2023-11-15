@@ -18,6 +18,14 @@ export const POST = async function handler(req: Request) {
 };
 
 export const GET = async function handler(req: Request) {
-  const players = await prisma.player.findMany();
+  const players = await prisma.player.findMany({
+    orderBy: [{
+      name: 'asc',
+    },
+    {
+      id: 'asc',
+    }
+    ],
+  });
   return Response.json(players as Player[]);
 };

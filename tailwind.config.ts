@@ -11,6 +11,10 @@ export default {
     current: 'currentColor',
     extend: {
       colors: {
+        team: {
+          red: '#EE2E31',
+          blue: '#004f98',
+        },
         // light mode
         tremor: {
           brand: {
