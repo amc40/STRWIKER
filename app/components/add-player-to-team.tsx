@@ -2,11 +2,11 @@
 
 import { $Enums, Player } from '@prisma/client';
 import { FC, useEffect, useState, useTransition } from 'react';
-import { addPlayerToCurrentGame } from '../../lib/actions';
 import { useRouter } from 'next/navigation';
 import Modal from './modal';
-import fetchPlayers from '../../lib/fetchPlayers';
 import { PlayerInfo } from '../current-game/page';
+import { getPlayers } from '../../lib/Player.actions';
+import { addPlayerToCurrentGame } from '../../lib/Game.actions';
 
 interface AddPlayerToTeamProps {
   team: $Enums.Team;
@@ -35,7 +35,7 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await fetchPlayers();
+      const data = await getPlayers();
       setPlayers(data);
     };
     loadData();
