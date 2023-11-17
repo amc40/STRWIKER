@@ -1,16 +1,25 @@
 'use client';
-import { $Enums, Player } from '@prisma/client';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { $Enums } from '@prisma/client';
+import { FC, useEffect, useState } from 'react';
 import { PlayerInfo, playerPointWithPlayerToPlayerInfo } from './page';
 import { experimental_useOptimistic as useOptimistic } from 'react';
 import { Team } from '../components/team';
 import AddPlayerToTeam from '../components/add-player-to-team';
+import { ClearCurrentGamePlayers } from '../components/clear-current-game-players';
 import {
   addPlayerToCurrentGame,
+  clearCurrentGamePlayers,
   getCurrentGameInfo
 } from '../../lib/Game.actions';
 
 const MS_BETWEEN_REFRESHES = 1000;
+
+enum OptimisticAction {
+  ADD,
+  CLEAR
+}
+
+type SetOptimisticPlayerArgs = {action: OptimisticAction.ADD; player: PlayerInfo} | {action: OptimisticAction.CLEAR, player: undefined}
 
 export const PlayerPage: FC<{
   serverRedScore: number;
@@ -36,9 +45,21 @@ export const PlayerPage: FC<{
     return () => clearInterval(refreshInterval);
   }, []);
 
-  const [optimisticPlayers, addOptimisticPlayer] = useOptimistic(
+  const [optimisticPlayers, setOptimisticPlayers] = useOptimistic(
     players,
-    (state: PlayerInfo[], newPlayer: PlayerInfo) => [...state, newPlayer]
+    (
+      state: PlayerInfo[],
+      { action, player }: SetOptimisticPlayerArgs
+    ) => {
+      switch (action) {
+        case OptimisticAction.ADD:
+          return [...state, player];
+        case OptimisticAction.CLEAR:
+          return [];
+        default:
+          return [];
+      }
+    }
   );
 
   const addPlayer = async (
@@ -46,40 +67,55 @@ export const PlayerPage: FC<{
     playerName: string,
     team: $Enums.Team
   ) => {
-    addOptimisticPlayer({
-      id: playerId,
-      name: playerName,
-      team
+    setOptimisticPlayers({
+      action: OptimisticAction.ADD,
+      player: {
+        id: playerId,
+        name: playerName,
+        team
+      }
     });
     await addPlayerToCurrentGame(playerId, team);
   };
 
+  const clearPlayers = async () => {
+    setOptimisticPlayers({ action: OptimisticAction.CLEAR });
+    await clearCurrentGamePlayers();
+  };
+
   return (
-    <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <div style={{ display: 'flex', height: '100vh' }}>
-        <Team
-          team={$Enums.Team.Blue}
-          members={optimisticPlayers.filter((player) => player.team === 'Blue')}
-          score={blueScore}
-        >
-          <AddPlayerToTeam
+    <>
+      <ClearCurrentGamePlayers clearPlayers={clearPlayers} />
+      <main className="p-4 md:p-10 mx-auto max-w-7xl">
+        <div style={{ display: 'flex', height: '100vh' }}>
+          <Team
             team={$Enums.Team.Blue}
-            addPlayer={addPlayer}
-            existingPlayers={players}
-          />
-        </Team>
-        <Team
-          team={$Enums.Team.Red}
-          members={optimisticPlayers.filter((player) => player.team === 'Red')}
-          score={redScore}
-        >
-          <AddPlayerToTeam
+            members={optimisticPlayers.filter(
+              (player) => player.team === 'Blue'
+            )}
+            score={blueScore}
+          >
+            <AddPlayerToTeam
+              team={$Enums.Team.Blue}
+              addPlayer={addPlayer}
+              existingPlayers={players}
+            />
+          </Team>
+          <Team
             team={$Enums.Team.Red}
-            addPlayer={addPlayer}
-            existingPlayers={players}
-          />
-        </Team>
-      </div>
-    </main>
+            members={optimisticPlayers.filter(
+              (player) => player.team === 'Red'
+            )}
+            score={redScore}
+          >
+            <AddPlayerToTeam
+              team={$Enums.Team.Red}
+              addPlayer={addPlayer}
+              existingPlayers={players}
+            />
+          </Team>
+        </div>
+      </main>
+    </>
   );
 };

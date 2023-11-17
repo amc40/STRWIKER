@@ -1,8 +1,8 @@
 'use server';
 
 import { $Enums, Game, Player, PlayerPoint } from '@prisma/client';
-import { revalidatePath } from 'next/cache';
 import prisma from './planetscale';
+import { revalidatePath } from 'next/cache';
 
 export interface PlayerPointWithPlayer extends PlayerPoint {
   player: Player;
@@ -75,3 +75,15 @@ export const addPlayerToCurrentGame = async (
     }
   });
 };
+
+export const clearCurrentGamePlayers = async () => {
+    const currentGame = await getCurrentGame();
+      if (currentGame.currentPointId === null) {
+        throw new Error('current point id is null');
+      }
+    await prisma.playerPoint.deleteMany({
+        where: {
+            pointId: currentGame.currentPointId
+        }
+    })
+}
