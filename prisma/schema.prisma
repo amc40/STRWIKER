@@ -23,7 +23,7 @@ model Game {
   startTime      DateTime @default(now())
   currentPoint   Point?   @relation(name: "currentPoint", fields: [currentPointId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   currentPointId Int?     @unique
-  completed      Boolean
+  completed      Boolean  @default(false)
   finalScoreRed  Int?
   finalScoreBlue Int?
   points         Point[]  @relation(name: "pointGame")
@@ -37,8 +37,8 @@ model Point {
   id               Int           @id @default(autoincrement())
   game             Game          @relation(name: "pointGame", fields: [gameId], references: [id])
   playerPoints     PlayerPoint[]
-  currentRedScore  Int
-  currentBlueScore Int
+  currentRedScore  Int           @default(0)
+  currentBlueScore Int           @default(0)
   startTime        DateTime      @default(now())
   endTime          DateTime?
 
