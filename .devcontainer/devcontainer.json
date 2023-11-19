@@ -34,7 +34,9 @@
         "mtxr.sqltools",
         "mtxr.sqltools-driver-mysql",
         "hashicorp.terraform",
-        "rangav.vscode-thunder-client"
+        "rangav.vscode-thunder-client",
+        "Prisma.prisma",
+        "GitHub.vscode-github-actions"
       ]
     }
   }

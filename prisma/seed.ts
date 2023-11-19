@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { data } from 'autoprefixer';
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function populatePlayers() {
   [
     'Alan',
     'Ted',
@@ -21,6 +22,31 @@ async function main() {
         }
       })
   );
+}
+
+async function populateGames() {
+  const game = await prisma.game.create({
+    data: {}
+  });
+
+  const point = await prisma.point.create({
+    data: {
+      gameId: game.id
+    }
+  });
+
+  await prisma.game.update({
+    where: {
+      id: game.id
+    },
+    data: {
+      currentPointId: point.id
+    }
+  });
+}
+
+async function main() {
+  await Promise.all([populateGames(), populatePlayers()]);
 }
 
 main()
