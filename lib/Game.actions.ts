@@ -74,6 +74,4 @@ export const addPlayerToCurrentGame = async (
       pointId: currentGame.currentPointId
     }
   });
-
-  revalidatePath('/current-game');
 };

@@ -1,26 +1,21 @@
 'use client';
 
-import { $Enums, Player } from '@prisma/client';
+import { $Enums, Player, Team } from '@prisma/client';
 import { FC, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Modal from './modal';
 import { PlayerInfo } from '../current-game/page';
 import { getPlayers } from '../../lib/Player.actions';
-import { addPlayerToCurrentGame } from '../../lib/Game.actions';
 
 interface AddPlayerToTeamProps {
   team: $Enums.Team;
-  addOptimisticPlayer: (player: {
-    id: number;
-    name: string;
-    team: $Enums.Team;
-  }) => void;
+  addPlayer: (playerId: number, playerName: string, team: Team) => void;
   existingPlayers: PlayerInfo[];
 }
 
 const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
   team,
-  addOptimisticPlayer,
+  addPlayer,
   existingPlayers
 }) => {
   const [isPending, startTransition] = useTransition();
@@ -106,13 +101,7 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
                      }`}
                     onClick={async () => {
                       onClose();
-                      addOptimisticPlayer({
-                        id: player.id,
-                        name: player.name,
-                        team
-                      });
-                      await addPlayerToCurrentGame(player.id, team);
-                      router.refresh();
+                      addPlayer(player.id, player.name, team);
                     }}
                   >
                     {player.name}
