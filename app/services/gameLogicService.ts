@@ -2,7 +2,6 @@ import { Game, PlayerPoint, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   getAllPlayerPointsByPoint,
-  getPlayerFromPlayerPoint,
   getPointFromPlayerPoint
 } from './dbService';
 

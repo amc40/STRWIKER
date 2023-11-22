@@ -1,12 +1,12 @@
-'use server'
+'use server';
 
-import { Player, Prisma } from "@prisma/client";
-import prisma from "./planetscale";
+import { Player, Prisma } from '@prisma/client';
+import prisma from './planetscale';
 
-export const addPlayer = async ({name}: Prisma.PlayerCreateInput) => {
-  const player = await prisma.player.create({
+export const addPlayer = async ({ name }: Prisma.PlayerCreateInput) => {
+  await prisma.player.create({
     data: {
-     name,   
+      name
     }
   });
 };

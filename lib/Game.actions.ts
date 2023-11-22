@@ -2,7 +2,6 @@
 
 import { $Enums, Game, Player, PlayerPoint } from '@prisma/client';
 import prisma from './planetscale';
-import { revalidatePath } from 'next/cache';
 
 export interface PlayerPointWithPlayer extends PlayerPoint {
   player: Player;
