@@ -1,12 +1,13 @@
 'use client';
 import { $Enums } from '@prisma/client';
 import { FC, useEffect, useState } from 'react';
-import { PlayerInfo, playerPointWithPlayerToPlayerInfo } from './page';
+import { PlayerInfo } from './page';
 import { experimental_useOptimistic as useOptimistic } from 'react';
 import { Team } from '../components/team';
 import AddPlayerToTeam from '../components/add-player-to-team';
 import { ClearCurrentGamePlayers } from '../components/clear-current-game-players';
 import {
+  PlayerPointWithPlayer,
   addPlayerToCurrentGame,
   clearCurrentGamePlayers,
   getCurrentGameInfo
@@ -19,7 +20,17 @@ enum OptimisticAction {
   CLEAR
 }
 
-type SetOptimisticPlayerArgs = {action: OptimisticAction.ADD; player: PlayerInfo} | {action: OptimisticAction.CLEAR, player: undefined}
+type SetOptimisticPlayerArgs =
+  | { action: OptimisticAction.ADD; player: PlayerInfo }
+  | { action: OptimisticAction.CLEAR; player: undefined };
+
+export const playerPointWithPlayerToPlayerInfo = (
+  playerPoint: PlayerPointWithPlayer
+) => ({
+  id: playerPoint.playerId,
+  name: playerPoint.player.name,
+  team: playerPoint.team
+});
 
 export const PlayerPage: FC<{
   serverRedScore: number;
@@ -47,10 +58,7 @@ export const PlayerPage: FC<{
 
   const [optimisticPlayers, setOptimisticPlayers] = useOptimistic(
     players,
-    (
-      state: PlayerInfo[],
-      { action, player }: SetOptimisticPlayerArgs
-    ) => {
+    (state: PlayerInfo[], { action, player }: SetOptimisticPlayerArgs) => {
       switch (action) {
         case OptimisticAction.ADD:
           return [...state, player];
@@ -79,7 +87,7 @@ export const PlayerPage: FC<{
   };
 
   const clearPlayers = async () => {
-    setOptimisticPlayers({ action: OptimisticAction.CLEAR });
+    setOptimisticPlayers({ action: OptimisticAction.CLEAR, player: undefined });
     await clearCurrentGamePlayers();
   };
 
