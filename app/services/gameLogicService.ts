@@ -8,7 +8,10 @@ import {
 
 export class GameLogicService {
   startGame() {
-    prisma.game.create({ data: { completed: false } });
+    // TODO: set rotaty dependant on number of players
+    prisma.game.create({
+      data: { completed: false, rotatyBlue: true, rotatyRed: true }
+    });
   }
 
   createPlayer(name: string) {
