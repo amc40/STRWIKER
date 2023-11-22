@@ -26,7 +26,10 @@ async function populatePlayers() {
 
 async function populateGames() {
   const game = await prisma.game.create({
-    data: {}
+    data: {
+      rotatyBlue: true,
+      rotatyRed: true
+    }
   });
 
   const point = await prisma.point.create({

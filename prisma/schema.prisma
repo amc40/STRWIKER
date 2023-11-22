@@ -10,10 +10,12 @@ datasource db {
 
 model Player {
   id           Int           @id @default(autoincrement())
-  name         String
+  name         String        @unique
   playerPoints PlayerPoint[]
   gameId       Int?
+  // Stats !!!
   elo          Int           @default(1200)
+  gamesPlayed  Int           @default(0)
 
   @@index([gameId])
 }
@@ -27,6 +29,7 @@ model Game {
   finalScoreRed  Int?
   finalScoreBlue Int?
   points         Point[]  @relation(name: "pointGame")
+  // TODO: use rotaty strategy (yes, no, on-lose as enum)
   rotatyRed      Boolean
   rotatyBlue     Boolean
 
@@ -34,16 +37,15 @@ model Game {
 }
 
 model Point {
-  id               Int           @id @default(autoincrement())
-  game             Game          @relation(name: "pointGame", fields: [gameId], references: [id])
-  playerPoints     PlayerPoint[]
-  currentRedScore  Int           @default(0)
-  currentBlueScore Int           @default(0)
-  startTime        DateTime      @default(now())
-  endTime          DateTime?
-
+  id                 Int           @id @default(autoincrement())
+  game               Game          @relation(name: "pointGame", fields: [gameId], references: [id])
+  playerPoints       PlayerPoint[]
+  currentRedScore    Int           @default(0)
+  currentBlueScore   Int           @default(0)
+  startTime          DateTime      @default(now())
+  endTime            DateTime?
   gameId             Int
-  gameIfCurrentPoint Game? @relation("currentPoint")
+  gameIfCurrentPoint Game?         @relation("currentPoint")
 
   @@index([gameId])
   @@index([gameId, startTime])

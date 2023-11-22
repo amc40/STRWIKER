@@ -42,6 +42,7 @@ export const getCurrentGameInfo = async (): Promise<GameInfo> => {
   };
 };
 
+// TODO: account for new games. Could we filter by completed:false with a partial index?
 export const getCurrentGame = async (): Promise<Game> => {
   const currentGame = await prisma.game.findFirst({
     orderBy: {
@@ -77,13 +78,13 @@ export const addPlayerToCurrentGame = async (
 };
 
 export const clearCurrentGamePlayers = async () => {
-    const currentGame = await getCurrentGame();
-      if (currentGame.currentPointId === null) {
-        throw new Error('current point id is null');
-      }
-    await prisma.playerPoint.deleteMany({
-        where: {
-            pointId: currentGame.currentPointId
-        }
-    })
-}
+  const currentGame = await getCurrentGame();
+  if (currentGame.currentPointId === null) {
+    throw new Error('current point id is null');
+  }
+  await prisma.playerPoint.deleteMany({
+    where: {
+      pointId: currentGame.currentPointId
+    }
+  });
+};
