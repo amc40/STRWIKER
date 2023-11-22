@@ -2,34 +2,26 @@
 
 import { Player } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
-import { getApiUrl } from '../api/helpers';
-
-const getData = async (): Promise<Player[]> => {
-  const response = await fetch(getApiUrl("/players"),
-    {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
-  );
-  return (await response.json()) as Player[];
-};
+import { addPlayer, getPlayers } from '../../lib/Player.actions';
 
 export default function PlayersPage() {
   const [players, setPlayers] = useState<Player[]>([]);
 
+  const populatePlayers = async () => {
+    const players = await getPlayers();
+    setPlayers(players);
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      const data = await getData();
-      setPlayers(data);
-    };
-    loadData();
+    const interval = setInterval(populatePlayers, 1000);
+    populatePlayers();
+    return () => clearInterval(interval);
   }, []);
 
   const [newPlayerName, setNewPlayerName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const handleAddPlayer = () => {
+  const handleAddPlayer = async () => {
     if (newPlayerName.trim() === '') return;
     if (
       players.some(
@@ -38,19 +30,18 @@ export default function PlayersPage() {
           newPlayerName.toLowerCase().trim()
       )
     ) {
+      // TODO: display some kind of error
       setNewPlayerName('');
       return;
     }
 
-    const newPlayer = {
-      id: players.length + 1,
-      name:
-        newPlayerName.charAt(0).toUpperCase() +
-        newPlayerName.slice(1).toLowerCase().trim(),
-      gameId: null,
-    };
+    const formattedName =
+      newPlayerName.charAt(0).toUpperCase() +
+      newPlayerName.slice(1).toLowerCase().trim();
 
-    setPlayers([...players, newPlayer]);
+    // Maybe add a useOptimistic call here
+    await addPlayer({ name: formattedName });
+    populatePlayers();
     setNewPlayerName('');
   };
 
