@@ -1,13 +1,12 @@
 'use client';
 import { $Enums } from '@prisma/client';
 import { FC, useEffect, useState } from 'react';
-import { PlayerInfo } from './page';
 import { experimental_useOptimistic as useOptimistic } from 'react';
 import { Team } from '../components/team';
 import AddPlayerToTeam from '../components/add-player-to-team';
 import { ClearCurrentGamePlayers } from '../components/clear-current-game-players';
 import {
-  PlayerPointWithPlayer,
+  PlayerInfo,
   addPlayerToCurrentGame,
   clearCurrentGamePlayers,
   getCurrentGameInfo
@@ -24,14 +23,6 @@ type SetOptimisticPlayerArgs =
   | { action: OptimisticAction.ADD; player: PlayerInfo }
   | { action: OptimisticAction.CLEAR; player: undefined };
 
-export const playerPointWithPlayerToPlayerInfo = (
-  playerPoint: PlayerPointWithPlayer
-) => ({
-  id: playerPoint.playerId,
-  name: playerPoint.player.name,
-  team: playerPoint.team
-});
-
 export const PlayerPage: FC<{
   serverRedScore: number;
   serverBlueScore: number;
@@ -44,12 +35,9 @@ export const PlayerPage: FC<{
   // on initial render setup a function to refresh the current game info every MS_BETWEEN_REFRESHES
   useEffect(() => {
     const refreshInterval = setInterval(async () => {
-      const { playerPoints, redScore, blueScore } = await getCurrentGameInfo();
-      const playersFormatted = playerPoints.map(
-        playerPointWithPlayerToPlayerInfo
-      );
+      const { players, redScore, blueScore } = await getCurrentGameInfo();
 
-      setPlayers(playersFormatted);
+      setPlayers(players);
       setRedScore(redScore);
       setBlueScore(blueScore);
     }, MS_BETWEEN_REFRESHES);

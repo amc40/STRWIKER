@@ -1,22 +1,14 @@
-import { $Enums } from '@prisma/client';
-import { PlayerPage, playerPointWithPlayerToPlayerInfo } from './PlayerPage';
+import { PlayerPage } from './PlayerPage';
 import { getCurrentGameInfo } from '../../lib/Game.actions';
 
-export interface PlayerInfo {
-  id: number;
-  name: string;
-  team: $Enums.Team;
-}
-
 export default async function Page() {
-  const { playerPoints, redScore, blueScore } = await getCurrentGameInfo();
-  const playersFormatted = playerPoints.map(playerPointWithPlayerToPlayerInfo);
+  const { players, redScore, blueScore } = await getCurrentGameInfo();
 
   return (
     <PlayerPage
       serverRedScore={redScore}
       serverBlueScore={blueScore}
-      serverPlayers={playersFormatted}
+      serverPlayers={players}
     />
   );
 }

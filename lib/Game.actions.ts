@@ -7,8 +7,22 @@ export interface PlayerPointWithPlayer extends PlayerPoint {
   player: Player;
 }
 
+export interface PlayerInfo {
+  id: number;
+  name: string;
+  team: $Enums.Team;
+}
+
+export const playerPointWithPlayerToPlayerInfo = (
+  playerPoint: PlayerPointWithPlayer
+): PlayerInfo => ({
+  id: playerPoint.playerId,
+  name: playerPoint.player.name,
+  team: playerPoint.team
+});
+
 export interface GameInfo {
-  playerPoints: PlayerPointWithPlayer[];
+  players: PlayerInfo[];
   redScore: number;
   blueScore: number;
 }
@@ -35,7 +49,7 @@ export const getCurrentGameInfo = async (): Promise<GameInfo> => {
     }
   });
   return {
-    playerPoints: currentPointPlayers,
+    players: currentPointPlayers.map(playerPointWithPlayerToPlayerInfo),
     redScore: currentPoint.currentRedScore,
     blueScore: currentPoint.currentBlueScore
   };

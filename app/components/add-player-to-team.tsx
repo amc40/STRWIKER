@@ -4,8 +4,8 @@ import { $Enums, Player, Team } from '@prisma/client';
 import { FC, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Modal from './modal';
-import { PlayerInfo } from '../current-game/page';
 import { getPlayers } from '../../lib/Player.actions';
+import { PlayerInfo } from '../../lib/Game.actions';
 
 interface AddPlayerToTeamProps {
   team: $Enums.Team;
@@ -19,7 +19,6 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
   existingPlayers
 }) => {
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [players, setPlayers] = useState<Player[]>([]);
   const [playerFilter, setPlayerFilter] = useState('');
