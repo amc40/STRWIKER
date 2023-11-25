@@ -13,7 +13,7 @@ export default {
       colors: {
         team: {
           red: '#EE2E31',
-          blue: '#004f98',
+          blue: '#004f98'
         },
         // light mode
         tremor: {

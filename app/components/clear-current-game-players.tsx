@@ -4,10 +4,12 @@ interface ClearCurrentGamePlayersProps {
   clearPlayers: () => void;
 }
 
-export const ClearCurrentGamePlayers: FC<ClearCurrentGamePlayersProps> = ({clearPlayers}) => {
+export const ClearCurrentGamePlayers: FC<ClearCurrentGamePlayersProps> = ({
+  clearPlayers
+}) => {
   return (
     <button
-    className={"btn"}
+      className={'btn'}
       onClick={async () => {
         clearPlayers();
       }}

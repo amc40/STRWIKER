@@ -14,7 +14,12 @@ interface TeamProps {
   children?: JSX.Element;
 }
 
-export const Team: React.FC<TeamProps> = ({ team, members, score, children }) => (
+export const Team: React.FC<TeamProps> = ({
+  team,
+  members,
+  score,
+  children
+}) => (
   <div
     style={{
       flex: 1,
@@ -24,8 +29,9 @@ export const Team: React.FC<TeamProps> = ({ team, members, score, children }) =>
       color: 'white'
     }}
   >
-    <h2 className={"flex"}>
-      Team {team} <span className={"flex-grow text-right text-5xl"}>{score}</span>
+    <h2 className={'flex'}>
+      Team {team}{' '}
+      <span className={'flex-grow text-right text-5xl'}>{score}</span>
     </h2>
     <ul>
       {members.map((member) => (

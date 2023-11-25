@@ -8,7 +8,7 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: ['@tremor/react'],
-    serverActions: true,
+    serverActions: true
   },
   webpack: (config) => {
     config.plugins.push(
