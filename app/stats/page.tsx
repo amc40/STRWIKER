@@ -1,40 +1,31 @@
-import { NormalizeError } from 'next/dist/shared/lib/utils';
-import React from 'react';
-import { getEnvironmentData } from 'worker_threads';
+'use client';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-
-interface Player {
-  name: string;
-  rarity: number;
-  gamesPlayed: number;
-  wins: number;
-}
-
-const mockPlayerData: Player[] = [
-  { name: 'john', rarity: 0, gamesPlayed: 10, wins: 5 },
-  { name: 'jordan', rarity: 0, gamesPlayed: 20, wins: 3 },
-  { name: 'ted', rarity: 0, gamesPlayed: 8, wins: 5 },
-  { name: 'alan', rarity: 1, gamesPlayed: 10, wins: 5 },
-  { name: 'joey', rarity: 0, gamesPlayed: 10, wins: 5 },
-  { name: 'emma', rarity: 1, gamesPlayed: 15, wins: 9 }
-];
-
-const getData = async () => {
-  return mockPlayerData;
-};
+import { getPlayers } from '../../lib/Player.actions';
+import { Player } from '@prisma/client';
 
 export default async function Stats() {
-  const data = await getData();
+  // TODO: pass in initial data from server
+  const [players, setPlayers] = useState<Player[]>([]);
+
+  useEffect(() => {
+    const populatePlayers = async () => {
+      const players = await getPlayers();
+      setPlayers(players);
+    };
+    populatePlayers();
+  }, []);
 
   return (
     <>
       <h1 className={'text-2xl text-center'}>Player Stats</h1>
       <CardContainer>
-        {data.map((sticker, index) => (
+        {players.map((player, index) => (
           <PlayerCard
-            name={sticker.name}
-            gamesPlayed={sticker.gamesPlayed}
-            rarity={sticker.rarity}
+            name={player.name}
+            gamesPlayed={player.gamesPlayed}
+            // TODO: this is dumb lol
+            rarity={player.elo > 2000 ? Rarity.HOLOGRAPHIC : Rarity.NORMAL}
             key={index}
           />
         ))}
