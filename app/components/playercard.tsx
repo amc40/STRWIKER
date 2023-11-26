@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
+import { PlayerInfo, recordGoalScored } from '../../lib/Game.actions';
 
-interface PlayerCardType {
-  playerName: string;
-}
+const PlayerCard: React.FC<PlayerInfo> = (playerInfo) => {
+  const { name: playerName } = playerInfo;
 
-const PlayerCard: React.FC<PlayerCardType> = ({ playerName }) => {
   const [goals, setGoals] = useState(0);
   const [ownGoals, setOwnGoals] = useState(0);
   const x: React.CSSProperties = { textAlign: 'center' };
 
   const handleGoalClick = () => {
     setGoals(goals + 1);
+    recordGoalScored(playerInfo, false);
   };
 
   const handleOwnGoalClick = () => {
     setOwnGoals(ownGoals + 1);
+    recordGoalScored(playerInfo, true);
   };
 
   return (

@@ -1,15 +1,11 @@
 import { $Enums } from '@prisma/client';
 import AddPlayerToTeam from './add-player-to-team';
 import PlayerCard from './playercard';
-
-export interface TeamMember {
-  id: number;
-  name: string;
-}
+import { PlayerInfo } from '../../lib/Game.actions';
 
 interface TeamProps {
   team: $Enums.Team;
-  members: TeamMember[];
+  members: PlayerInfo[];
   score: number;
   children?: JSX.Element;
 }
@@ -35,7 +31,7 @@ export const Team: React.FC<TeamProps> = ({
     </h2>
     <ul>
       {members.map((member) => (
-        <PlayerCard key={member.id} playerName={member.name} />
+        <PlayerCard key={member.id} {...member} />
       ))}
     </ul>
     {children}

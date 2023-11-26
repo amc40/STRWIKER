@@ -27,8 +27,8 @@ async function populatePlayers() {
 async function populateGames() {
   const game = await prisma.game.create({
     data: {
-      rotatyBlue: true,
-      rotatyRed: true
+      rotatyBlue: 'Always',
+      rotatyRed: 'Always'
     }
   });
 

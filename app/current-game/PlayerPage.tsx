@@ -68,7 +68,9 @@ export const PlayerPage: FC<{
       player: {
         id: playerId,
         name: playerName,
-        team
+        team,
+        // should be added at the end
+        position: Number.MAX_SAFE_INTEGER
       }
     });
     await addPlayerToCurrentGame(playerId, team);
@@ -86,9 +88,9 @@ export const PlayerPage: FC<{
         <div style={{ display: 'flex', height: '100vh' }}>
           <Team
             team={$Enums.Team.Blue}
-            members={optimisticPlayers.filter(
-              (player) => player.team === 'Blue'
-            )}
+            members={optimisticPlayers
+              .filter((player) => player.team === 'Blue')
+              .sort((a, b) => a.position - b.position)}
             score={blueScore}
           >
             <AddPlayerToTeam
@@ -99,9 +101,9 @@ export const PlayerPage: FC<{
           </Team>
           <Team
             team={$Enums.Team.Red}
-            members={optimisticPlayers.filter(
-              (player) => player.team === 'Red'
-            )}
+            members={optimisticPlayers
+              .filter((player) => player.team === 'Red')
+              .sort((a, b) => a.position - b.position)}
             score={redScore}
           >
             <AddPlayerToTeam

@@ -4,7 +4,7 @@ import prisma from '../../lib/planetscale';
 export const getCurrentGame = async (): Promise<Game> => {
   return await prisma.game.findFirstOrThrow({
     where: {
-      completed: true
+      completed: false
     }
   });
 };

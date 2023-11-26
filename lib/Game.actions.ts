@@ -2,6 +2,13 @@
 
 import { $Enums, Game, Player, PlayerPoint } from '@prisma/client';
 import prisma from './planetscale';
+import { GameLogicService } from '../app/services/gameLogicService';
+import {
+  getCurrentPoint,
+  getCurrentPointFromGame
+} from '../app/repository/pointRepository';
+import { getMaxPlayerPointPositionForTeaminCurrentPoint } from '../app/repository/playerPointRepository';
+import { getCurrentGame } from '../app/repository/gameRepository';
 
 export interface PlayerPointWithPlayer extends PlayerPoint {
   player: Player;
@@ -11,14 +18,19 @@ export interface PlayerInfo {
   id: number;
   name: string;
   team: $Enums.Team;
+  position: number;
 }
 
-export const playerPointWithPlayerToPlayerInfo = (
-  playerPoint: PlayerPointWithPlayer
-): PlayerInfo => ({
-  id: playerPoint.playerId,
-  name: playerPoint.player.name,
-  team: playerPoint.team
+export const playerPointWithPlayerToPlayerInfo = ({
+  playerId,
+  team,
+  position,
+  player
+}: PlayerPointWithPlayer): PlayerInfo => ({
+  id: playerId,
+  name: player.name,
+  team: team,
+  position
 });
 
 export interface GameInfo {
@@ -29,44 +41,25 @@ export interface GameInfo {
 
 export const getCurrentGameInfo = async (): Promise<GameInfo> => {
   const currentGame = await getCurrentGame();
-  const currentPoint = await prisma.point.findFirst({
-    where: {
-      gameId: currentGame.id
-    },
-    orderBy: {
-      startTime: 'desc'
-    }
-  });
+  const currentPoint = await getCurrentPointFromGame(currentGame);
+  console.log(`Current Point: ${JSON.stringify(currentPoint)}`);
   if (!currentPoint) {
     throw new Error('current point not found');
   }
   const currentPointPlayers = await prisma.playerPoint.findMany({
     where: {
-      pointId: currentGame.id
+      pointId: currentPoint.id
     },
     include: {
       player: true
     }
   });
+
   return {
     players: currentPointPlayers.map(playerPointWithPlayerToPlayerInfo),
     redScore: currentPoint.currentRedScore,
     blueScore: currentPoint.currentBlueScore
   };
-};
-
-// TODO: account for new games. Could we filter by completed:false with a partial index?
-export const getCurrentGame = async (): Promise<Game> => {
-  const currentGame = await prisma.game.findFirst({
-    orderBy: {
-      startTime: 'desc'
-    }
-  });
-  if (!currentGame) {
-    throw new Error('current game not found');
-  }
-
-  return currentGame;
 };
 
 export const addPlayerToCurrentGame = async (
@@ -77,10 +70,12 @@ export const addPlayerToCurrentGame = async (
   if (currentGame.currentPointId === null) {
     throw new Error('current point id is null');
   }
+  const position =
+    ((await getMaxPlayerPointPositionForTeaminCurrentPoint(team)) ?? -1) + 1;
   await prisma.playerPoint.create({
     data: {
       ownGoal: false,
-      position: 0,
+      position,
       rattled: false,
       scoredGoal: false,
       team,
@@ -100,4 +95,29 @@ export const clearCurrentGamePlayers = async () => {
       pointId: currentGame.currentPointId
     }
   });
+};
+
+export const recordGoalScored = async (
+  scorerInfo: PlayerInfo,
+  ownGoal: boolean
+) => {
+  const gameLogicService = new GameLogicService();
+
+  const currentGame = await getCurrentGame();
+
+  const currentPoint = await getCurrentPointFromGame(currentGame);
+
+  const playerPoint = await prisma.playerPoint.findFirstOrThrow({
+    where: {
+      playerId: scorerInfo.id,
+      pointId: currentPoint.id
+    }
+  });
+
+  await gameLogicService.scoreGoal(
+    playerPoint,
+    ownGoal,
+    currentPoint,
+    currentGame
+  );
 };
