@@ -174,7 +174,7 @@ function getNextPlayerPosition(
 ) {
   if (!isTeamRotating) return previousPosition;
   const newPosition =
-    previousPosition == 0 ? numberOfPlayersOnTeam - 1 : previousPosition - 1;
+    previousPosition === 0 ? numberOfPlayersOnTeam - 1 : previousPosition - 1;
   return newPosition;
 }
 
