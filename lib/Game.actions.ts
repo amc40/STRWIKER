@@ -7,7 +7,10 @@ import {
   getCurrentPoint,
   getCurrentPointFromGame
 } from '../app/repository/pointRepository';
-import { getMaxPlayerPointPositionForTeaminCurrentPoint } from '../app/repository/playerPointRepository';
+import {
+  getAllPlayerPointsForPlayerInCurrentGame,
+  getMaxPlayerPointPositionForTeaminCurrentPoint
+} from '../app/repository/playerPointRepository';
 import { getCurrentGame } from '../app/repository/gameRepository';
 
 export interface PlayerPointWithPlayer extends PlayerPoint {
@@ -120,4 +123,25 @@ export const recordGoalScored = async (
     currentPoint,
     currentGame
   );
+};
+
+export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
+  playerId: number
+) => {
+  const playerPointsForPlayer =
+    await getAllPlayerPointsForPlayerInCurrentGame(playerId);
+
+  const goalScored = playerPointsForPlayer.reduce(
+    (totalGoals, playerPoint) => totalGoals + (playerPoint.scoredGoal ? 1 : 0),
+    0
+  );
+  const ownGoalsScored = playerPointsForPlayer.reduce(
+    (totalOwnGoalsScored, playerPoint) =>
+      totalOwnGoalsScored + (playerPoint.ownGoal ? 1 : 0),
+    0
+  );
+  return {
+    goalScored,
+    ownGoalsScored
+  };
 };

@@ -1,28 +1,42 @@
-import React, { useState } from 'react';
-import { PlayerInfo, recordGoalScored } from '../../lib/Game.actions';
+import React, { useEffect, useState } from 'react';
+import {
+  PlayerInfo,
+  getNumberOfGoalsScoredByPlayerInCurrentGame,
+  recordGoalScored
+} from '../../lib/Game.actions';
 
 const PlayerCard: React.FC<PlayerInfo> = (playerInfo) => {
-  const { name: playerName } = playerInfo;
+  const { name: playerName, id: playerId } = playerInfo;
 
-  const [goals, setGoals] = useState(0);
-  const [ownGoals, setOwnGoals] = useState(0);
+  const [goals, setGoals] = useState<number | null>(null);
+  const [ownGoals, setOwnGoals] = useState<number | null>(null);
   const x: React.CSSProperties = { textAlign: 'center' };
 
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const { goalScored, ownGoalsScored } =
+        await getNumberOfGoalsScoredByPlayerInCurrentGame(playerId);
+      setGoals(goalScored);
+      setOwnGoals(ownGoalsScored);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [playerId]);
+
   const handleGoalClick = () => {
-    setGoals(goals + 1);
+    setGoals((goals ?? 0) + 1);
     recordGoalScored(playerInfo, false);
   };
 
   const handleOwnGoalClick = () => {
-    setOwnGoals(ownGoals + 1);
+    setOwnGoals((ownGoals ?? 0) + 1);
     recordGoalScored(playerInfo, true);
   };
 
   return (
     <div style={styles.card}>
       <h3 style={styles.playerName}>{playerName}</h3>
-      <p style={styles.stat}>Goals: {goals}</p>
-      <p style={styles.stat}>Own Goals: {ownGoals}</p>
+      <p style={styles.stat}>Goals: {goals ?? '-'}</p>
+      <p style={styles.stat}>Own Goals: {ownGoals ?? '-'}</p>
       <div style={styles.buttonContainer}>
         <button style={styles.button} onClick={handleGoalClick}>
           Goal

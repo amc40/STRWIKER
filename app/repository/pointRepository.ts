@@ -24,3 +24,12 @@ export async function getPointFromPlayerPoint(
     where: { id: playerPoint.pointId }
   });
 }
+
+export async function getAllPointsInCurrentGame() {
+  const currentGame = await getCurrentGame();
+  return await prisma.point.findMany({
+    where: {
+      gameId: currentGame.id
+    }
+  });
+}
