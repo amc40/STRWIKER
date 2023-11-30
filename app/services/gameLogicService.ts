@@ -110,8 +110,8 @@ export class GameLogicService {
     });
 
     const scoringTeam = ownGoal
-      ? scorerPlayerPoint.team
-      : opposingTeam(scorerPlayerPoint.team);
+      ? opposingTeam(scorerPlayerPoint.team)
+      : scorerPlayerPoint.team;
 
     const newPoint = await prisma.point.create({
       data: {
