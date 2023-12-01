@@ -23,7 +23,7 @@ type SetOptimisticPlayerArgs =
   | { action: OptimisticAction.ADD; player: PlayerInfo }
   | { action: OptimisticAction.CLEAR; player: undefined };
 
-export const PlayerPage: FC<{
+export const CurrentGameClient: FC<{
   serverRedScore: number;
   serverBlueScore: number;
   serverPlayers: PlayerInfo[];
