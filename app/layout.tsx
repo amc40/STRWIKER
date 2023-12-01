@@ -2,7 +2,6 @@ import './globals.css';
 
 import { Analytics } from '@vercel/analytics/react';
 import Nav from './nav';
-import Toast from './toast';
 import { Suspense } from 'react';
 import Script from 'next/script';
 import React from 'react';
@@ -26,7 +25,6 @@ export default async function RootLayout({
         </Suspense>
         {children}
         <Analytics />
-        <Toast />
         <Script type="module" src="vanilla-tilt.js" strategy="lazyOnload" />
       </body>
     </html>
