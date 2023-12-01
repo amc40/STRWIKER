@@ -10,6 +10,15 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@tremor/react'],
     serverActions: true
   },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/current-game',
+        permanent: true
+      }
+    ];
+  },
   webpack: (config) => {
     config.plugins.push(
       new CopyPlugin({
