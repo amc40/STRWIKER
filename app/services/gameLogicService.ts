@@ -178,17 +178,6 @@ function getNextPlayerPosition(
   return newPosition;
 }
 
-function getNextPlayerPosition(
-  previousPosition: number,
-  numberOfPlayersOnTeam: number,
-  isTeamRotating: boolean
-) {
-  if (!isTeamRotating) return previousPosition;
-  const newPosition =
-    previousPosition === 0 ? numberOfPlayersOnTeam - 1 : previousPosition - 1;
-  return newPosition;
-}
-
 function isTeamRotating(team: Team, game: Game, scoringTeam: Team) {
   const rotationStrategy = getTeamRotationStrategyInGame(team, game);
   switch (rotationStrategy) {
