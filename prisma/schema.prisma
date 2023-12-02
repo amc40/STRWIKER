@@ -21,19 +21,25 @@ model Player {
 }
 
 model Game {
-  id             Int      @id @default(autoincrement())
-  startTime      DateTime @default(now())
-  currentPoint   Point?   @relation(name: "currentPoint", fields: [currentPointId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  currentPointId Int?     @unique
-  completed      Boolean  @default(false)
+  id             Int            @id @default(autoincrement())
+  startTime      DateTime       @default(now())
+  currentPoint   Point?         @relation(name: "currentPoint", fields: [currentPointId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  currentPointId Int?           @unique
+  completed      Boolean        @default(false)
   finalScoreRed  Int?
   finalScoreBlue Int?
-  points         Point[]  @relation(name: "pointGame")
+  points         Point[]        @relation(name: "pointGame")
   // TODO: use rotaty strategy (yes, no, on-lose as enum)
-  rotatyRed      Boolean
-  rotatyBlue     Boolean
+  rotatyRed      RotatyStrategy
+  rotatyBlue     RotatyStrategy
 
   @@index([startTime])
+}
+
+enum RotatyStrategy {
+  Never
+  OnLose
+  Always
 }
 
 model Point {
@@ -71,6 +77,7 @@ model PlayerPoint {
   playerId Int
   pointId  Int
 
+  @@unique([playerId, pointId])
   @@index([playerId])
   @@index([pointId])
 }
