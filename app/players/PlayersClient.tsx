@@ -4,8 +4,14 @@ import { Player } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
 import { addPlayer, getPlayers } from '../../lib/Player.actions';
 
-export default function PlayersPage() {
-  const [players, setPlayers] = useState<Player[]>([]);
+interface PlayersClientProps {
+  serverPlayers: Player[];
+}
+
+export const PlayersClient: React.FC<PlayersClientProps> = ({
+  serverPlayers
+}) => {
+  const [players, setPlayers] = useState<Player[]>(serverPlayers);
 
   const populatePlayers = async () => {
     const players = await getPlayers();
@@ -120,4 +126,4 @@ export default function PlayersPage() {
       </div>
     </main>
   );
-}
+};
