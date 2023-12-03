@@ -4,9 +4,15 @@ import {
   getNumberOfGoalsScoredByPlayerInCurrentGame,
   recordGoalScored
 } from '../../lib/Game.actions';
+import { CircleRemove } from './CircleRemove';
 
-const PlayerCard: React.FC<PlayerInfo> = (playerInfo) => {
-  const { name: playerName, id: playerId } = playerInfo;
+interface PlayerCardProps {
+  player: PlayerInfo;
+  removePlayer: (player: PlayerInfo) => void;
+}
+
+const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
+  const { name: playerName, id: playerId } = player;
 
   const [goals, setGoals] = useState<number | null>(null);
   const [ownGoals, setOwnGoals] = useState<number | null>(null);
@@ -24,17 +30,23 @@ const PlayerCard: React.FC<PlayerInfo> = (playerInfo) => {
 
   const handleGoalClick = () => {
     setGoals((goals ?? 0) + 1);
-    recordGoalScored(playerInfo, false);
+    recordGoalScored(player, false);
   };
 
   const handleOwnGoalClick = () => {
     setOwnGoals((ownGoals ?? 0) + 1);
-    recordGoalScored(playerInfo, true);
+    recordGoalScored(player, true);
   };
 
   return (
     <div style={styles.card}>
-      <h3 style={styles.playerName}>{playerName}</h3>
+      <div className="relative">
+        <h3 style={styles.playerName}>{playerName}</h3>
+        <span className="right-0 top-0 absolute inline-block">
+          <CircleRemove onRemove={() => removePlayer(player)} />
+        </span>
+      </div>
+
       <p style={styles.stat}>Goals: {goals ?? '-'}</p>
       <p style={styles.stat}>Own Goals: {ownGoals ?? '-'}</p>
       <div style={styles.buttonContainer}>
@@ -54,12 +66,13 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid #ccc',
     padding: '10px',
     margin: '10px',
-    width: '200px',
+    maxWidth: '200px',
     borderRadius: '8px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     backgroundColor: '#fff',
     textAlign: 'center',
-    color: 'black'
+    color: 'black',
+    position: 'relative'
   },
   playerName: {
     margin: '10px 0',

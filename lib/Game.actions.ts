@@ -8,7 +8,10 @@ import {
   getCurrentPointFromGame
 } from '../app/repository/pointRepository';
 import {
+  deletePlayerPoint,
+  getAllCurrentPlayerPoints,
   getAllPlayerPointsForPlayerInCurrentGame,
+  getCurrentPlayerPointForPlayer,
   getMaxPlayerPointPositionForTeaminCurrentPoint
 } from '../app/repository/playerPointRepository';
 import { getCurrentGame } from '../app/repository/gameRepository';
@@ -144,4 +147,12 @@ export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
     goalScored,
     ownGoalsScored
   };
+};
+
+export const removePlayerFromCurrentGame = async (playerId: number) => {
+  const currentPlayerPointForPlayer =
+    await getCurrentPlayerPointForPlayer(playerId);
+  if (currentPlayerPointForPlayer == null)
+    throw new Error(`There is no PlayerPoint for playerId ${playerId}`);
+  deletePlayerPoint(currentPlayerPointForPlayer.id);
 };
