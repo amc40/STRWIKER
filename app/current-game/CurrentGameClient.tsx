@@ -12,6 +12,7 @@ import {
   getCurrentGameInfo,
   removePlayerFromCurrentGame
 } from '../../lib/Game.actions';
+import SettingsButton from '../components/SettingsButton';
 
 const MS_BETWEEN_REFRESHES = 1000;
 
@@ -98,6 +99,9 @@ export const CurrentGameClient: FC<{
     <>
       <ClearCurrentGamePlayers clearPlayers={clearPlayers} />
       <main className="p-4 md:p-10 mx-auto max-w-7xl">
+        <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
+          <SettingsButton />
+        </span>
         <div style={{ display: 'flex', height: '100vh' }}>
           <Team
             team={$Enums.Team.Blue}

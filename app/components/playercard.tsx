@@ -39,7 +39,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
   };
 
   return (
-    <div style={styles.card}>
+    <div className="z-0" style={styles.card}>
       <div className="relative">
         <h3 style={styles.playerName}>{playerName}</h3>
         <span className="right-0 top-0 absolute inline-block">
