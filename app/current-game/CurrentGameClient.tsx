@@ -9,19 +9,22 @@ import {
   PlayerInfo,
   addPlayerToCurrentGame,
   clearCurrentGamePlayers,
-  getCurrentGameInfo
+  getCurrentGameInfo,
+  removePlayerFromCurrentGame
 } from '../../lib/Game.actions';
 
 const MS_BETWEEN_REFRESHES = 1000;
 
 enum OptimisticAction {
   ADD,
-  CLEAR
+  CLEAR,
+  REMOVE
 }
 
 type SetOptimisticPlayerArgs =
   | { action: OptimisticAction.ADD; player: PlayerInfo }
-  | { action: OptimisticAction.CLEAR; player: undefined };
+  | { action: OptimisticAction.CLEAR; player: undefined }
+  | { action: OptimisticAction.REMOVE; player: PlayerInfo };
 
 export const CurrentGameClient: FC<{
   serverRedScore: number;
@@ -52,6 +55,8 @@ export const CurrentGameClient: FC<{
           return [...state, player];
         case OptimisticAction.CLEAR:
           return [];
+        case OptimisticAction.REMOVE:
+          return state.filter((playerInfo) => playerInfo.id !== player.id);
         default:
           return [];
       }
@@ -81,6 +86,14 @@ export const CurrentGameClient: FC<{
     await clearCurrentGamePlayers();
   };
 
+  const removePlayer = async (player: PlayerInfo) => {
+    setOptimisticPlayers({
+      action: OptimisticAction.REMOVE,
+      player
+    });
+    await removePlayerFromCurrentGame(player.id);
+  };
+
   return (
     <>
       <ClearCurrentGamePlayers clearPlayers={clearPlayers} />
@@ -92,6 +105,7 @@ export const CurrentGameClient: FC<{
               .filter((player) => player.team === 'Blue')
               .sort((a, b) => a.position - b.position)}
             score={blueScore}
+            removePlayer={removePlayer}
           >
             <AddPlayerToTeam
               team={$Enums.Team.Blue}
@@ -105,6 +119,7 @@ export const CurrentGameClient: FC<{
               .filter((player) => player.team === 'Red')
               .sort((a, b) => a.position - b.position)}
             score={redScore}
+            removePlayer={removePlayer}
           >
             <AddPlayerToTeam
               team={$Enums.Team.Red}

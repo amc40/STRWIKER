@@ -13,6 +13,16 @@ export async function getAllPlayerPointsByPoint(
   return await prisma.playerPoint.findMany({ where: { pointId: point.id } });
 }
 
+export async function getCurrentPlayerPointForPlayer(playerId: number) {
+  const currentPoint = await getCurrentPoint();
+  return await prisma.playerPoint.findFirst({
+    where: {
+      pointId: currentPoint.id,
+      playerId
+    }
+  });
+}
+
 export async function getMaxPlayerPointPositionForTeaminCurrentPoint(
   team: Team
 ) {
@@ -39,6 +49,14 @@ export async function getAllPlayerPointsForPlayerInCurrentGame(
       pointId: {
         in: currentGamePoints.map((currentGamePoint) => currentGamePoint.id)
       }
+    }
+  });
+}
+
+export async function deletePlayerPoint(playerPointId: number) {
+  await prisma.playerPoint.delete({
+    where: {
+      id: playerPointId
     }
   });
 }

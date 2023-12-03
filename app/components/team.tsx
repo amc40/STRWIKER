@@ -8,12 +8,14 @@ interface TeamProps {
   members: PlayerInfo[];
   score: number;
   children?: JSX.Element;
+  removePlayer: (player: PlayerInfo) => void;
 }
 
 export const Team: React.FC<TeamProps> = ({
   team,
   members,
   score,
+  removePlayer,
   children
 }) => (
   <div
@@ -31,7 +33,11 @@ export const Team: React.FC<TeamProps> = ({
     </h2>
     <ul>
       {members.map((member) => (
-        <PlayerCard key={member.id} {...member} />
+        <PlayerCard
+          key={member.id}
+          player={member}
+          removePlayer={removePlayer}
+        />
       ))}
     </ul>
     {children}
