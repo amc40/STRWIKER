@@ -16,9 +16,9 @@ export async function getAllPlayerPointsByPoint(
   return await prisma.playerPoint.findMany({ where: { pointId: point.id } });
 }
 
-export async function getCurrentPlayerPointForPlayer(playerId: number) {
+export async function getCurrentPlayerPointForPlayerOrThrow(playerId: number) {
   const currentPoint = await getCurrentPointOrThrow();
-  return await prisma.playerPoint.findFirst({
+  return await prisma.playerPoint.findFirstOrThrow({
     where: {
       pointId: currentPoint.id,
       playerId

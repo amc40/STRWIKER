@@ -45,15 +45,17 @@ export class GameLogicService {
         }
       });
 
-      playerPoints.forEach((pp) => {
-        prisma.playerPoint.update({
-          where: {
-            id: pp.id
-          },
-          data: {
-            position: pp.position - 1
+      await prisma.playerPoint.updateMany({
+        where: {
+          id: {
+            in: playerPoints.map((playerPoint) => playerPoint.id)
           }
-        });
+        },
+        data: {
+          position: {
+            decrement: 1
+          }
+        }
       });
     } else {
       // pulling it foward
@@ -68,19 +70,21 @@ export class GameLogicService {
         }
       });
 
-      playerPoints.forEach((pp) => {
-        prisma.playerPoint.update({
-          where: {
-            id: pp.id
-          },
-          data: {
-            position: pp.position + 1
+      await prisma.playerPoint.updateMany({
+        where: {
+          id: {
+            in: playerPoints.map((playerPoint) => playerPoint.id)
           }
-        });
+        },
+        data: {
+          position: {
+            increment: 1
+          }
+        }
       });
     }
 
-    prisma.playerPoint.update({
+    await prisma.playerPoint.update({
       where: {
         id: reorderPlayerPoint.id
       },
