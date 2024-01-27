@@ -1,13 +1,23 @@
 import { Game, PlayerPoint, Point } from '@prisma/client';
-import { getCurrentGame } from './gameRepository';
+import { getCurrentGame, getCurrentGameOrThrow } from './gameRepository';
 import prisma from '../../lib/planetscale';
 
-export const getCurrentPoint = async (): Promise<Point> => {
-  const currentGame = await getCurrentGame();
-  return await getCurrentPointFromGame(currentGame);
+export const getCurrentPointOrThrow = async (): Promise<Point> => {
+  const currentGame = await getCurrentGameOrThrow();
+  return await getCurrentPointFromGameOrThrow(currentGame);
 };
 
-export const getCurrentPointFromGame = async (game: Game): Promise<Point> => {
+export const getCurrentPointIdFromGameOrThrow = async (
+  game: Game
+): Promise<number> => {
+  if (!game.currentPointId)
+    throw new Error('No current point for game id ' + game.id);
+  return game.currentPointId;
+};
+
+export const getCurrentPointFromGameOrThrow = async (
+  game: Game
+): Promise<Point> => {
   if (!game.currentPointId)
     throw new Error('No current point for game id ' + game.id);
   return await prisma.point.findFirstOrThrow({
@@ -27,6 +37,7 @@ export async function getPointFromPlayerPoint(
 
 export async function getAllPointsInCurrentGame() {
   const currentGame = await getCurrentGame();
+  if (currentGame == null) return null;
   return await prisma.point.findMany({
     where: {
       gameId: currentGame.id

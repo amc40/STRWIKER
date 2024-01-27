@@ -26,6 +26,7 @@ model Game {
   currentPoint   Point?         @relation(name: "currentPoint", fields: [currentPointId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   currentPointId Int?           @unique
   completed      Boolean        @default(false)
+  abandoned      Boolean        @default(false)
   finalScoreRed  Int?
   finalScoreBlue Int?
   points         Point[]        @relation(name: "pointGame")

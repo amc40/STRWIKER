@@ -2,12 +2,24 @@ import { Game, PlayerPoint, Point, Prisma, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import { getPointFromPlayerPoint } from '../repository/pointRepository';
 import { getAllPlayerPointsByPoint } from '../repository/playerPointRepository';
+import { getCurrentGameOrThrow } from '../repository/gameRepository';
 
 export class GameLogicService {
-  startGame() {
+  NUMBER_OF_POINTS_TO_WIN = 10;
+
+  async startGame() {
     // TODO: set rotaty dependant on number of players
-    prisma.game.create({
+    const game = await prisma.game.create({
       data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' }
+    });
+    const initialPoint = await this.createPoint(0, 0, game);
+    await prisma.game.update({
+      where: {
+        id: game.id
+      },
+      data: {
+        currentPointId: initialPoint.id
+      }
     });
   }
 
@@ -78,8 +90,12 @@ export class GameLogicService {
     });
   }
 
-  createPoint(currentRedScore: number, currentBlueScore: number, game: Game) {
-    prisma.point.create({
+  async createPoint(
+    currentRedScore: number,
+    currentBlueScore: number,
+    game: Game
+  ) {
+    return await prisma.point.create({
       data: { currentRedScore, currentBlueScore, gameId: game.id }
     });
   }
@@ -113,13 +129,39 @@ export class GameLogicService {
       ? opposingTeam(scorerPlayerPoint.team)
       : scorerPlayerPoint.team;
 
+    const newBlueScore =
+      finishedPoint.currentBlueScore + (scoringTeam === Team.Blue ? 1 : 0);
+    const newRedScore =
+      finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0);
+
+    if (
+      newBlueScore < this.NUMBER_OF_POINTS_TO_WIN &&
+      newRedScore < this.NUMBER_OF_POINTS_TO_WIN
+    ) {
+      this.setupNextPoint(
+        finishedPoint,
+        scoringTeam,
+        game,
+        newBlueScore,
+        newRedScore
+      );
+    } else {
+      await this.endGame(game, newBlueScore, newRedScore);
+    }
+  }
+
+  async setupNextPoint(
+    finishedPoint: Point,
+    scoringTeam: Team,
+    game: Game,
+    newBlueScore: number,
+    newRedScore: number
+  ) {
     const newPoint = await prisma.point.create({
       data: {
-        currentBlueScore:
-          finishedPoint.currentBlueScore + (scoringTeam === Team.Blue ? 1 : 0),
-        currentRedScore:
-          finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0),
-        gameId: finishedPoint.gameId
+        currentBlueScore: newBlueScore,
+        currentRedScore: newRedScore,
+        gameId: game.id
       }
     });
     const oldPlayerPoints = await getAllPlayerPointsByPoint(finishedPoint);
@@ -164,6 +206,19 @@ export class GameLogicService {
   async rotatePlayers(playerPoints: PlayerPoint[]) {
     playerPoints.sort((a, b) => a.position - b.position);
     this.reorderPlayerPoint(playerPoints[0], playerPoints.length - 1);
+  }
+
+  async endGame(game: Game, finalScoreBlue: number, finalScoreRed: number) {
+    await prisma.game.update({
+      where: {
+        id: game.id
+      },
+      data: {
+        completed: true,
+        finalScoreBlue,
+        finalScoreRed
+      }
+    });
   }
 }
 
