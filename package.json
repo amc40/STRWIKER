@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.15",
+    "@hello-pangea/dnd": "^16.5.0",
     "@heroicons/react": "^2.0.18",
     "@planetscale/database": "^1.7.0",
     "@prisma/client": "^5.2.0",
