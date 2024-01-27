@@ -124,7 +124,7 @@ export const CurrentGameClient: FC<{
   }, []);
 
   return gameInProgress ? (
-    <main>
+    <main className="md:flex md:flex-1">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
         <SettingsButton onClick={() => setShowSettingsModal(true)} />
       </span>
