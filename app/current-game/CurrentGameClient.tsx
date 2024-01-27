@@ -124,7 +124,7 @@ export const CurrentGameClient: FC<{
   }, []);
 
   return gameInProgress ? (
-    <main className="md:flex md:flex-1">
+    <main className="flex flex-1 flex-col">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
         <SettingsButton onClick={() => setShowSettingsModal(true)} />
       </span>
@@ -141,36 +141,40 @@ export const CurrentGameClient: FC<{
             modules={[Pagination]}
           >
             <SwiperSlide>
-              <Team
-                team={$Enums.Team.Blue}
-                members={optimisticPlayers
-                  .filter((player) => player.team === 'Blue')
-                  .sort((a, b) => a.position - b.position)}
-                score={blueScore}
-                removePlayer={removePlayer}
-              >
-                <AddPlayerToTeam
+              <div className="h-full flex">
+                <Team
                   team={$Enums.Team.Blue}
-                  addPlayer={addPlayer}
-                  existingPlayers={players}
-                />
-              </Team>
+                  members={optimisticPlayers
+                    .filter((player) => player.team === 'Blue')
+                    .sort((a, b) => a.position - b.position)}
+                  score={blueScore}
+                  removePlayer={removePlayer}
+                >
+                  <AddPlayerToTeam
+                    team={$Enums.Team.Blue}
+                    addPlayer={addPlayer}
+                    existingPlayers={players}
+                  />
+                </Team>
+              </div>
             </SwiperSlide>
             <SwiperSlide>
-              <Team
-                team={$Enums.Team.Red}
-                members={optimisticPlayers
-                  .filter((player) => player.team === 'Red')
-                  .sort((a, b) => a.position - b.position)}
-                score={redScore}
-                removePlayer={removePlayer}
-              >
-                <AddPlayerToTeam
+              <div className="h-full flex">
+                <Team
                   team={$Enums.Team.Red}
-                  addPlayer={addPlayer}
-                  existingPlayers={players}
-                />
-              </Team>
+                  members={optimisticPlayers
+                    .filter((player) => player.team === 'Red')
+                    .sort((a, b) => a.position - b.position)}
+                  score={redScore}
+                  removePlayer={removePlayer}
+                >
+                  <AddPlayerToTeam
+                    team={$Enums.Team.Red}
+                    addPlayer={addPlayer}
+                    existingPlayers={players}
+                  />
+                </Team>
+              </div>
             </SwiperSlide>
           </Swiper>
         ) : (
