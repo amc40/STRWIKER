@@ -15,7 +15,15 @@ import SettingsButton from '../components/SettingsButton';
 import { SettingsModal } from '../components/SettingsModal';
 import { NoGameInProgress } from './NoGameInProgress';
 
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination } from 'swiper/modules';
+
+import 'swiper/css';
+import 'swiper/css/pagination';
+
 const MS_BETWEEN_REFRESHES = 1000;
+
+const MOBILE_SCREEN_BREAK_POINT = 768;
 
 enum OptimisticAction {
   ADD,
@@ -102,6 +110,19 @@ export const CurrentGameClient: FC<{
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < MOBILE_SCREEN_BREAK_POINT);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
   return gameInProgress ? (
     <main>
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
@@ -111,35 +132,81 @@ export const CurrentGameClient: FC<{
         show={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
       />
-      <div style={{ display: 'flex', height: '100vh' }}>
-        <Team
-          team={$Enums.Team.Blue}
-          members={optimisticPlayers
-            .filter((player) => player.team === 'Blue')
-            .sort((a, b) => a.position - b.position)}
-          score={blueScore}
-          removePlayer={removePlayer}
-        >
-          <AddPlayerToTeam
-            team={$Enums.Team.Blue}
-            addPlayer={addPlayer}
-            existingPlayers={players}
-          />
-        </Team>
-        <Team
-          team={$Enums.Team.Red}
-          members={optimisticPlayers
-            .filter((player) => player.team === 'Red')
-            .sort((a, b) => a.position - b.position)}
-          score={redScore}
-          removePlayer={removePlayer}
-        >
-          <AddPlayerToTeam
-            team={$Enums.Team.Red}
-            addPlayer={addPlayer}
-            existingPlayers={players}
-          />
-        </Team>
+      <div className="flex flex-1">
+        {isMobile ? (
+          <Swiper
+            pagination={{
+              clickable: true
+            }}
+            modules={[Pagination]}
+          >
+            <SwiperSlide>
+              <Team
+                team={$Enums.Team.Blue}
+                members={optimisticPlayers
+                  .filter((player) => player.team === 'Blue')
+                  .sort((a, b) => a.position - b.position)}
+                score={blueScore}
+                removePlayer={removePlayer}
+              >
+                <AddPlayerToTeam
+                  team={$Enums.Team.Blue}
+                  addPlayer={addPlayer}
+                  existingPlayers={players}
+                />
+              </Team>
+            </SwiperSlide>
+            <SwiperSlide>
+              <Team
+                team={$Enums.Team.Red}
+                members={optimisticPlayers
+                  .filter((player) => player.team === 'Red')
+                  .sort((a, b) => a.position - b.position)}
+                score={redScore}
+                removePlayer={removePlayer}
+              >
+                <AddPlayerToTeam
+                  team={$Enums.Team.Red}
+                  addPlayer={addPlayer}
+                  existingPlayers={players}
+                />
+              </Team>
+            </SwiperSlide>
+          </Swiper>
+        ) : (
+          <>
+            <Team
+              team={$Enums.Team.Blue}
+              members={optimisticPlayers
+                .filter((player) => player.team === 'Blue')
+                .sort((a, b) => a.position - b.position)}
+              score={blueScore}
+              removePlayer={removePlayer}
+            >
+              <AddPlayerToTeam
+                team={$Enums.Team.Blue}
+                addPlayer={addPlayer}
+                existingPlayers={players}
+              />
+            </Team>
+            <Team
+              team={$Enums.Team.Red}
+              members={optimisticPlayers
+                .filter((player) => player.team === 'Red')
+                .sort((a, b) => a.position - b.position)}
+              score={redScore}
+              removePlayer={removePlayer}
+              // The initial render wil be for the desktop site, but we don't want to show the Red on the small screens
+              hideOnSmallScreen={true}
+            >
+              <AddPlayerToTeam
+                team={$Enums.Team.Red}
+                addPlayer={addPlayer}
+                existingPlayers={players}
+              />
+            </Team>
+          </>
+        )}
       </div>
     </main>
   ) : (

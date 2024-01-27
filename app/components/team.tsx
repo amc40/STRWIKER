@@ -9,6 +9,7 @@ interface TeamProps {
   score: number;
   children?: JSX.Element;
   removePlayer: (player: PlayerInfo) => void;
+  hideOnSmallScreen?: boolean;
 }
 
 export const Team: React.FC<TeamProps> = ({
@@ -16,9 +17,11 @@ export const Team: React.FC<TeamProps> = ({
   members,
   score,
   removePlayer,
-  children
+  children,
+  hideOnSmallScreen = false
 }) => (
   <div
+    className={hideOnSmallScreen ? 'hidden md:block' : ''}
     style={{
       flex: 1,
       padding: '20px',
