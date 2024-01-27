@@ -1,9 +1,12 @@
 import { PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
-import { getAllPointsInCurrentGame, getCurrentPoint } from './pointRepository';
+import {
+  getAllPointsInCurrentGame,
+  getCurrentPointOrThrow
+} from './pointRepository';
 
 export async function getAllCurrentPlayerPoints() {
-  const currentPoint = await getCurrentPoint();
+  const currentPoint = await getCurrentPointOrThrow();
   return await getAllPlayerPointsByPoint(currentPoint);
 }
 
@@ -14,7 +17,7 @@ export async function getAllPlayerPointsByPoint(
 }
 
 export async function getCurrentPlayerPointForPlayer(playerId: number) {
-  const currentPoint = await getCurrentPoint();
+  const currentPoint = await getCurrentPointOrThrow();
   return await prisma.playerPoint.findFirst({
     where: {
       pointId: currentPoint.id,
@@ -26,7 +29,7 @@ export async function getCurrentPlayerPointForPlayer(playerId: number) {
 export async function getMaxPlayerPointPositionForTeaminCurrentPoint(
   team: Team
 ) {
-  const currentPoint = await getCurrentPoint();
+  const currentPoint = await getCurrentPointOrThrow();
   const playerPointWithMaxPosition = await prisma.playerPoint.findFirst({
     where: {
       pointId: currentPoint.id,
@@ -43,6 +46,7 @@ export async function getAllPlayerPointsForPlayerInCurrentGame(
   playerId: number
 ) {
   const currentGamePoints = await getAllPointsInCurrentGame();
+  if (currentGamePoints == null) return null;
   return await prisma.playerPoint.findMany({
     where: {
       playerId,

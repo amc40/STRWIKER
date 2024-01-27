@@ -1,6 +1,6 @@
 import { FC, useEffect } from 'react';
 
-interface ModalProps {
+export interface ModalProps {
   show: Boolean;
   children?: JSX.Element;
   onClose: () => void;

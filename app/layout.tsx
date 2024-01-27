@@ -18,8 +18,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full bg-gray-50">
-      <body className="h-full">
+    <html lang="en">
+      <body className="min-h-screen flex flex-col">
         <Suspense>
           <Nav />
         </Suspense>

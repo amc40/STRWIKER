@@ -1,8 +1,15 @@
 import React from 'react';
 
-const SettingsButton = () => {
+interface SettingsButtonProps {
+  onClick: () => void;
+}
+
+const SettingsButton: React.FC<SettingsButtonProps> = ({ onClick }) => {
   return (
-    <button className="bg-gray-300 rounded-full p-2 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 ring-2 ring-gray-600">
+    <button
+      onClick={onClick}
+      className="bg-gray-300 rounded-full p-2 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 ring-2 ring-gray-600"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"

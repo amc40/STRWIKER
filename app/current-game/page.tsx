@@ -1,14 +1,17 @@
 import { CurrentGameClient } from './CurrentGameClient';
 import { getCurrentGameInfo } from '../../lib/Game.actions';
+import { NoGameInProgress } from './NoGameInProgress';
 
 export default async function Page() {
-  const { players, redScore, blueScore } = await getCurrentGameInfo();
+  const currentGameInfo = await getCurrentGameInfo();
 
-  return (
+  return currentGameInfo.gameInProgress ? (
     <CurrentGameClient
-      serverRedScore={redScore}
-      serverBlueScore={blueScore}
-      serverPlayers={players}
+      serverRedScore={currentGameInfo.redScore}
+      serverBlueScore={currentGameInfo.blueScore}
+      serverPlayers={currentGameInfo.players}
     />
+  ) : (
+    <NoGameInProgress />
   );
 }

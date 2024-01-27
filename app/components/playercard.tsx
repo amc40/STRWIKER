@@ -20,10 +20,12 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const { goalScored, ownGoalsScored } =
+      const numberOfGoalsScoredByPlayer =
         await getNumberOfGoalsScoredByPlayerInCurrentGame(playerId);
-      setGoals(goalScored);
-      setOwnGoals(ownGoalsScored);
+      if (numberOfGoalsScoredByPlayer != null) {
+        setGoals(numberOfGoalsScoredByPlayer.goalScored);
+        setOwnGoals(numberOfGoalsScoredByPlayer.ownGoalsScored);
+      }
     }, 1000);
     return () => clearInterval(interval);
   }, [playerId]);

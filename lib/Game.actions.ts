@@ -1,20 +1,22 @@
 'use server';
 
-import { $Enums, Game, Player, PlayerPoint } from '@prisma/client';
+import { $Enums, Player, PlayerPoint } from '@prisma/client';
 import prisma from './planetscale';
 import { GameLogicService } from '../app/services/gameLogicService';
 import {
-  getCurrentPoint,
-  getCurrentPointFromGame
+  getCurrentPointFromGameOrThrow,
+  getCurrentPointIdFromGameOrThrow
 } from '../app/repository/pointRepository';
 import {
   deletePlayerPoint,
-  getAllCurrentPlayerPoints,
   getAllPlayerPointsForPlayerInCurrentGame,
   getCurrentPlayerPointForPlayer,
   getMaxPlayerPointPositionForTeaminCurrentPoint
 } from '../app/repository/playerPointRepository';
-import { getCurrentGame } from '../app/repository/gameRepository';
+import {
+  getCurrentGame,
+  getCurrentGameOrThrow
+} from '../app/repository/gameRepository';
 
 export interface PlayerPointWithPlayer extends PlayerPoint {
   player: Player;
@@ -39,16 +41,29 @@ export const playerPointWithPlayerToPlayerInfo = ({
   position
 });
 
-export interface GameInfo {
+export type NotInProgressGameInfo = {
+  gameInProgress: false;
+};
+
+export type InProgressGameInfo = {
   players: PlayerInfo[];
   redScore: number;
   blueScore: number;
-}
+  gameInProgress: true;
+};
+
+export type GameInfo = NotInProgressGameInfo | InProgressGameInfo;
 
 export const getCurrentGameInfo = async (): Promise<GameInfo> => {
   const currentGame = await getCurrentGame();
-  const currentPoint = await getCurrentPointFromGame(currentGame);
-  console.log(`Current Point: ${JSON.stringify(currentPoint)}`);
+
+  if (currentGame == null) {
+    return {
+      gameInProgress: false
+    };
+  }
+
+  const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
   if (!currentPoint) {
     throw new Error('current point not found');
   }
@@ -64,7 +79,8 @@ export const getCurrentGameInfo = async (): Promise<GameInfo> => {
   return {
     players: currentPointPlayers.map(playerPointWithPlayerToPlayerInfo),
     redScore: currentPoint.currentRedScore,
-    blueScore: currentPoint.currentBlueScore
+    blueScore: currentPoint.currentBlueScore,
+    gameInProgress: true
   };
 };
 
@@ -72,7 +88,7 @@ export const addPlayerToCurrentGame = async (
   playerId: number,
   team: $Enums.Team
 ) => {
-  const currentGame = await getCurrentGame();
+  const currentGame = await getCurrentGameOrThrow();
   if (currentGame.currentPointId === null) {
     throw new Error('current point id is null');
   }
@@ -92,13 +108,11 @@ export const addPlayerToCurrentGame = async (
 };
 
 export const clearCurrentGamePlayers = async () => {
-  const currentGame = await getCurrentGame();
-  if (currentGame.currentPointId === null) {
-    throw new Error('current point id is null');
-  }
+  const currentGame = await getCurrentGameOrThrow();
+  const currentPointId = await getCurrentPointIdFromGameOrThrow(currentGame);
   await prisma.playerPoint.deleteMany({
     where: {
-      pointId: currentGame.currentPointId
+      pointId: currentPointId
     }
   });
 };
@@ -109,9 +123,9 @@ export const recordGoalScored = async (
 ) => {
   const gameLogicService = new GameLogicService();
 
-  const currentGame = await getCurrentGame();
+  const currentGame = await getCurrentGameOrThrow();
 
-  const currentPoint = await getCurrentPointFromGame(currentGame);
+  const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
 
   const playerPoint = await prisma.playerPoint.findFirstOrThrow({
     where: {
@@ -134,6 +148,8 @@ export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
   const playerPointsForPlayer =
     await getAllPlayerPointsForPlayerInCurrentGame(playerId);
 
+  if (playerPointsForPlayer == null) return null;
+
   const goalScored = playerPointsForPlayer.reduce(
     (totalGoals, playerPoint) => totalGoals + (playerPoint.scoredGoal ? 1 : 0),
     0
@@ -155,4 +171,25 @@ export const removePlayerFromCurrentGame = async (playerId: number) => {
   if (currentPlayerPointForPlayer == null)
     throw new Error(`There is no PlayerPoint for playerId ${playerId}`);
   deletePlayerPoint(currentPlayerPointForPlayer.id);
+};
+
+export const abandonCurrentGame = async () => {
+  const currentGame = await getCurrentGameOrThrow();
+
+  const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
+
+  await prisma.game.update({
+    where: {
+      id: currentGame.id
+    },
+    data: {
+      abandoned: true,
+      finalScoreBlue: currentPoint.currentBlueScore,
+      finalScoreRed: currentPoint.currentRedScore
+    }
+  });
+};
+
+export const startGame = async () => {
+  await new GameLogicService().startGame();
 };
