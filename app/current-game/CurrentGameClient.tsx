@@ -4,7 +4,6 @@ import { FC, useEffect, useState } from 'react';
 import { experimental_useOptimistic as useOptimistic } from 'react';
 import { Team } from '../components/team';
 import AddPlayerToTeam from '../components/add-player-to-team';
-import { ClearCurrentGamePlayers } from '../components/clear-current-game-players';
 import {
   PlayerInfo,
   addPlayerToCurrentGame,
