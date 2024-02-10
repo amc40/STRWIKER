@@ -1,5 +1,5 @@
 import { $Enums } from '@prisma/client';
-import PlayerCard from './playercard';
+import PlayerCard from './PlayerCard';
 import { PlayerInfo, reorderPlayer } from '../../lib/Game.actions';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
