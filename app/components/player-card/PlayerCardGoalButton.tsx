@@ -1,20 +1,13 @@
 import React from 'react';
+import { PrimaryButton } from '../PrimaryButton';
 
 interface PlayerCardGoalButtonProps {
   text: string;
   onClick: () => void;
 }
 
-export const PlayerCardGoalButton: React.FC<PlayerCardGoalButtonProps> = ({
-  text,
-  onClick
-}) => {
-  return (
-    <button
-      className="py-2 px-4 bg-goal text-sm rounded text-white"
-      onClick={onClick}
-    >
-      {text}
-    </button>
-  );
+export const PlayerCardGoalButton: React.FC<PlayerCardGoalButtonProps> = (
+  props
+) => {
+  return <PrimaryButton className="text-sm" {...props} />;
 };

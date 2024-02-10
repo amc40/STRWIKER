@@ -15,7 +15,7 @@ export default {
           red: '#EE2E31',
           blue: '#004f98'
         },
-        goal: '#4CAF50'
+        primary: '#4CAF50'
       }
     },
     safelist: [

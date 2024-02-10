@@ -3,6 +3,7 @@
 import { Player } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
 import { addPlayer, getPlayers } from '../../lib/Player.actions';
+import { PrimaryButton } from '../components/PrimaryButton';
 
 interface PlayersClientProps {
   serverPlayers: Player[];
@@ -61,8 +62,8 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
 
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <div style={{ backgroundColor: '#fff', padding: '20px' }}>
-        <h1 style={{ fontSize: '30px' }}>Players</h1>
+      <div className="bg-white p-3">
+        <h1 className="text-3xl">Players</h1>
 
         <div>
           <input
@@ -70,28 +71,9 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
             placeholder="Enter player name"
             value={newPlayerName}
             onChange={(e) => setNewPlayerName(e.target.value)}
-            style={{
-              marginBottom: '10px',
-              marginTop: '10px',
-              marginRight: '5px',
-              padding: '5px',
-              border: '1px solid #EE2E31',
-              borderRadius: '5px',
-              outline: 'none'
-            }}
+            className="my-4 mr-2 p-1.5 border border-black rounded"
           />
-          <button
-            onClick={handleAddPlayer}
-            style={{
-              backgroundColor: '#004f98',
-              color: '#fff',
-              padding: '5px 10px',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            Add Player
-          </button>
+          <PrimaryButton text="Add Player" onClick={handleAddPlayer} />
         </div>
 
         <input
@@ -99,25 +81,16 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
           placeholder="Search players..."
           value={searchTerm}
           onChange={handleSearch}
-          style={{
-            marginBottom: '10px',
-            marginRight: '5px',
-            padding: '5px',
-            borderRadius: '5px',
-            outline: 'none'
-          }}
+          className="mb-3 p-2"
         />
 
         <ul style={{ listStyle: 'none', padding: 0, marginLeft: '5px' }}>
           {filteredPlayers.map((player, index) => (
             <li
               key={player.id}
-              style={{
-                color: index % 2 === 0 ? '#004f98' : '#EE2E31',
-                marginBottom: '10px',
-                borderBottom: '1px solid #000',
-                paddingBottom: '5px'
-              }}
+              className={`mb-2 pb-2 border-b border-black ${
+                index % 2 == 0 ? 'text-team-blue' : 'text-team-red'
+              }`}
             >
               {player.name}
             </li>
