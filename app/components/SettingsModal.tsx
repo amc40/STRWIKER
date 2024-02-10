@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal, { ModalProps } from './modal';
+import Modal, { ModalProps } from './Modal';
 import { AbandonGameButton } from './AbandonGameButton';
 
 export const SettingsModal: React.FC<ModalProps> = (props) => {

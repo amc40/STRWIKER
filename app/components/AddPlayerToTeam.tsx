@@ -3,7 +3,7 @@
 import { $Enums, Player, Team } from '@prisma/client';
 import { FC, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import Modal from './modal';
+import Modal from './Modal';
 import { getPlayers } from '../../lib/Player.actions';
 import { PlayerInfo } from '../../lib/Game.actions';
 

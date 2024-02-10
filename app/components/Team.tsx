@@ -1,5 +1,5 @@
 import { $Enums } from '@prisma/client';
-import PlayerCard from './playercard';
+import PlayerCard from './player-card/PlayerCard';
 import { PlayerInfo, reorderPlayer } from '../../lib/Game.actions';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
@@ -22,14 +22,10 @@ export const Team: React.FC<TeamProps> = ({
 }) => {
   return (
     <div
-      className={hideOnSmallScreen ? 'hidden md:block' : ''}
-      style={{
-        flex: 1,
-        padding: '20px',
-        border: '1px solid #ccc',
-        backgroundColor: team === $Enums.Team.Red ? '#EE2E31' : '#004f98',
-        color: 'white'
-      }}
+      className={`flex-1 p-3 border border-slate-300 md:p-5 text-white ${
+        hideOnSmallScreen ? 'hidden md:block' : ''
+      } 
+      ${team === $Enums.Team.Red ? 'bg-team-red' : 'bg-team-blue'}`}
     >
       <h2 className={'flex'}>
         Team {team}{' '}

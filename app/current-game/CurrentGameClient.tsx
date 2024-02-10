@@ -2,8 +2,8 @@
 import { $Enums } from '@prisma/client';
 import { FC, useEffect, useState } from 'react';
 import { experimental_useOptimistic as useOptimistic } from 'react';
-import { Team } from '../components/team';
-import AddPlayerToTeam from '../components/add-player-to-team';
+import { Team } from '../components/Team';
+import AddPlayerToTeam from '../components/AddPlayerToTeam';
 import {
   PlayerInfo,
   addPlayerToCurrentGame,
