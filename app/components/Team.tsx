@@ -42,7 +42,7 @@ export const Team: React.FC<TeamProps> = ({
         <Droppable droppableId={`${team}-players`}>
           {(provided) => (
             <ul
-              className={`${team}-players`}
+              className={`${team}-players inline-block`}
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
