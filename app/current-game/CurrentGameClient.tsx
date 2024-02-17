@@ -9,7 +9,8 @@ import {
   addPlayerToCurrentGame,
   clearCurrentGamePlayers,
   getCurrentGameInfo,
-  removePlayerFromCurrentGame
+  removePlayerFromCurrentGame,
+  reorderPlayer as reorderPlayerAction
 } from '../../lib/Game.actions';
 import SettingsButton from '../components/SettingsButton';
 import { SettingsModal } from '../components/SettingsModal';
@@ -28,13 +29,77 @@ const MOBILE_SCREEN_BREAK_POINT = 768;
 enum OptimisticAction {
   ADD,
   CLEAR,
-  REMOVE
+  REMOVE,
+  REORDER
 }
 
 type SetOptimisticPlayerArgs =
-  | { action: OptimisticAction.ADD; player: PlayerInfo }
-  | { action: OptimisticAction.CLEAR; player: undefined }
-  | { action: OptimisticAction.REMOVE; player: PlayerInfo };
+  | {
+      action: OptimisticAction.ADD;
+      player: PlayerInfo;
+      destinationIndex: undefined;
+    }
+  | {
+      action: OptimisticAction.CLEAR;
+      player: undefined;
+      destinationIndex: undefined;
+    }
+  | {
+      action: OptimisticAction.REMOVE;
+      player: PlayerInfo;
+      destinationIndex: undefined;
+    }
+  | {
+      action: OptimisticAction.REORDER;
+      player: PlayerInfo;
+      destinationIndex: number;
+    };
+
+const updatePlayerOrderAfterReorder = (
+  player: PlayerInfo,
+  playerReordered: PlayerInfo,
+  destinationIndex: number
+): PlayerInfo => {
+  if (player.team !== playerReordered.team) {
+    return player;
+  }
+
+  if (player.id === playerReordered.id) {
+    return {
+      ...player,
+      position: destinationIndex
+    };
+  }
+
+  if (player.position === playerReordered.position) {
+    throw new Error(
+      `Not playerReordered, but positions before reordered match. player: ${JSON.stringify(
+        player
+      )}, playerReordered: ${JSON.stringify(
+        playerReordered
+      )}, destinationIndex: ${destinationIndex}`
+    );
+  }
+
+  if (player.position < playerReordered.position) {
+    if (player.position < destinationIndex) {
+      return player;
+    }
+    return {
+      ...player,
+      position: player.position + 1
+    };
+  }
+
+  if (player.position > destinationIndex) {
+    return player;
+  }
+
+  return {
+    ...player,
+    position: player.position - 1
+  };
+};
 
 export const CurrentGameClient: FC<{
   serverRedScore: number;
@@ -63,7 +128,10 @@ export const CurrentGameClient: FC<{
 
   const [optimisticPlayers, setOptimisticPlayers] = useOptimistic(
     players,
-    (state: PlayerInfo[], { action, player }: SetOptimisticPlayerArgs) => {
+    (
+      state: PlayerInfo[],
+      { action, player, destinationIndex }: SetOptimisticPlayerArgs
+    ) => {
       switch (action) {
         case OptimisticAction.ADD:
           return [...state, player];
@@ -71,6 +139,19 @@ export const CurrentGameClient: FC<{
           return [];
         case OptimisticAction.REMOVE:
           return state.filter((playerInfo) => playerInfo.id !== player.id);
+        case OptimisticAction.REORDER:
+          try {
+            return state.map((playerInfo) =>
+              updatePlayerOrderAfterReorder(
+                playerInfo,
+                player,
+                destinationIndex
+              )
+            );
+          } catch (e) {
+            console.error(e);
+            return players;
+          }
         default:
           return [];
       }
@@ -90,22 +171,31 @@ export const CurrentGameClient: FC<{
         team,
         // should be added at the end
         position: Number.MAX_SAFE_INTEGER
-      }
+      },
+      destinationIndex: undefined
     });
     await addPlayerToCurrentGame(playerId, team);
-  };
-
-  const clearPlayers = async () => {
-    setOptimisticPlayers({ action: OptimisticAction.CLEAR, player: undefined });
-    await clearCurrentGamePlayers();
   };
 
   const removePlayer = async (player: PlayerInfo) => {
     setOptimisticPlayers({
       action: OptimisticAction.REMOVE,
-      player
+      player,
+      destinationIndex: undefined
     });
     await removePlayerFromCurrentGame(player.id);
+  };
+
+  const reorderPlayer = async (
+    player: PlayerInfo,
+    destinationIndex: number
+  ) => {
+    setOptimisticPlayers({
+      action: OptimisticAction.REORDER,
+      player,
+      destinationIndex
+    });
+    await reorderPlayerAction(player.id, destinationIndex);
   };
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -149,6 +239,7 @@ export const CurrentGameClient: FC<{
                     .sort((a, b) => a.position - b.position)}
                   score={blueScore}
                   removePlayer={removePlayer}
+                  reorderPlayer={reorderPlayer}
                 >
                   <AddPlayerToTeam
                     team={$Enums.Team.Blue}
@@ -167,6 +258,7 @@ export const CurrentGameClient: FC<{
                     .sort((a, b) => a.position - b.position)}
                   score={redScore}
                   removePlayer={removePlayer}
+                  reorderPlayer={reorderPlayer}
                 >
                   <AddPlayerToTeam
                     team={$Enums.Team.Red}
@@ -186,6 +278,7 @@ export const CurrentGameClient: FC<{
                 .sort((a, b) => a.position - b.position)}
               score={blueScore}
               removePlayer={removePlayer}
+              reorderPlayer={reorderPlayer}
             >
               <AddPlayerToTeam
                 team={$Enums.Team.Blue}
@@ -200,6 +293,7 @@ export const CurrentGameClient: FC<{
                 .sort((a, b) => a.position - b.position)}
               score={redScore}
               removePlayer={removePlayer}
+              reorderPlayer={reorderPlayer}
               // The initial render wil be for the desktop site, but we don't want to show the Red on the small screens
               hideOnSmallScreen={true}
             >
