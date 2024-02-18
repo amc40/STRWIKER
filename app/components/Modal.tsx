@@ -1,12 +1,17 @@
-import { FC, useEffect } from 'react';
+import React, { FC, ReactNode, useEffect } from 'react';
+import { Cross } from './icons/Cross';
 
-export interface ModalProps {
+export interface CustomModalProps {
   show: Boolean;
-  children?: JSX.Element;
   onClose: () => void;
 }
 
-const Modal: FC<ModalProps> = ({ children, show, onClose }) => {
+export interface ModalProps extends CustomModalProps {
+  title: string | ReactNode;
+  children?: JSX.Element;
+}
+
+const Modal: FC<ModalProps> = ({ title, children, show, onClose }) => {
   if (!show) {
     return null;
   }
@@ -22,8 +27,11 @@ const Modal: FC<ModalProps> = ({ children, show, onClose }) => {
         className={'bg-white opacity-100 text-black rounded-md p-5 pt-2'}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={'text-right'}>
-          <button onClick={onClose}>Close</button>
+        <div className="flex justify-between items-center">
+          <h1 className="text-xl md:text-3xl font-semibold">{title}</h1>
+          <button className="border-red-500 text-red-500" onClick={onClose}>
+            <Cross />
+          </button>
         </div>
         {children}
       </div>

@@ -51,13 +51,9 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
       >
         Add
       </button>
-      <Modal show={showModal} onClose={onClose}>
-        <div
-          className={
-            'min-w-[80vw] lg:min-w-[40vw] min-h-[50vh] lg:min-h-[30vh] max-h-[80vh]'
-          }
-        >
-          <p>
+      <Modal
+        title={
+          <>
             Add player to{' '}
             <span
               className={`font-bold ${
@@ -66,7 +62,16 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
             >
               Team {`${team}`}
             </span>
-          </p>
+          </>
+        }
+        show={showModal}
+        onClose={onClose}
+      >
+        <div
+          className={
+            'min-w-[80vw] lg:min-w-[40vw] min-h-[50vh] lg:min-h-[30vh] max-h-[80vh]'
+          }
+        >
           <input
             className={'mt-2 p-1 border border-gray-500'}
             placeholder={'Search player name...'}
