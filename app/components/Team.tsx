@@ -1,6 +1,6 @@
 import { $Enums } from '@prisma/client';
 import PlayerCard from './player-card/PlayerCard';
-import { PlayerInfo, reorderPlayer } from '../../lib/Game.actions';
+import { PlayerInfo } from '../../lib/Game.actions';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 interface TeamProps {
@@ -9,6 +9,7 @@ interface TeamProps {
   score: number;
   children?: JSX.Element;
   removePlayer: (player: PlayerInfo) => void;
+  reorderPlayer: (player: PlayerInfo, destinationIndex: number) => void;
   hideOnSmallScreen?: boolean;
 }
 
@@ -17,6 +18,7 @@ export const Team: React.FC<TeamProps> = ({
   members,
   score,
   removePlayer,
+  reorderPlayer,
   children,
   hideOnSmallScreen = false
 }) => {
@@ -36,13 +38,16 @@ export const Team: React.FC<TeamProps> = ({
           const destinationIndex = onDragEndResponder.destination?.index;
           if (destinationIndex == null) return;
           const playerId = Number.parseInt(onDragEndResponder.draggableId);
-          await reorderPlayer(playerId, destinationIndex);
+          const playerInfo = members.find((member) => member.id === playerId);
+          if (!playerInfo)
+            throw new Error(`There is no team member with id: ${playerId}`);
+          reorderPlayer(playerInfo, destinationIndex);
         }}
       >
         <Droppable droppableId={`${team}-players`}>
           {(provided) => (
             <ul
-              className={`${team}-players`}
+              className={`${team}-players inline-block`}
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
