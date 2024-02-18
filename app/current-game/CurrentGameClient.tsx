@@ -17,10 +17,8 @@ import { SettingsModal } from '../components/SettingsModal';
 import { NoGameInProgress } from './NoGameInProgress';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';
 
 import 'swiper/css';
-import 'swiper/css/pagination';
 
 const MS_BETWEEN_REFRESHES = 1000;
 
@@ -224,12 +222,7 @@ export const CurrentGameClient: FC<{
       />
       <div className="flex flex-1">
         {isMobile ? (
-          <Swiper
-            pagination={{
-              clickable: true
-            }}
-            modules={[Pagination]}
-          >
+          <Swiper>
             <SwiperSlide>
               <div className="h-full flex">
                 <Team
