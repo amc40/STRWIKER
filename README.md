@@ -29,13 +29,16 @@ It uses:
 
 ## TODO
 
-- [x] Determine why there is a server error when deploying to vercel
-- [ ] Integrate prisma workflow with planetscale
-- [ ] Add github auth provider
+- [ ] Fix issue with duplicate player being added
 - [ ] Integrate prisma workflow with planetscale (shouldn't be using prod data in preview deployments)
 - [ ] Use terraform to create github repo with sensible configuration
-- [ ] Use terraform to create Azure App Registration and similar in GitHub
-- [ ] Figure out how to allow authentication for preview deployments (shouldn't use wildcards for oath redirects) (can this be added on deployment with terraform??)
 - [ ] Add e2e testing (using playwright?)
-- [ ] Set up monitoring / alerting (new relic)
-- [ ] Traffic mirroring?
+- [ ] Fix drag-drop offset from cursor on mobile due to drag and drop inside swiper
+- [ ] Add `ROTATION_STRATEGY` to game settings
+- [ ] Add skip turn button
+- [ ] Add an easy way to start a game with the same players
+- [ ] Show number of goals scored at end of game
+- [ ] Show changes in player rankings based on ELO at end of the game
+- [ ] Add stat for how much you increase a partner's performance
+- [ ] Add magic link auth / login
+- [ ] Add easy flow for joining game as blue or red team using QR / NFC
