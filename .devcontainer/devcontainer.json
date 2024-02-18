@@ -36,7 +36,8 @@
         "hashicorp.terraform",
         "rangav.vscode-thunder-client",
         "Prisma.prisma",
-        "GitHub.vscode-github-actions"
+        "GitHub.vscode-github-actions",
+        "bradlc.vscode-tailwindcss"
       ]
     }
   }

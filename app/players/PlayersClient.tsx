@@ -84,7 +84,7 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
           className="mb-3 p-2"
         />
 
-        <ul style={{ listStyle: 'none', padding: 0, marginLeft: '5px' }}>
+        <ul>
           {filteredPlayers.map((player, index) => (
             <li
               key={player.id}
