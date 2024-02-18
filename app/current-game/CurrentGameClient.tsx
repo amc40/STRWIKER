@@ -13,7 +13,7 @@ import {
   reorderPlayer as reorderPlayerAction
 } from '../../lib/Game.actions';
 import SettingsButton from '../components/SettingsButton';
-import { SettingsModal } from '../components/SettingsModal';
+import { SettingsModal } from '../components/settings-modal/SettingsModal';
 import { NoGameInProgress } from './NoGameInProgress';
 
 import { Swiper, SwiperSlide } from 'swiper/react';

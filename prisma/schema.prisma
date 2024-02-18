@@ -39,7 +39,7 @@ model Game {
 
 enum RotatyStrategy {
   Never
-  OnLose
+  OnConcede
   Always
 }
 

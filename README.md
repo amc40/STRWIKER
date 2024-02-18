@@ -34,7 +34,6 @@ It uses:
 - [ ] Use terraform to create github repo with sensible configuration
 - [ ] Add e2e testing (using playwright?)
 - [ ] Fix drag-drop offset from cursor on mobile due to drag and drop inside swiper
-- [ ] Add `ROTATION_STRATEGY` to game settings
 - [ ] Add skip turn button
 - [ ] Add an easy way to start a game with the same players
 - [ ] Show number of goals scored at end of game

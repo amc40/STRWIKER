@@ -244,7 +244,7 @@ function isTeamRotating(team: Team, game: Game, scoringTeam: Team) {
       return false;
     case 'Always':
       return true;
-    case 'OnLose':
+    case 'OnConcede':
       return team !== scoringTeam;
   }
 }

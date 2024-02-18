@@ -1,6 +1,12 @@
 'use server';
 
-import { $Enums, Player, PlayerPoint } from '@prisma/client';
+import {
+  $Enums,
+  Player,
+  PlayerPoint,
+  RotatyStrategy,
+  Team
+} from '@prisma/client';
 import prisma from './planetscale';
 import { GameLogicService } from '../app/services/gameLogicService';
 import {
@@ -15,7 +21,8 @@ import {
 } from '../app/repository/playerPointRepository';
 import {
   getCurrentGame,
-  getCurrentGameOrThrow
+  getCurrentGameOrThrow,
+  updateRotatyStrategy
 } from '../app/repository/gameRepository';
 
 export interface PlayerPointWithPlayer extends PlayerPoint {
@@ -195,4 +202,17 @@ export const startGame = async () => {
 export const reorderPlayer = async (playerId: number, newPosition: number) => {
   const playerPoint = await getCurrentPlayerPointForPlayerOrThrow(playerId);
   await new GameLogicService().reorderPlayerPoint(playerPoint, newPosition);
+};
+
+export const getRotatyStrategy = async (team: Team) => {
+  const currentGame = await getCurrentGameOrThrow();
+  return team === 'Red' ? currentGame.rotatyRed : currentGame.rotatyBlue;
+};
+
+export const updateRotatyStrategyAction = async (
+  rotatyStrategy: RotatyStrategy,
+  team: Team
+) => {
+  const currentGame = await getCurrentGameOrThrow();
+  await updateRotatyStrategy(currentGame, rotatyStrategy, team);
 };
