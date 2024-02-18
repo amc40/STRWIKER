@@ -43,7 +43,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
   };
 
   return (
-    <div className="z-0 relative bg-white border-slate-300 rounded-lg p-2 m-3 w-[200px] shadow-lg text-center text-black">
+    <div className="z-0 relative bg-white border-slate-300 rounded-lg p-2 mb-5 w-[200px] shadow-lg text-center text-black">
       <span className="right-2 top-2 absolute inline-block">
         <CircleRemove onRemove={() => removePlayer(player)} />
       </span>
