@@ -1,13 +1,11 @@
 'use client';
 import { $Enums } from '@prisma/client';
 import { FC, useEffect, useState } from 'react';
-import { experimental_useOptimistic as useOptimistic } from 'react';
 import { Team } from '../components/Team';
 import AddPlayerToTeam from '../components/AddPlayerToTeam';
 import {
   PlayerInfo,
   addPlayerToCurrentGame,
-  clearCurrentGamePlayers,
   getCurrentGameInfo,
   removePlayerFromCurrentGame,
   reorderPlayer as reorderPlayerAction
@@ -23,35 +21,6 @@ import 'swiper/css';
 const MS_BETWEEN_REFRESHES = 1000;
 
 const MOBILE_SCREEN_BREAK_POINT = 768;
-
-enum OptimisticAction {
-  ADD,
-  CLEAR,
-  REMOVE,
-  REORDER
-}
-
-type SetOptimisticPlayerArgs =
-  | {
-      action: OptimisticAction.ADD;
-      player: Omit<PlayerInfo, 'position'>;
-      destinationIndex: undefined;
-    }
-  | {
-      action: OptimisticAction.CLEAR;
-      player: undefined;
-      destinationIndex: undefined;
-    }
-  | {
-      action: OptimisticAction.REMOVE;
-      player: PlayerInfo;
-      destinationIndex: undefined;
-    }
-  | {
-      action: OptimisticAction.REORDER;
-      player: PlayerInfo;
-      destinationIndex: number;
-    };
 
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
@@ -124,68 +93,26 @@ export const CurrentGameClient: FC<{
     return () => clearInterval(refreshInterval);
   }, []);
 
-  // TODO: remove after duplicate player issue has been fixed
-  useEffect(() => {
-    console.table(players);
-  }, [players]);
-
-  const [optimisticPlayers, setOptimisticPlayers] = useOptimistic(
-    players,
-    (state: PlayerInfo[], args: SetOptimisticPlayerArgs) => {
-      switch (args.action) {
-        case OptimisticAction.ADD:
-          return [
-            ...state,
-            {
-              ...args.player,
-              position: Math.max(...state.map((player) => player.position)) + 1
-            }
-          ];
-        case OptimisticAction.CLEAR:
-          return [];
-        case OptimisticAction.REMOVE:
-          return state.filter((playerInfo) => playerInfo.id !== args.player.id);
-        case OptimisticAction.REORDER:
-          try {
-            return state.map((playerInfo) =>
-              updatePlayerOrderAfterReorder(
-                playerInfo,
-                args.player,
-                args.destinationIndex
-              )
-            );
-          } catch (e) {
-            console.error(e);
-            return players;
-          }
-        default:
-          return [];
-      }
-    }
-  );
-
   const addPlayer = async (
     playerId: number,
     playerName: string,
     team: $Enums.Team
   ) => {
-    setOptimisticPlayers({
-      action: OptimisticAction.ADD,
-      player: {
+    setPlayers((state) => [
+      ...state,
+      {
         id: playerId,
         name: playerName,
-        team
-      },
-      destinationIndex: undefined
-    });
+        team,
+        position: Math.max(...state.map((player) => player.position)) + 1
+      }
+    ]);
     await addPlayerToCurrentGame(playerId, team);
   };
 
   const removePlayer = async (player: PlayerInfo) => {
-    setOptimisticPlayers({
-      action: OptimisticAction.REMOVE,
-      player,
-      destinationIndex: undefined
+    setPlayers((state) => {
+      return state.filter((playerInfo) => playerInfo.id !== player.id);
     });
     await removePlayerFromCurrentGame(player.id);
   };
@@ -194,10 +121,15 @@ export const CurrentGameClient: FC<{
     player: PlayerInfo,
     destinationIndex: number
   ) => {
-    setOptimisticPlayers({
-      action: OptimisticAction.REORDER,
-      player,
-      destinationIndex
+    setPlayers((state) => {
+      try {
+        return state.map((playerInfo) =>
+          updatePlayerOrderAfterReorder(playerInfo, player, destinationIndex)
+        );
+      } catch (e) {
+        console.error(e);
+        return players;
+      }
     });
     await reorderPlayerAction(player.id, destinationIndex);
   };
@@ -233,7 +165,7 @@ export const CurrentGameClient: FC<{
               <div className="h-full flex">
                 <Team
                   team={$Enums.Team.Blue}
-                  members={optimisticPlayers
+                  members={players
                     .filter((player) => player.team === 'Blue')
                     .sort((a, b) => a.position - b.position)}
                   score={blueScore}
@@ -252,7 +184,7 @@ export const CurrentGameClient: FC<{
               <div className="h-full flex">
                 <Team
                   team={$Enums.Team.Red}
-                  members={optimisticPlayers
+                  members={players
                     .filter((player) => player.team === 'Red')
                     .sort((a, b) => a.position - b.position)}
                   score={redScore}
@@ -272,7 +204,7 @@ export const CurrentGameClient: FC<{
           <>
             <Team
               team={$Enums.Team.Blue}
-              members={optimisticPlayers
+              members={players
                 .filter((player) => player.team === 'Blue')
                 .sort((a, b) => a.position - b.position)}
               score={blueScore}
@@ -287,7 +219,7 @@ export const CurrentGameClient: FC<{
             </Team>
             <Team
               team={$Enums.Team.Red}
-              members={optimisticPlayers
+              members={players
                 .filter((player) => player.team === 'Red')
                 .sort((a, b) => a.position - b.position)}
               score={redScore}
