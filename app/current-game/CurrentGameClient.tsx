@@ -1,13 +1,12 @@
 'use client';
 import { $Enums } from '@prisma/client';
 import { FC, useEffect, useState } from 'react';
-import { experimental_useOptimistic as useOptimistic } from 'react';
+import { useOptimistic } from 'react';
 import { Team } from '../components/Team';
 import AddPlayerToTeam from '../components/AddPlayerToTeam';
 import {
   PlayerInfo,
   addPlayerToCurrentGame,
-  clearCurrentGamePlayers,
   getCurrentGameInfo,
   removePlayerFromCurrentGame,
   reorderPlayer as reorderPlayerAction

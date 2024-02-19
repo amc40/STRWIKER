@@ -1,4 +1,3 @@
-const { queryComplexityPlugin } = require('nexus');
 const CopyPlugin = require('copy-webpack-plugin');
 
 /** @type {import('next').NextConfig} */
@@ -7,8 +6,7 @@ const nextConfig = {
     domains: ['avatars.githubusercontent.com', 'avatar.vercel.sh']
   },
   experimental: {
-    serverComponentsExternalPackages: ['@tremor/react'],
-    serverActions: true
+    serverComponentsExternalPackages: ['@tremor/react']
   },
   async redirects() {
     return [
