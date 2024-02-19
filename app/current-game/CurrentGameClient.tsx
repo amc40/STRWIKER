@@ -34,7 +34,7 @@ enum OptimisticAction {
 type SetOptimisticPlayerArgs =
   | {
       action: OptimisticAction.ADD;
-      player: PlayerInfo;
+      player: Omit<PlayerInfo, 'position'>;
       destinationIndex: undefined;
     }
   | {
@@ -124,26 +124,34 @@ export const CurrentGameClient: FC<{
     return () => clearInterval(refreshInterval);
   }, []);
 
+  // TODO: remove after duplicate player issue has been fixed
+  useEffect(() => {
+    console.table(players);
+  }, [players]);
+
   const [optimisticPlayers, setOptimisticPlayers] = useOptimistic(
     players,
-    (
-      state: PlayerInfo[],
-      { action, player, destinationIndex }: SetOptimisticPlayerArgs
-    ) => {
-      switch (action) {
+    (state: PlayerInfo[], args: SetOptimisticPlayerArgs) => {
+      switch (args.action) {
         case OptimisticAction.ADD:
-          return [...state, player];
+          return [
+            ...state,
+            {
+              ...args.player,
+              position: Math.max(...state.map((player) => player.position)) + 1
+            }
+          ];
         case OptimisticAction.CLEAR:
           return [];
         case OptimisticAction.REMOVE:
-          return state.filter((playerInfo) => playerInfo.id !== player.id);
+          return state.filter((playerInfo) => playerInfo.id !== args.player.id);
         case OptimisticAction.REORDER:
           try {
             return state.map((playerInfo) =>
               updatePlayerOrderAfterReorder(
                 playerInfo,
-                player,
-                destinationIndex
+                args.player,
+                args.destinationIndex
               )
             );
           } catch (e) {
@@ -166,9 +174,7 @@ export const CurrentGameClient: FC<{
       player: {
         id: playerId,
         name: playerName,
-        team,
-        // should be added at the end
-        position: Number.MAX_SAFE_INTEGER
+        team
       },
       destinationIndex: undefined
     });
