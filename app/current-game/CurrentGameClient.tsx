@@ -124,6 +124,11 @@ export const CurrentGameClient: FC<{
     return () => clearInterval(refreshInterval);
   }, []);
 
+  // TODO: remove after duplicate player issue has been fixed
+  useEffect(() => {
+    console.table(players);
+  }, [players]);
+
   const [optimisticPlayers, setOptimisticPlayers] = useOptimistic(
     players,
     (
