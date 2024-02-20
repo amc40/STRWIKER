@@ -78,11 +78,15 @@ export const CurrentGameClient: FC<{
   const [redScore, setRedScore] = useState(serverRedScore);
   const [blueScore, setBlueScore] = useState(serverBlueScore);
 
+  const [awaitingPlayersResponse, setAwaitingPlayersResponse] = useState(false);
+
   // on initial render setup a function to refresh the current game info every MS_BETWEEN_REFRESHES
   useEffect(() => {
     const refreshInterval = setInterval(async () => {
       const currentGameInfo = await getCurrentGameInfo();
+
       if (currentGameInfo.gameInProgress) {
+        if (awaitingPlayersResponse) return;
         setPlayers(currentGameInfo.players);
         setRedScore(currentGameInfo.redScore);
         setBlueScore(currentGameInfo.blueScore);
@@ -91,6 +95,7 @@ export const CurrentGameClient: FC<{
       }
     }, MS_BETWEEN_REFRESHES);
     return () => clearInterval(refreshInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addPlayer = async (
@@ -98,6 +103,7 @@ export const CurrentGameClient: FC<{
     playerName: string,
     team: $Enums.Team
   ) => {
+    setAwaitingPlayersResponse(true);
     setPlayers((state) => [
       ...state,
       {
@@ -107,20 +113,37 @@ export const CurrentGameClient: FC<{
         position: Math.max(...state.map((player) => player.position)) + 1
       }
     ]);
-    await addPlayerToCurrentGame(playerId, team);
+    const action = async () => {
+      try {
+        await addPlayerToCurrentGame(playerId, team);
+      } finally {
+        setAwaitingPlayersResponse(false);
+      }
+    };
+    action();
   };
 
   const removePlayer = async (player: PlayerInfo) => {
+    setAwaitingPlayersResponse(true);
     setPlayers((state) => {
       return state.filter((playerInfo) => playerInfo.id !== player.id);
     });
-    await removePlayerFromCurrentGame(player.id);
+    const action = async () => {
+      try {
+        await removePlayerFromCurrentGame(player.id);
+      } finally {
+        setAwaitingPlayersResponse(false);
+      }
+    };
+    action();
   };
 
   const reorderPlayer = async (
     player: PlayerInfo,
     destinationIndex: number
   ) => {
+    setAwaitingPlayersResponse(true);
+
     setPlayers((state) => {
       try {
         return state.map((playerInfo) =>
@@ -131,7 +154,15 @@ export const CurrentGameClient: FC<{
         return players;
       }
     });
-    await reorderPlayerAction(player.id, destinationIndex);
+
+    const action = async () => {
+      try {
+        await reorderPlayerAction(player.id, destinationIndex);
+      } finally {
+        setAwaitingPlayersResponse(false);
+      }
+    };
+    action();
   };
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
