@@ -104,7 +104,6 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
                          : ''
                      }`}
                     onClick={async () => {
-                      onClose();
                       addPlayer(player.id, player.name, team);
                     }}
                   >
