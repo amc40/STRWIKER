@@ -1,6 +1,6 @@
 'use client';
 import { $Enums } from '@prisma/client';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { Team } from '../components/Team';
 import AddPlayerToTeam from '../components/AddPlayerToTeam';
 import {
@@ -79,14 +79,22 @@ export const CurrentGameClient: FC<{
   const [blueScore, setBlueScore] = useState(serverBlueScore);
 
   const [awaitingPlayersResponse, setAwaitingPlayersResponse] = useState(false);
+  const awaitingPlayersResponseRef = useRef(awaitingPlayersResponse);
+
+  useEffect(() => {
+    awaitingPlayersResponseRef.current = awaitingPlayersResponse;
+  }, [awaitingPlayersResponse]);
 
   // on initial render setup a function to refresh the current game info every MS_BETWEEN_REFRESHES
   useEffect(() => {
     const refreshInterval = setInterval(async () => {
       const currentGameInfo = await getCurrentGameInfo();
-
+      console.log(
+        'refresh: awaitingPlayersResponseRef',
+        awaitingPlayersResponseRef.current
+      );
       if (currentGameInfo.gameInProgress) {
-        if (awaitingPlayersResponse) return;
+        if (awaitingPlayersResponseRef.current) return;
         setPlayers(currentGameInfo.players);
         setRedScore(currentGameInfo.redScore);
         setBlueScore(currentGameInfo.blueScore);
