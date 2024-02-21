@@ -129,18 +129,10 @@ export const CurrentGameClient: FC<{
   };
 
   const removePlayer = async (player: PlayerInfo) => {
-    setAwaitingPlayersResponse(true);
     setPlayers((state) => {
       return state.filter((playerInfo) => playerInfo.id !== player.id);
     });
-    const action = async () => {
-      try {
-        await removePlayerFromCurrentGame(player.id);
-      } finally {
-        setAwaitingPlayersResponse(false);
-      }
-    };
-    action();
+    removePlayerFromCurrentGame(player.id);
   };
 
   const reorderPlayer = async (
