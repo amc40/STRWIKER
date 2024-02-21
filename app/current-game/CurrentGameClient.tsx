@@ -79,6 +79,7 @@ export const CurrentGameClient: FC<{
   const [blueScore, setBlueScore] = useState(serverBlueScore);
 
   const [awaitingPlayersResponse, setAwaitingPlayersResponse] = useState(false);
+  // this prevents the value of awaitingPlayersResponse being captured by the closure in the refresh useEffect
   const awaitingPlayersResponseRef = useRef(awaitingPlayersResponse);
 
   useEffect(() => {
@@ -89,10 +90,6 @@ export const CurrentGameClient: FC<{
   useEffect(() => {
     const refreshInterval = setInterval(async () => {
       const currentGameInfo = await getCurrentGameInfo();
-      console.log(
-        'refresh: awaitingPlayersResponseRef',
-        awaitingPlayersResponseRef.current
-      );
       if (currentGameInfo.gameInProgress) {
         if (awaitingPlayersResponseRef.current) return;
         setPlayers(currentGameInfo.players);
