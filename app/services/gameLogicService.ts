@@ -110,48 +110,51 @@ export class GameLogicService {
     finishedPoint: Point,
     game: Game
   ) {
-    await prisma.playerPoint.update({
-      where: {
-        id: scorerPlayerPoint.id
-      },
-      data: {
-        scoredGoal: !ownGoal,
-        ownGoal: ownGoal
+    await prisma.$transaction(async () => {
+      const updatePlayerScored = prisma.playerPoint.update({
+        where: {
+          id: scorerPlayerPoint.id
+        },
+        data: {
+          scoredGoal: !ownGoal,
+          ownGoal: ownGoal
+        }
+      });
+
+      const updatePointEndTime = prisma.point.update({
+        where: {
+          id: finishedPoint.id
+        },
+        data: {
+          endTime: new Date()
+        }
+      });
+
+      const scoringTeam = ownGoal
+        ? opposingTeam(scorerPlayerPoint.team)
+        : scorerPlayerPoint.team;
+
+      const newBlueScore =
+        finishedPoint.currentBlueScore + (scoringTeam === Team.Blue ? 1 : 0);
+      const newRedScore =
+        finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0);
+
+      if (
+        newBlueScore < this.NUMBER_OF_POINTS_TO_WIN &&
+        newRedScore < this.NUMBER_OF_POINTS_TO_WIN
+      ) {
+        await this.setupNextPoint(
+          finishedPoint,
+          scoringTeam,
+          game,
+          newBlueScore,
+          newRedScore
+        );
+      } else {
+        await this.endGame(game, newBlueScore, newRedScore);
       }
+      await Promise.all([updatePlayerScored, updatePointEndTime]);
     });
-
-    await prisma.point.update({
-      where: {
-        id: finishedPoint.id
-      },
-      data: {
-        endTime: new Date()
-      }
-    });
-
-    const scoringTeam = ownGoal
-      ? opposingTeam(scorerPlayerPoint.team)
-      : scorerPlayerPoint.team;
-
-    const newBlueScore =
-      finishedPoint.currentBlueScore + (scoringTeam === Team.Blue ? 1 : 0);
-    const newRedScore =
-      finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0);
-
-    if (
-      newBlueScore < this.NUMBER_OF_POINTS_TO_WIN &&
-      newRedScore < this.NUMBER_OF_POINTS_TO_WIN
-    ) {
-      this.setupNextPoint(
-        finishedPoint,
-        scoringTeam,
-        game,
-        newBlueScore,
-        newRedScore
-      );
-    } else {
-      await this.endGame(game, newBlueScore, newRedScore);
-    }
   }
 
   async setupNextPoint(
