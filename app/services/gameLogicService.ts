@@ -32,65 +32,67 @@ export class GameLogicService {
     newPosition: number
   ) {
     const oldPosition = reorderPlayerPoint.position;
-    if (newPosition > oldPosition) {
-      // pushing it back
-      const playerPoints = await prisma.playerPoint.findMany({
-        where: {
-          AND: [
-            { position: { gt: oldPosition } },
-            { position: { lte: newPosition } }
-          ],
-          pointId: reorderPlayerPoint.pointId,
-          team: reorderPlayerPoint.team
-        }
-      });
+    await prisma.$transaction(async () => {
+      if (newPosition > oldPosition) {
+        // pushing it back
+        const playerPoints = await prisma.playerPoint.findMany({
+          where: {
+            AND: [
+              { position: { gt: oldPosition } },
+              { position: { lte: newPosition } }
+            ],
+            pointId: reorderPlayerPoint.pointId,
+            team: reorderPlayerPoint.team
+          }
+        });
 
-      await prisma.playerPoint.updateMany({
-        where: {
-          id: {
-            in: playerPoints.map((playerPoint) => playerPoint.id)
+        await prisma.playerPoint.updateMany({
+          where: {
+            id: {
+              in: playerPoints.map((playerPoint) => playerPoint.id)
+            }
+          },
+          data: {
+            position: {
+              decrement: 1
+            }
           }
-        },
-        data: {
-          position: {
-            decrement: 1
+        });
+      } else {
+        // pulling it foward
+        const playerPoints = await prisma.playerPoint.findMany({
+          where: {
+            AND: [
+              { position: { lt: oldPosition } },
+              { position: { gte: newPosition } }
+            ],
+            pointId: reorderPlayerPoint.pointId,
+            team: reorderPlayerPoint.team
           }
-        }
-      });
-    } else {
-      // pulling it foward
-      const playerPoints = await prisma.playerPoint.findMany({
-        where: {
-          AND: [
-            { position: { lt: oldPosition } },
-            { position: { gte: newPosition } }
-          ],
-          pointId: reorderPlayerPoint.pointId,
-          team: reorderPlayerPoint.team
-        }
-      });
+        });
 
-      await prisma.playerPoint.updateMany({
-        where: {
-          id: {
-            in: playerPoints.map((playerPoint) => playerPoint.id)
+        await prisma.playerPoint.updateMany({
+          where: {
+            id: {
+              in: playerPoints.map((playerPoint) => playerPoint.id)
+            }
+          },
+          data: {
+            position: {
+              increment: 1
+            }
           }
-        },
-        data: {
-          position: {
-            increment: 1
-          }
-        }
-      });
-    }
-
-    await prisma.playerPoint.update({
-      where: {
-        id: reorderPlayerPoint.id
-      },
-      data: {
-        position: newPosition
+        });
       }
+
+      await prisma.playerPoint.update({
+        where: {
+          id: reorderPlayerPoint.id
+        },
+        data: {
+          position: newPosition
+        }
+      });
     });
   }
 
