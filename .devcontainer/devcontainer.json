@@ -18,7 +18,7 @@
   // "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  // "postCreateCommand": "uname -a",
+  "postStartCommand": "docker-compose up -d",
 
   // Configure tool-specific properties.
   // "customizations": {},
