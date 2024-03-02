@@ -18,6 +18,7 @@
   // "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "npm i",
   "postStartCommand": "docker-compose up -d",
 
   // Configure tool-specific properties.
