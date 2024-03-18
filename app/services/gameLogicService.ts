@@ -8,18 +8,20 @@ export class GameLogicService {
   NUMBER_OF_POINTS_TO_WIN = 10;
 
   async startGame() {
-    // TODO: set rotaty dependant on number of players
-    const game = await prisma.game.create({
-      data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' }
-    });
-    const initialPoint = await this.createPoint(0, 0, game);
-    await prisma.game.update({
-      where: {
-        id: game.id
-      },
-      data: {
-        currentPointId: initialPoint.id
-      }
+    await prisma.$transaction(async () => {
+      // TODO: set rotaty dependant on number of players
+      const game = await prisma.game.create({
+        data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' }
+      });
+      const initialPoint = await this.createPoint(0, 0, game);
+      await prisma.game.update({
+        where: {
+          id: game.id
+        },
+        data: {
+          currentPointId: initialPoint.id
+        }
+      });
     });
   }
 
