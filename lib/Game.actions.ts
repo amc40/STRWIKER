@@ -115,16 +115,6 @@ export const addPlayerToCurrentGame = async (
   });
 };
 
-export const clearCurrentGamePlayers = async () => {
-  const currentGame = await getCurrentGameOrThrow();
-  const currentPointId = await getCurrentPointIdFromGameOrThrow(currentGame);
-  await prisma.playerPoint.deleteMany({
-    where: {
-      pointId: currentPointId
-    }
-  });
-};
-
 export const recordGoalScored = async (
   scorerInfo: PlayerInfo,
   ownGoal: boolean
