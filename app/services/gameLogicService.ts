@@ -2,6 +2,8 @@ import { Game, PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import { getAllPlayerPointsByPoint } from '../repository/playerPointRepository';
 import { RotationService } from './rotationService';
+import { getCurrentGameOrThrow } from '../repository/gameRepository';
+import { getCurrentPointFromGameOrThrow } from '../repository/pointRepository';
 
 export class GameLogicService {
   NUMBER_OF_POINTS_TO_WIN = 10;
@@ -158,6 +160,31 @@ export class GameLogicService {
       },
       data: {
         completed: true,
+        finalScoreBlue,
+        finalScoreRed
+      }
+    });
+  }
+
+  async abandonCurrentGame() {
+    const currentGame = await getCurrentGameOrThrow();
+
+    const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
+
+    await this.abandonGame(
+      currentGame,
+      currentPoint.currentBlueScore,
+      currentPoint.currentRedScore
+    );
+  }
+
+  async abandonGame(game: Game, finalScoreBlue: number, finalScoreRed: number) {
+    await prisma.game.update({
+      where: {
+        id: game.id
+      },
+      data: {
+        abandoned: true,
         finalScoreBlue,
         finalScoreRed
       }

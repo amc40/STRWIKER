@@ -180,20 +180,7 @@ export const removePlayerFromCurrentGame = async (playerId: number) => {
 };
 
 export const abandonCurrentGame = async () => {
-  const currentGame = await getCurrentGameOrThrow();
-
-  const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
-
-  await prisma.game.update({
-    where: {
-      id: currentGame.id
-    },
-    data: {
-      abandoned: true,
-      finalScoreBlue: currentPoint.currentBlueScore,
-      finalScoreRed: currentPoint.currentRedScore
-    }
-  });
+  await new GameLogicService().abandonCurrentGame();
 };
 
 export const startGame = async () => {
