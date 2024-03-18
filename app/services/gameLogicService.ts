@@ -112,6 +112,11 @@ export class GameLogicService {
       (playerPoint) => playerPoint.team === Team.Blue
     );
 
+    const numberOfPlayersPerTeam: Record<Team, number> = {
+      Red: redPlayers.length,
+      Blue: bluePlayers.length
+    };
+
     const newPlayerPointsToCreate = oldPlayerPoints.map((oldPlayerPoint) => ({
       playerId: oldPlayerPoint.playerId,
       pointId: newPoint.id,
@@ -119,16 +124,12 @@ export class GameLogicService {
       scoredGoal: false,
       rattled: false,
       team: oldPlayerPoint.team,
-      position: this.rotationService.getNextPlayerPosition(
+      position: this.rotationService.getNextPlayerPositionForTeam(
         oldPlayerPoint.position,
-        oldPlayerPoint.team == Team.Red
-          ? redPlayers.length
-          : bluePlayers.length,
-        this.rotationService.isTeamRotating(
-          oldPlayerPoint.team,
-          game,
-          scoringTeam
-        )
+        oldPlayerPoint.team,
+        numberOfPlayersPerTeam,
+        scoringTeam,
+        game
       )
     }));
 

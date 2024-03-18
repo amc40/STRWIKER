@@ -73,7 +73,21 @@ export class RotationService {
     this.reorderPlayerPoint(playerPoints[0], playerPoints.length - 1);
   }
 
-  getNextPlayerPosition(
+  getNextPlayerPositionForTeam(
+    previousPosition: number,
+    playerTeam: Team,
+    numberOfPlayersForTeam: Record<Team, number>,
+    scoringTeam: Team,
+    game: Game
+  ) {
+    return this.getNextPlayerPosition(
+      previousPosition,
+      numberOfPlayersForTeam[playerTeam],
+      this.isTeamRotating(playerTeam, game, scoringTeam)
+    );
+  }
+
+  private getNextPlayerPosition(
     previousPosition: number,
     numberOfPlayersOnTeam: number,
     isTeamRotating: boolean
@@ -84,7 +98,7 @@ export class RotationService {
     return newPosition;
   }
 
-  isTeamRotating(team: Team, game: Game, scoringTeam: Team) {
+  private isTeamRotating(team: Team, game: Game, scoringTeam: Team) {
     const rotationStrategy = this.getTeamRotationStrategyInGame(team, game);
     switch (rotationStrategy) {
       case 'Never':
@@ -96,7 +110,7 @@ export class RotationService {
     }
   }
 
-  getTeamRotationStrategyInGame(team: Team, game: Game) {
+  private getTeamRotationStrategyInGame(team: Team, game: Game) {
     switch (team) {
       case 'Red':
         return game.rotatyRed;
