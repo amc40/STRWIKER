@@ -71,10 +71,9 @@ export class GameLogicService {
       const newRedScore =
         finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0);
 
-      if (
-        newBlueScore < this.NUMBER_OF_POINTS_TO_WIN &&
-        newRedScore < this.NUMBER_OF_POINTS_TO_WIN
-      ) {
+      if (this.isGameOver(newBlueScore, newRedScore)) {
+        await this.endGame(game, newBlueScore, newRedScore);
+      } else {
         await this.setupNextPoint(
           finishedPoint,
           scoringTeam,
@@ -82,11 +81,16 @@ export class GameLogicService {
           newBlueScore,
           newRedScore
         );
-      } else {
-        await this.endGame(game, newBlueScore, newRedScore);
       }
       await Promise.all([updatePlayerScored, updatePointEndTime]);
     });
+  }
+
+  private isGameOver(newBlueScore: number, newRedScore: number) {
+    return (
+      newBlueScore >= this.NUMBER_OF_POINTS_TO_WIN &&
+      newRedScore >= this.NUMBER_OF_POINTS_TO_WIN
+    );
   }
 
   async setupNextPoint(
