@@ -23,6 +23,16 @@ export class GameLogicService {
     });
   }
 
+  private async createPoint(
+    currentRedScore: number,
+    currentBlueScore: number,
+    game: Game
+  ) {
+    return await prisma.point.create({
+      data: { currentRedScore, currentBlueScore, gameId: game.id }
+    });
+  }
+
   async reorderPlayerPoint(
     reorderPlayerPoint: PlayerPoint,
     newPosition: number
@@ -89,16 +99,6 @@ export class GameLogicService {
           position: newPosition
         }
       });
-    });
-  }
-
-  async createPoint(
-    currentRedScore: number,
-    currentBlueScore: number,
-    game: Game
-  ) {
-    return await prisma.point.create({
-      data: { currentRedScore, currentBlueScore, gameId: game.id }
     });
   }
 
