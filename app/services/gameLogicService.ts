@@ -1,11 +1,12 @@
-import { Game, PlayerPoint, Point, Prisma, Team } from '@prisma/client';
+import { Game, PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
-import { getPointFromPlayerPoint } from '../repository/pointRepository';
 import { getAllPlayerPointsByPoint } from '../repository/playerPointRepository';
-import { getCurrentGameOrThrow } from '../repository/gameRepository';
+import { RotationService } from './rotationService';
 
 export class GameLogicService {
   NUMBER_OF_POINTS_TO_WIN = 10;
+
+  rotationService = new RotationService();
 
   async startGame() {
     await prisma.$transaction(async () => {
@@ -32,75 +33,6 @@ export class GameLogicService {
   ) {
     return await prisma.point.create({
       data: { currentRedScore, currentBlueScore, gameId: game.id }
-    });
-  }
-
-  async reorderPlayerPoint(
-    reorderPlayerPoint: PlayerPoint,
-    newPosition: number
-  ) {
-    const oldPosition = reorderPlayerPoint.position;
-    await prisma.$transaction(async () => {
-      if (newPosition > oldPosition) {
-        // pushing it back
-        const playerPoints = await prisma.playerPoint.findMany({
-          where: {
-            AND: [
-              { position: { gt: oldPosition } },
-              { position: { lte: newPosition } }
-            ],
-            pointId: reorderPlayerPoint.pointId,
-            team: reorderPlayerPoint.team
-          }
-        });
-
-        await prisma.playerPoint.updateMany({
-          where: {
-            id: {
-              in: playerPoints.map((playerPoint) => playerPoint.id)
-            }
-          },
-          data: {
-            position: {
-              decrement: 1
-            }
-          }
-        });
-      } else {
-        // pulling it foward
-        const playerPoints = await prisma.playerPoint.findMany({
-          where: {
-            AND: [
-              { position: { lt: oldPosition } },
-              { position: { gte: newPosition } }
-            ],
-            pointId: reorderPlayerPoint.pointId,
-            team: reorderPlayerPoint.team
-          }
-        });
-
-        await prisma.playerPoint.updateMany({
-          where: {
-            id: {
-              in: playerPoints.map((playerPoint) => playerPoint.id)
-            }
-          },
-          data: {
-            position: {
-              increment: 1
-            }
-          }
-        });
-      }
-
-      await prisma.playerPoint.update({
-        where: {
-          id: reorderPlayerPoint.id
-        },
-        data: {
-          position: newPosition
-        }
-      });
     });
   }
 
@@ -131,7 +63,7 @@ export class GameLogicService {
       });
 
       const scoringTeam = ownGoal
-        ? opposingTeam(scorerPlayerPoint.team)
+        ? this.opposingTeam(scorerPlayerPoint.team)
         : scorerPlayerPoint.team;
 
       const newBlueScore =
@@ -187,12 +119,16 @@ export class GameLogicService {
       scoredGoal: false,
       rattled: false,
       team: oldPlayerPoint.team,
-      position: getNextPlayerPosition(
+      position: this.rotationService.getNextPlayerPosition(
         oldPlayerPoint.position,
         oldPlayerPoint.team == Team.Red
           ? redPlayers.length
           : bluePlayers.length,
-        isTeamRotating(oldPlayerPoint.team, game, scoringTeam)
+        this.rotationService.isTeamRotating(
+          oldPlayerPoint.team,
+          game,
+          scoringTeam
+        )
       )
     }));
 
@@ -210,11 +146,6 @@ export class GameLogicService {
     });
   }
 
-  async rotatePlayers(playerPoints: PlayerPoint[]) {
-    playerPoints.sort((a, b) => a.position - b.position);
-    this.reorderPlayerPoint(playerPoints[0], playerPoints.length - 1);
-  }
-
   async endGame(game: Game, finalScoreBlue: number, finalScoreRed: number) {
     await prisma.game.update({
       where: {
@@ -227,40 +158,8 @@ export class GameLogicService {
       }
     });
   }
-}
 
-function getNextPlayerPosition(
-  previousPosition: number,
-  numberOfPlayersOnTeam: number,
-  isTeamRotating: boolean
-) {
-  if (!isTeamRotating) return previousPosition;
-  const newPosition =
-    previousPosition === 0 ? numberOfPlayersOnTeam - 1 : previousPosition - 1;
-  return newPosition;
-}
-
-function isTeamRotating(team: Team, game: Game, scoringTeam: Team) {
-  const rotationStrategy = getTeamRotationStrategyInGame(team, game);
-  switch (rotationStrategy) {
-    case 'Never':
-      return false;
-    case 'Always':
-      return true;
-    case 'OnConcede':
-      return team !== scoringTeam;
+  opposingTeam(team: Team) {
+    return team === Team.Red ? Team.Blue : Team.Red;
   }
-}
-
-function getTeamRotationStrategyInGame(team: Team, game: Game) {
-  switch (team) {
-    case 'Red':
-      return game.rotatyRed;
-    case 'Blue':
-      return game.rotatyBlue;
-  }
-}
-
-function opposingTeam(team: Team) {
-  return team === Team.Red ? Team.Blue : Team.Red;
 }
