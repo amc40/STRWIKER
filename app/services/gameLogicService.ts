@@ -109,16 +109,16 @@ export class GameLogicService {
     });
     const oldPlayerPoints = await getAllPlayerPointsByPoint(finishedPoint);
 
-    const redPlayers = oldPlayerPoints.filter(
+    const redPlayerPoints = oldPlayerPoints.filter(
       (playerPoint) => playerPoint.team === Team.Red
     );
-    const bluePlayers = oldPlayerPoints.filter(
+    const bluePlayerPoints = oldPlayerPoints.filter(
       (playerPoint) => playerPoint.team === Team.Blue
     );
 
     const numberOfPlayersPerTeam: Record<Team, number> = {
-      Red: redPlayers.length,
-      Blue: bluePlayers.length
+      Red: redPlayerPoints.length,
+      Blue: bluePlayerPoints.length
     };
 
     const newPlayerPointsToCreate = oldPlayerPoints.map((oldPlayerPoint) => ({
