@@ -95,7 +95,7 @@ export class GameLogicService {
     );
   }
 
-  async setupNextPoint(
+  private async setupNextPoint(
     finishedPoint: Point,
     scoringTeam: Team,
     game: Game,
@@ -178,7 +178,11 @@ export class GameLogicService {
     );
   }
 
-  async abandonGame(game: Game, finalScoreBlue: number, finalScoreRed: number) {
+  private async abandonGame(
+    game: Game,
+    finalScoreBlue: number,
+    finalScoreRed: number
+  ) {
     await prisma.game.update({
       where: {
         id: game.id
@@ -191,7 +195,7 @@ export class GameLogicService {
     });
   }
 
-  opposingTeam(team: Team) {
+  private opposingTeam(team: Team) {
     return team === Team.Red ? Team.Blue : Team.Red;
   }
 }
