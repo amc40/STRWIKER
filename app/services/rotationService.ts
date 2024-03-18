@@ -1,5 +1,11 @@
 import { Game, PlayerPoint, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
+import {
+  decrementPlayerPointPositions,
+  getPlayerPointsInPositionRangeForTeam,
+  incrementPlayerPointPositions,
+  setPlayerPointPosition
+} from '../repository/playerPointRepository';
 
 export class RotationService {
   async reorderPlayerPoint(
@@ -9,66 +15,57 @@ export class RotationService {
     const oldPosition = playerPointToReorder.position;
     await prisma.$transaction(async () => {
       if (newPosition > oldPosition) {
-        // pushing it back
-        const playerPoints = await prisma.playerPoint.findMany({
-          where: {
-            AND: [
-              { position: { gt: oldPosition } },
-              { position: { lte: newPosition } }
-            ],
-            pointId: playerPointToReorder.pointId,
-            team: playerPointToReorder.team
-          }
-        });
-
-        await prisma.playerPoint.updateMany({
-          where: {
-            id: {
-              in: playerPoints.map((playerPoint) => playerPoint.id)
-            }
-          },
-          data: {
-            position: {
-              decrement: 1
-            }
-          }
-        });
+        await this.pushPlayerPointBack(
+          playerPointToReorder,
+          newPosition,
+          oldPosition
+        );
       } else {
-        // pulling it foward
-        const playerPoints = await prisma.playerPoint.findMany({
-          where: {
-            AND: [
-              { position: { lt: oldPosition } },
-              { position: { gte: newPosition } }
-            ],
-            pointId: playerPointToReorder.pointId,
-            team: playerPointToReorder.team
-          }
-        });
-
-        await prisma.playerPoint.updateMany({
-          where: {
-            id: {
-              in: playerPoints.map((playerPoint) => playerPoint.id)
-            }
-          },
-          data: {
-            position: {
-              increment: 1
-            }
-          }
-        });
+        await this.pullPlayerPointForward(
+          playerPointToReorder,
+          newPosition,
+          oldPosition
+        );
       }
-
-      await prisma.playerPoint.update({
-        where: {
-          id: playerPointToReorder.id
-        },
-        data: {
-          position: newPosition
-        }
-      });
     });
+  }
+
+  private async pushPlayerPointBack(
+    playerPointToPushBack: PlayerPoint,
+    newPosition: number,
+    oldPosition: number
+  ) {
+    const { pointId, team } = playerPointToPushBack;
+    const otherPlayerPointsToPullForward =
+      await getPlayerPointsInPositionRangeForTeam(
+        pointId,
+        team,
+        oldPosition + 1,
+        newPosition + 1
+      );
+
+    await decrementPlayerPointPositions(otherPlayerPointsToPullForward);
+
+    await setPlayerPointPosition(playerPointToPushBack, newPosition);
+  }
+
+  private async pullPlayerPointForward(
+    playerPointToPullForward: PlayerPoint,
+    newPosition: number,
+    oldPosition: number
+  ) {
+    const { pointId, team } = playerPointToPullForward;
+    const otherPlayerPointsToPushBack =
+      await getPlayerPointsInPositionRangeForTeam(
+        pointId,
+        team,
+        newPosition,
+        oldPosition
+      );
+
+    await incrementPlayerPointPositions(otherPlayerPointsToPushBack);
+
+    await setPlayerPointPosition(playerPointToPullForward, newPosition);
   }
 
   async rotatePlayerPoints(playerPoints: PlayerPoint[]) {

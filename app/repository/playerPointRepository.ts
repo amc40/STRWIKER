@@ -64,3 +64,69 @@ export async function deletePlayerPoint(playerPointId: number) {
     }
   });
 }
+
+export async function getPlayerPointsInPositionRangeForTeam(
+  pointId: number,
+  team: Team,
+  inclusiveLowerBound: number,
+  exclusiveUpperBound: number
+) {
+  return await prisma.playerPoint.findMany({
+    where: {
+      AND: [
+        { position: { gte: inclusiveLowerBound } },
+        { position: { lt: exclusiveUpperBound } }
+      ],
+      pointId,
+      team
+    }
+  });
+}
+
+export async function incrementPlayerPointPositions(
+  playerPoints: PlayerPoint[]
+) {
+  await prisma.playerPoint.updateMany({
+    where: {
+      id: {
+        in: playerPoints.map((playerPoint) => playerPoint.id)
+      }
+    },
+    data: {
+      position: {
+        increment: 1
+      }
+    }
+  });
+}
+
+export async function decrementPlayerPointPositions(
+  playerPoints: PlayerPoint[]
+) {
+  await prisma.playerPoint.updateMany({
+    where: {
+      id: {
+        in: playerPoints.map((playerPoint) => playerPoint.id)
+      }
+    },
+    data: {
+      position: {
+        decrement: 1
+      }
+    }
+  });
+}
+
+export async function setPlayerPointPosition(
+  playerPoint: PlayerPoint,
+  newPosition: number
+) {
+  await prisma.playerPoint.update({
+    where: {
+      id: playerPoint.id
+    },
+    data: {
+      position: newPosition
+    }
+  });
+}
