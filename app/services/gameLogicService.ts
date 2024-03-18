@@ -23,10 +23,6 @@ export class GameLogicService {
     });
   }
 
-  createPlayer(name: string) {
-    prisma.player.create({ data: { name } });
-  }
-
   async reorderPlayerPoint(
     reorderPlayerPoint: PlayerPoint,
     newPosition: number
