@@ -14,12 +14,6 @@ export class StatsEngineFwoar {
     const playerStats = await prisma.playerPoint.findMany({
       where: {
         playerId
-      },
-      select: {
-        team: true,
-        scoredGoal: true,
-        ownGoal: true,
-        rattled: true
       }
     });
 
