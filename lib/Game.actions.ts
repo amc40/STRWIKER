@@ -25,7 +25,7 @@ import {
   getCurrentGameOrThrow,
   updateRotatyStrategy
 } from '../app/repository/gameRepository';
-import { RotationService } from '../app/services/rotationService';
+import { PlayerPointPositionService } from '../app/services/rotationService';
 
 export interface PlayerPointWithPlayer extends PlayerPoint {
   player: Player;
@@ -174,7 +174,10 @@ export const startGame = async () => {
 
 export const reorderPlayer = async (playerId: number, newPosition: number) => {
   const playerPoint = await getCurrentPlayerPointForPlayerOrThrow(playerId);
-  await new RotationService().reorderPlayerPoint(playerPoint, newPosition);
+  await new PlayerPointPositionService().reorderPlayerPoint(
+    playerPoint,
+    newPosition
+  );
 };
 
 export const getRotatyStrategy = async (team: Team) => {

@@ -7,7 +7,7 @@ import {
   setPlayerPointPosition
 } from '../repository/playerPointRepository';
 
-export class RotationService {
+export class PlayerPointPositionService {
   async reorderPlayerPoint(
     playerPointToReorder: PlayerPoint,
     newPosition: number

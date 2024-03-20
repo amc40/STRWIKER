@@ -1,14 +1,14 @@
 import { Game, PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import { getAllPlayerPointsByPoint } from '../repository/playerPointRepository';
-import { RotationService } from './rotationService';
+import { PlayerPointPositionService } from './rotationService';
 import { getCurrentGameOrThrow } from '../repository/gameRepository';
 import { getCurrentPointFromGameOrThrow } from '../repository/pointRepository';
 
 export class GameLogicService {
   NUMBER_OF_POINTS_TO_WIN = 10;
 
-  rotationService = new RotationService();
+  playerPointPositionService = new PlayerPointPositionService();
 
   async startGame() {
     await prisma.$transaction(async () => {
@@ -130,7 +130,7 @@ export class GameLogicService {
       scoredGoal: false,
       rattled: false,
       team: oldPlayerPoint.team,
-      position: this.rotationService.getNextPlayerPositionForTeam(
+      position: this.playerPointPositionService.getNextPlayerPositionForTeam(
         oldPlayerPoint.position,
         oldPlayerPoint.team,
         numberOfPlayersPerTeam,
