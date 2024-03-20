@@ -1,7 +1,7 @@
 import { Game, PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import { getAllPlayerPointsByPoint } from '../repository/playerPointRepository';
-import { PlayerPointPositionService } from './rotationService';
+import { PlayerPointPositionService } from './playerPointPositionService';
 import { getCurrentGameOrThrow } from '../repository/gameRepository';
 import { getCurrentPointFromGameOrThrow } from '../repository/pointRepository';
 

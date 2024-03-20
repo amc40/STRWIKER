@@ -25,7 +25,7 @@ import {
   getCurrentGameOrThrow,
   updateRotatyStrategy
 } from '../app/repository/gameRepository';
-import { PlayerPointPositionService } from '../app/services/rotationService';
+import { PlayerPointPositionService } from '../app/services/playerPointPositionService';
 
 export interface PlayerPointWithPlayer extends PlayerPoint {
   player: Player;
