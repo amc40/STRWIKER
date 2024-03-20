@@ -1,26 +1,15 @@
 'use server';
 
 import { Player, Prisma } from '@prisma/client';
-import prisma from './planetscale';
+import {
+  createPlayer,
+  getAllPlayersNameAscIdAsc
+} from '../app/repository/playerRepository';
 
 export const addPlayer = async ({ name }: Prisma.PlayerCreateInput) => {
-  await prisma.player.create({
-    data: {
-      name
-    }
-  });
+  return await createPlayer(name);
 };
 
 export const getPlayers = async (): Promise<Player[]> => {
-  const players = await prisma.player.findMany({
-    orderBy: [
-      {
-        name: 'asc'
-      },
-      {
-        id: 'asc'
-      }
-    ]
-  });
-  return players;
+  return getAllPlayersNameAscIdAsc();
 };
