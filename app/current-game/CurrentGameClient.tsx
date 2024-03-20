@@ -4,7 +4,6 @@ import { FC, useEffect, useRef, useState } from 'react';
 import { Team } from '../components/Team';
 import AddPlayerToTeam from '../components/AddPlayerToTeam';
 import {
-  PlayerInfo,
   addPlayerToCurrentGame,
   getCurrentGameInfo,
   removePlayerFromCurrentGame,
@@ -17,6 +16,7 @@ import { NoGameInProgress } from './NoGameInProgress';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
+import { PlayerInfo } from '../view/PlayerInfo';
 
 const MS_BETWEEN_REFRESHES = 1000;
 

@@ -5,7 +5,7 @@ import { FC, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Modal from './Modal';
 import { getPlayers } from '../../lib/Player.actions';
-import { PlayerInfo } from '../../lib/Game.actions';
+import { PlayerInfo } from '../view/PlayerInfo';
 
 interface AddPlayerToTeamProps {
   team: $Enums.Team;

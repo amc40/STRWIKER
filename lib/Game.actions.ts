@@ -1,81 +1,19 @@
 'use server';
 
-import {
-  $Enums,
-  Player,
-  PlayerPoint,
-  RotatyStrategy,
-  Team
-} from '@prisma/client';
+import { $Enums, RotatyStrategy, Team } from '@prisma/client';
 import { GameLogicService } from '../app/services/gameLogicService';
-import { getCurrentPointFromGameOrThrow } from '../app/repository/pointRepository';
 import {
   deletePlayerPoint,
-  getAllPlayerPointsAndPlayersByPoint,
   getAllPlayerPointsForPlayerInCurrentGame,
   getCurrentPlayerPointForPlayerOrThrow
 } from '../app/repository/playerPointRepository';
-import { getCurrentGame } from '../app/repository/gameRepository';
 import { PlayerPointPositionService } from '../app/services/playerPointPositionService';
-
-export interface PlayerPointWithPlayer extends PlayerPoint {
-  player: Player;
-}
-
-export interface PlayerInfo {
-  id: number;
-  name: string;
-  team: $Enums.Team;
-  position: number;
-}
-
-export const playerPointWithPlayerToPlayerInfo = ({
-  playerId,
-  team,
-  position,
-  player
-}: PlayerPointWithPlayer): PlayerInfo => ({
-  id: playerId,
-  name: player.name,
-  team: team,
-  position
-});
-
-export type NotInProgressGameInfo = {
-  gameInProgress: false;
-};
-
-export type InProgressGameInfo = {
-  players: PlayerInfo[];
-  redScore: number;
-  blueScore: number;
-  gameInProgress: true;
-};
-
-export type GameInfo = NotInProgressGameInfo | InProgressGameInfo;
+import { PlayerInfo } from '../app/view/PlayerInfo';
+import { GameInfo } from '../app/view/CurrentGameInfo';
+import { GameInfoService } from '../app/services/gameInfoService';
 
 export const getCurrentGameInfo = async (): Promise<GameInfo> => {
-  const currentGame = await getCurrentGame();
-
-  if (currentGame == null) {
-    return {
-      gameInProgress: false
-    };
-  }
-
-  const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
-  if (!currentPoint) {
-    throw new Error('current point not found');
-  }
-  const currentPointPlayers =
-    await getAllPlayerPointsAndPlayersByPoint(currentPoint);
-
-  return {
-    players: currentPointPlayers.map(playerPointWithPlayerToPlayerInfo),
-    redScore: currentPoint.currentRedScore,
-    blueScore: currentPoint.currentBlueScore,
-    gameInProgress: true
-  };
+  return await new GameInfoService().getCurrentGameInfo();
 };
 
 export const addPlayerToCurrentGame = async (

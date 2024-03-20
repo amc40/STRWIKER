@@ -1,7 +1,7 @@
 import { $Enums } from '@prisma/client';
 import PlayerCard from './player-card/PlayerCard';
-import { PlayerInfo } from '../../lib/Game.actions';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { PlayerInfo } from '../view/PlayerInfo';
 
 interface TeamProps {
   team: $Enums.Team;
