@@ -15,6 +15,7 @@ import {
 } from '../app/repository/pointRepository';
 import {
   deletePlayerPoint,
+  getAllPlayerPointsAndPlayersByPoint,
   getAllPlayerPointsForPlayerInCurrentGame,
   getCurrentPlayerPointForPlayerOrThrow,
   getMaxPlayerPointPositionForTeaminCurrentPoint
@@ -75,14 +76,8 @@ export const getCurrentGameInfo = async (): Promise<GameInfo> => {
   if (!currentPoint) {
     throw new Error('current point not found');
   }
-  const currentPointPlayers = await prisma.playerPoint.findMany({
-    where: {
-      pointId: currentPoint.id
-    },
-    include: {
-      player: true
-    }
-  });
+  const currentPointPlayers =
+    await getAllPlayerPointsAndPlayersByPoint(currentPoint);
 
   return {
     players: currentPointPlayers.map(playerPointWithPlayerToPlayerInfo),
