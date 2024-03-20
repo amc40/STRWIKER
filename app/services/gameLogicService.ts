@@ -1,7 +1,9 @@
 import { Game, PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
+  deletePlayerPoint,
   getAllPlayerPointsByPoint,
+  getCurrentPlayerPointForPlayerOrThrow,
   getPlayerPointByPlayerAndPointOrThrow
 } from '../repository/playerPointRepository';
 import { PlayerPointPositionService } from './playerPointPositionService';
@@ -66,6 +68,12 @@ export class GameLogicService {
         pointId: point.id
       }
     });
+  }
+
+  async removePlayerFromCurrentPoint(playerId: number) {
+    const currentPlayerPointForPlayer =
+      await getCurrentPlayerPointForPlayerOrThrow(playerId);
+    deletePlayerPoint(currentPlayerPointForPlayer.id);
   }
 
   async scoreGoalInCurrentGame(playerId: number, ownGoal: boolean) {

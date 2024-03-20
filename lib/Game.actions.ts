@@ -54,9 +54,7 @@ export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
 };
 
 export const removePlayerFromCurrentGame = async (playerId: number) => {
-  const currentPlayerPointForPlayer =
-    await getCurrentPlayerPointForPlayerOrThrow(playerId);
-  deletePlayerPoint(currentPlayerPointForPlayer.id);
+  return new GameLogicService().removePlayerFromCurrentPoint(playerId);
 };
 
 export const abandonCurrentGame = async () => {
