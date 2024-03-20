@@ -1,4 +1,4 @@
-import { Game, PlayerPoint, Team } from '@prisma/client';
+import { Game, PlayerPoint, RotatyStrategy, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   decrementPlayerPointPositions,
@@ -8,6 +8,10 @@ import {
   setPlayerPointPosition
 } from '../repository/playerPointRepository';
 import { getCurrentPointOrThrow } from '../repository/pointRepository';
+import {
+  getCurrentGameOrThrow,
+  updateRotatyStrategy
+} from '../repository/gameRepository';
 
 export class PlayerPointPositionService {
   async reorderPlayerPoint(
@@ -94,6 +98,14 @@ export class PlayerPointPositionService {
     const maxPlayerPositionForTeamInCurrentPoint =
       await getMaxPlayerPointPositionForTeamInPoint(team, currentPoint);
     return (maxPlayerPositionForTeamInCurrentPoint ?? -1) + 1;
+  }
+
+  async updateRotatyStrategyForTeamInCurrentGame(
+    rotatyStrategy: RotatyStrategy,
+    team: Team
+  ) {
+    const currentGame = await getCurrentGameOrThrow();
+    await updateRotatyStrategy(currentGame, rotatyStrategy, team);
   }
 
   private getNextPlayerPosition(
