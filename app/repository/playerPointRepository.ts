@@ -37,13 +37,13 @@ export async function getCurrentPlayerPointForPlayerOrThrow(playerId: number) {
   });
 }
 
-export async function getMaxPlayerPointPositionForTeaminCurrentPoint(
-  team: Team
+export async function getMaxPlayerPointPositionForTeamInPoint(
+  team: Team,
+  point: Point
 ) {
-  const currentPoint = await getCurrentPointOrThrow();
   const playerPointWithMaxPosition = await prisma.playerPoint.findFirst({
     where: {
-      pointId: currentPoint.id,
+      pointId: point.id,
       team
     },
     orderBy: {

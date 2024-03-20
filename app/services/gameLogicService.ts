@@ -38,6 +38,26 @@ export class GameLogicService {
     });
   }
 
+  async addPlayer(playerId: number, team: Team) {
+    const currentGame = await getCurrentGameOrThrow();
+    if (currentGame.currentPointId === null) {
+      throw new Error('current point id is null');
+    }
+    const position =
+      await this.playerPointPositionService.getNewPlayerPositionForTeam(team);
+    await prisma.playerPoint.create({
+      data: {
+        ownGoal: false,
+        position,
+        rattled: false,
+        scoredGoal: false,
+        team,
+        playerId,
+        pointId: currentGame.currentPointId
+      }
+    });
+  }
+
   async scoreGoal(
     scorerPlayerPoint: PlayerPoint,
     ownGoal: boolean,

@@ -91,23 +91,7 @@ export const addPlayerToCurrentGame = async (
   playerId: number,
   team: $Enums.Team
 ) => {
-  const currentGame = await getCurrentGameOrThrow();
-  if (currentGame.currentPointId === null) {
-    throw new Error('current point id is null');
-  }
-  const position =
-    ((await getMaxPlayerPointPositionForTeaminCurrentPoint(team)) ?? -1) + 1;
-  await prisma.playerPoint.create({
-    data: {
-      ownGoal: false,
-      position,
-      rattled: false,
-      scoredGoal: false,
-      team,
-      playerId,
-      pointId: currentGame.currentPointId
-    }
-  });
+  new GameLogicService().addPlayer(playerId, team);
 };
 
 export const recordGoalScored = async (
