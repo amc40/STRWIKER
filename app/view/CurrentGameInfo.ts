@@ -1,11 +1,10 @@
-import { getCurrentPointFromGameOrThrow } from '../repository/pointRepository';
 import { PlayerInfo } from './PlayerInfo';
 
-export type NotInProgressGameInfo = {
+type NotInProgressGameInfo = {
   gameInProgress: false;
 };
 
-export type InProgressGameInfo = {
+type InProgressGameInfo = {
   players: PlayerInfo[];
   redScore: number;
   blueScore: number;

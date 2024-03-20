@@ -1,6 +1,6 @@
 import { Player, PlayerPoint, Team } from '@prisma/client';
 
-export interface PlayerPointWithPlayer extends PlayerPoint {
+interface PlayerPointWithPlayer extends PlayerPoint {
   player: Player;
 }
 

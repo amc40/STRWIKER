@@ -5,26 +5,10 @@ import {
   getCurrentPointOrThrow
 } from './pointRepository';
 
-export async function getAllCurrentPlayerPoints() {
-  const currentPoint = await getCurrentPointOrThrow();
-  return await getAllPlayerPointsByPoint(currentPoint);
-}
-
 export async function getAllPlayerPointsByPoint(
   point: Point
 ): Promise<PlayerPoint[]> {
   return await prisma.playerPoint.findMany({ where: { pointId: point.id } });
-}
-
-export async function getAllPlayerPointsAndPlayersByPoint(point: Point) {
-  return await prisma.playerPoint.findMany({
-    where: {
-      pointId: point.id
-    },
-    include: {
-      player: true
-    }
-  });
 }
 
 export async function getCurrentPlayerPointForPlayerOrThrow(playerId: number) {
