@@ -141,3 +141,15 @@ export async function setPlayerPointPosition(
     }
   });
 }
+
+export async function getPlayerPointByPlayerAndPointOrThrow(
+  playerId: number,
+  pointId: number
+) {
+  return await prisma.playerPoint.findFirstOrThrow({
+    where: {
+      playerId,
+      pointId
+    }
+  });
+}

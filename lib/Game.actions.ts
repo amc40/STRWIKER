@@ -7,18 +7,13 @@ import {
   RotatyStrategy,
   Team
 } from '@prisma/client';
-import prisma from './planetscale';
 import { GameLogicService } from '../app/services/gameLogicService';
-import {
-  getCurrentPointFromGameOrThrow,
-  getCurrentPointIdFromGameOrThrow
-} from '../app/repository/pointRepository';
+import { getCurrentPointFromGameOrThrow } from '../app/repository/pointRepository';
 import {
   deletePlayerPoint,
   getAllPlayerPointsAndPlayersByPoint,
   getAllPlayerPointsForPlayerInCurrentGame,
-  getCurrentPlayerPointForPlayerOrThrow,
-  getMaxPlayerPointPositionForTeaminCurrentPoint
+  getCurrentPlayerPointForPlayerOrThrow
 } from '../app/repository/playerPointRepository';
 import {
   getCurrentGame,
@@ -91,32 +86,14 @@ export const addPlayerToCurrentGame = async (
   playerId: number,
   team: $Enums.Team
 ) => {
-  new GameLogicService().addPlayer(playerId, team);
+  new GameLogicService().addPlayerToCurrentGame(playerId, team);
 };
 
 export const recordGoalScored = async (
   scorerInfo: PlayerInfo,
   ownGoal: boolean
 ) => {
-  const gameLogicService = new GameLogicService();
-
-  const currentGame = await getCurrentGameOrThrow();
-
-  const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
-
-  const playerPoint = await prisma.playerPoint.findFirstOrThrow({
-    where: {
-      playerId: scorerInfo.id,
-      pointId: currentPoint.id
-    }
-  });
-
-  await gameLogicService.scoreGoal(
-    playerPoint,
-    ownGoal,
-    currentPoint,
-    currentGame
-  );
+  return new GameLogicService().scoreGoalInCurrentGame(scorerInfo.id, ownGoal);
 };
 
 export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (

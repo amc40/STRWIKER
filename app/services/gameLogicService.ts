@@ -1,6 +1,9 @@
 import { Game, PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
-import { getAllPlayerPointsByPoint } from '../repository/playerPointRepository';
+import {
+  getAllPlayerPointsByPoint,
+  getPlayerPointByPlayerAndPointOrThrow
+} from '../repository/playerPointRepository';
 import { PlayerPointPositionService } from './playerPointPositionService';
 import { getCurrentGameOrThrow } from '../repository/gameRepository';
 import { getCurrentPointFromGameOrThrow } from '../repository/pointRepository';
@@ -38,9 +41,13 @@ export class GameLogicService {
     });
   }
 
-  async addPlayer(playerId: number, team: Team) {
+  async addPlayerToCurrentGame(playerId: number, team: Team) {
     const currentGame = await getCurrentGameOrThrow();
-    if (currentGame.currentPointId === null) {
+    return this.addPlayerToGame(playerId, team, currentGame);
+  }
+
+  private async addPlayerToGame(playerId: number, team: Team, game: Game) {
+    if (game.currentPointId === null) {
       throw new Error('current point id is null');
     }
     const position =
@@ -53,12 +60,32 @@ export class GameLogicService {
         scoredGoal: false,
         team,
         playerId,
-        pointId: currentGame.currentPointId
+        pointId: game.currentPointId
       }
     });
   }
 
-  async scoreGoal(
+  async scoreGoalInCurrentGame(playerId: number, ownGoal: boolean) {
+    const gameLogicService = new GameLogicService();
+
+    const currentGame = await getCurrentGameOrThrow();
+
+    const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
+
+    const playerPoint = await getPlayerPointByPlayerAndPointOrThrow(
+      playerId,
+      currentPoint.id
+    );
+
+    await gameLogicService.scoreGoal(
+      playerPoint,
+      ownGoal,
+      currentPoint,
+      currentGame
+    );
+  }
+
+  private async scoreGoal(
     scorerPlayerPoint: PlayerPoint,
     ownGoal: boolean,
     finishedPoint: Point,
