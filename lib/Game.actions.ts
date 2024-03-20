@@ -7,6 +7,7 @@ import { PlayerPointPositionService } from '../app/services/playerPointPositionS
 import { PlayerInfo } from '../app/view/PlayerInfo';
 import { GameInfo } from '../app/view/CurrentGameInfo';
 import { GameInfoService } from '../app/services/gameInfoService';
+import { StatsEngineFwoar } from '../app/services/statsEngine';
 
 export const getCurrentGameInfo = async (): Promise<GameInfo> => {
   return await new GameInfoService().getCurrentGameInfo();
@@ -29,24 +30,9 @@ export const recordGoalScored = async (
 export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
   playerId: number
 ) => {
-  const playerPointsForPlayer =
-    await getAllPlayerPointsForPlayerInCurrentGame(playerId);
-
-  if (playerPointsForPlayer == null) return null;
-
-  const goalScored = playerPointsForPlayer.reduce(
-    (totalGoals, playerPoint) => totalGoals + (playerPoint.scoredGoal ? 1 : 0),
-    0
+  return new StatsEngineFwoar().getNumberOfGoalsScoredByPlayerInCurrentGame(
+    playerId
   );
-  const ownGoalsScored = playerPointsForPlayer.reduce(
-    (totalOwnGoalsScored, playerPoint) =>
-      totalOwnGoalsScored + (playerPoint.ownGoal ? 1 : 0),
-    0
-  );
-  return {
-    goalScored,
-    ownGoalsScored
-  };
 };
 
 export const removePlayerFromCurrentGame = async (playerId: number) => {

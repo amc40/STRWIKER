@@ -1,5 +1,6 @@
-import { Player } from '@prisma/client';
+import { Player, PlayerPoint } from '@prisma/client';
 import prisma from '../../lib/planetscale';
+import { getAllPlayerPointsForPlayerInCurrentGame } from '../repository/playerPointRepository';
 
 type PlayerPointStats = {
   team: string;
@@ -40,11 +41,11 @@ export class StatsEngineFwoar {
     };
   }
 
-  getTotalIntentionalGoals(playerStats: PlayerPointStats[]) {
+  getTotalIntentionalGoals(playerStats: PlayerPoint[]) {
     return playerStats.filter((stat) => stat.scoredGoal).length;
   }
 
-  getTotalOwnGoals(playerStats: PlayerPointStats[]) {
+  getTotalOwnGoals(playerStats: PlayerPoint[]) {
     return playerStats.filter((stat) => stat.ownGoal).length;
   }
 
@@ -56,20 +57,37 @@ export class StatsEngineFwoar {
     return playerStats.filter((stat) => stat.rattled).length;
   }
 
-  getScoreRatio(playerStats: PlayerPointStats[]) {
+  getScoreRatio(playerStats: PlayerPoint[]) {
     return this.getTotalOwnGoals(playerStats) / playerStats.length;
   }
 
-  getTotalPoints(playerStats: PlayerPointStats[]) {
+  getTotalPoints(playerStats: PlayerPoint[]) {
     return playerStats.length;
   }
 
-  getTotalGoals(playerStats: PlayerPointStats[]) {
+  getTotalGoals(playerStats: PlayerPoint[]) {
     return playerStats.filter((stat) => stat.scoredGoal || stat.ownGoal).length;
   }
 
-  getOwnVsIntentionalGoalRatio(playerStats: PlayerPointStats[]) {
+  getOwnVsIntentionalGoalRatio(playerStats: PlayerPoint[]) {
     return this.getTotalOwnGoals(playerStats) / this.getTotalGoals(playerStats);
+  }
+  async getNumberOfGoalsScoredByPlayerInCurrentGame(playerId: number) {
+    const playerPointsForPlayer =
+      await getAllPlayerPointsForPlayerInCurrentGame(playerId);
+
+    if (playerPointsForPlayer == null) return null;
+
+    const intensionalGoals = this.getTotalIntentionalGoals(
+      playerPointsForPlayer
+    );
+
+    const ownGoals = this.getTotalOwnGoals(playerPointsForPlayer);
+
+    return {
+      goalScored: intensionalGoals,
+      ownGoalsScored: ownGoals
+    };
   }
 
   updateElosOnGoal(winners: Player[], opposition: Player[]) {
