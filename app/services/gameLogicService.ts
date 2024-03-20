@@ -6,7 +6,10 @@ import {
 } from '../repository/playerPointRepository';
 import { PlayerPointPositionService } from './playerPointPositionService';
 import { getCurrentGameOrThrow } from '../repository/gameRepository';
-import { getCurrentPointFromGameOrThrow } from '../repository/pointRepository';
+import {
+  getCurrentPointFromGameOrThrow,
+  getCurrentPointOrThrow
+} from '../repository/pointRepository';
 
 export class GameLogicService {
   NUMBER_OF_POINTS_TO_WIN = 10;
@@ -41,17 +44,17 @@ export class GameLogicService {
     });
   }
 
-  async addPlayerToCurrentGame(playerId: number, team: Team) {
-    const currentGame = await getCurrentGameOrThrow();
-    return this.addPlayerToGame(playerId, team, currentGame);
+  async addPlayerToCurrentPoint(playerId: number, team: Team) {
+    const currentPoint = await getCurrentPointOrThrow();
+    return this.addPlayerToPoint(playerId, team, currentPoint);
   }
 
-  private async addPlayerToGame(playerId: number, team: Team, game: Game) {
-    if (game.currentPointId === null) {
-      throw new Error('current point id is null');
-    }
+  private async addPlayerToPoint(playerId: number, team: Team, point: Point) {
     const position =
-      await this.playerPointPositionService.getNewPlayerPositionForTeam(team);
+      await this.playerPointPositionService.getNewPlayerPositionForTeam(
+        team,
+        point
+      );
     await prisma.playerPoint.create({
       data: {
         ownGoal: false,
@@ -60,7 +63,7 @@ export class GameLogicService {
         scoredGoal: false,
         team,
         playerId,
-        pointId: game.currentPointId
+        pointId: point.id
       }
     });
   }

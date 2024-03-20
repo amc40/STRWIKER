@@ -15,11 +15,7 @@ import {
   getAllPlayerPointsForPlayerInCurrentGame,
   getCurrentPlayerPointForPlayerOrThrow
 } from '../app/repository/playerPointRepository';
-import {
-  getCurrentGame,
-  getCurrentGameOrThrow,
-  updateRotatyStrategy
-} from '../app/repository/gameRepository';
+import { getCurrentGame } from '../app/repository/gameRepository';
 import { PlayerPointPositionService } from '../app/services/playerPointPositionService';
 
 export interface PlayerPointWithPlayer extends PlayerPoint {
@@ -86,7 +82,7 @@ export const addPlayerToCurrentGame = async (
   playerId: number,
   team: $Enums.Team
 ) => {
-  new GameLogicService().addPlayerToCurrentGame(playerId, team);
+  new GameLogicService().addPlayerToCurrentPoint(playerId, team);
 };
 
 export const recordGoalScored = async (
@@ -134,16 +130,14 @@ export const startGame = async () => {
 };
 
 export const reorderPlayer = async (playerId: number, newPosition: number) => {
-  const playerPoint = await getCurrentPlayerPointForPlayerOrThrow(playerId);
-  await new PlayerPointPositionService().reorderPlayerPoint(
-    playerPoint,
+  await new PlayerPointPositionService().reorderPlayerInCurrentGame(
+    playerId,
     newPosition
   );
 };
 
 export const getRotatyStrategy = async (team: Team) => {
-  const currentGame = await getCurrentGameOrThrow();
-  return team === 'Red' ? currentGame.rotatyRed : currentGame.rotatyBlue;
+  return new PlayerPointPositionService().getRotatyStrategyInCurrentGame(team);
 };
 
 export const updateRotatyStrategyAction = async (
