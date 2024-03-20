@@ -2,11 +2,7 @@
 
 import { $Enums, RotatyStrategy, Team } from '@prisma/client';
 import { GameLogicService } from '../app/services/gameLogicService';
-import {
-  deletePlayerPoint,
-  getAllPlayerPointsForPlayerInCurrentGame,
-  getCurrentPlayerPointForPlayerOrThrow
-} from '../app/repository/playerPointRepository';
+import { getAllPlayerPointsForPlayerInCurrentGame } from '../app/repository/playerPointRepository';
 import { PlayerPointPositionService } from '../app/services/playerPointPositionService';
 import { PlayerInfo } from '../app/view/PlayerInfo';
 import { GameInfo } from '../app/view/CurrentGameInfo';
