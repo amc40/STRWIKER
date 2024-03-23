@@ -13,5 +13,11 @@ module.exports = {
   rules: {
     // should use tailwind css
     'react/forbid-dom-props': ['error', { forbid: ['style'] }]
-  }
+  },
+  overrides: [
+    {
+      extends: ['plugin:@typescript-eslint/disable-type-checked'],
+      files: ['./**/*.js']
+    }
+  ]
 };
