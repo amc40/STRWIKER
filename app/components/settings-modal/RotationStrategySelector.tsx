@@ -32,26 +32,38 @@ export const RotatyStrategySelector: React.FC<
       setSelectedRotatyStrategy(currentRotatyStrategy);
       setLoading(false);
     };
-    fetchCurrentRotatyStrategy();
+    fetchCurrentRotatyStrategy().catch((e) => {
+      console.error(
+        `Error fetching current rotation strategy for ${team} team:`,
+        e
+      );
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateRotatyStrategy = async (rotatyStrategy: RotatyStrategy) => {
+  const updateRotatyStrategy = (rotatyStrategy: RotatyStrategy) => {
     setLoading(true);
-    try {
-      await updateRotatyStrategyAction(rotatyStrategy, team);
-      setSelectedRotatyStrategy(rotatyStrategy);
-      // TODO: show configmration
-    } finally {
-      setLoading(false);
-    }
+    const updateRotatyStrategyPromise = async () => {
+      try {
+        await updateRotatyStrategyAction(rotatyStrategy, team);
+        setSelectedRotatyStrategy(rotatyStrategy);
+        // TODO: show configmration
+      } finally {
+        setLoading(false);
+      }
+    };
+    updateRotatyStrategyPromise().catch((e) => {
+      console.error('Error updating rotaty strategy:', e);
+    });
   };
 
   return (
     <Select
       options={options}
       selectedId={selectedRotatyStrategy}
-      onChange={(rotatyStrategy) => updateRotatyStrategy(rotatyStrategy)}
+      onChange={(rotatyStrategy) => {
+        updateRotatyStrategy(rotatyStrategy);
+      }}
       loading={loading}
     />
   );

@@ -16,7 +16,13 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function Navbar({ user }: { user: any }) {
+interface User {
+  name?: string | null;
+  image?: string | null;
+  email?: string | null;
+}
+
+export default function Navbar({ user }: { user?: User }) {
   const pathname = usePathname();
 
   return (
@@ -74,10 +80,10 @@ export default function Navbar({ user }: { user: any }) {
                       <span className="sr-only">Open user menu</span>
                       <Image
                         className="h-8 w-8 rounded-full"
-                        src={user?.image || 'https://avatar.vercel.sh/leerob'}
+                        src={user?.image ?? 'https://avatar.vercel.sh/leerob'}
                         height={32}
                         width={32}
-                        alt={`${user?.name || 'placeholder'} avatar`}
+                        alt={`${user?.name ?? 'placeholder'} avatar`}
                       />
                     </Menu.Button>
                   </div>
@@ -99,7 +105,11 @@ export default function Navbar({ user }: { user: any }) {
                                 active ? 'bg-gray-100' : '',
                                 'flex w-full px-4 py-2 text-sm text-gray-700'
                               )}
-                              onClick={() => signOut()}
+                              onClick={() => {
+                                signOut().catch((e) => {
+                                  console.error('Error signing out:', e);
+                                });
+                              }}
                             >
                               Sign out
                             </button>
@@ -113,7 +123,14 @@ export default function Navbar({ user }: { user: any }) {
                                 active ? 'bg-gray-100' : '',
                                 'flex w-full px-4 py-2 text-sm text-gray-700'
                               )}
-                              onClick={() => signIn('github')}
+                              onClick={() => {
+                                signIn('github').catch((e) => {
+                                  console.error(
+                                    'Error signing in with GitHub',
+                                    e
+                                  );
+                                });
+                              }}
                             >
                               Sign in
                             </button>
@@ -163,7 +180,7 @@ export default function Navbar({ user }: { user: any }) {
                     <div className="flex-shrink-0">
                       <Image
                         className="h-8 w-8 rounded-full"
-                        src={user.image}
+                        src={user.image ?? 'https://avatar.vercel.sh/leerob'}
                         height={32}
                         width={32}
                         alt={`${user.name} avatar`}
@@ -180,7 +197,11 @@ export default function Navbar({ user }: { user: any }) {
                   </div>
                   <div className="mt-3 space-y-1">
                     <button
-                      onClick={() => signOut()}
+                      onClick={() => {
+                        signOut().catch((e) => {
+                          console.error('Error signing out:', e);
+                        });
+                      }}
                       className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     >
                       Sign out
@@ -190,7 +211,11 @@ export default function Navbar({ user }: { user: any }) {
               ) : (
                 <div className="mt-3 space-y-1">
                   <button
-                    onClick={() => signIn('github')}
+                    onClick={() => {
+                      signIn('github').catch((e) => {
+                        console.error('Error signing in with GitHub', e);
+                      });
+                    }}
                     className="flex w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                   >
                     Sign in

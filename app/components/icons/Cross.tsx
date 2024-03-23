@@ -1,8 +1,6 @@
 import React from 'react';
 
-interface CrossProps {}
-
-export const Cross: React.FC<CrossProps> = ({}) => {
+export const Cross: React.FC = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

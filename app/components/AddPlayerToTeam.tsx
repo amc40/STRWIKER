@@ -17,7 +17,7 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
   addPlayer,
   existingPlayers
 }) => {
-  const [isPending, startTransition] = useTransition();
+  const [isPending] = useTransition();
   const [showModal, setShowModal] = useState(false);
   const [players, setPlayers] = useState<Player[]>([]);
   const [playerFilter, setPlayerFilter] = useState('');
@@ -31,7 +31,9 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
       const data = await getPlayers();
       setPlayers(data);
     };
-    loadData();
+    loadData().catch((e) => {
+      console.error('Failed to fetch players', e);
+    });
   }, []);
 
   const filteredPlayers = players.filter((player) =>
@@ -45,7 +47,9 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
           'my-5 p-3 bg-yellow-100 text-black rounded-md active:bg-yellow-200'
         }
         type="button"
-        onClick={() => { setShowModal(true); }}
+        onClick={() => {
+          setShowModal(true);
+        }}
         disabled={isPending}
       >
         Add
@@ -74,7 +78,9 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
           <input
             className={'mt-2 p-1 border border-gray-500'}
             placeholder={'Search player name...'}
-            onChange={(e) => { setPlayerFilter(e.currentTarget.value); }}
+            onChange={(e) => {
+              setPlayerFilter(e.currentTarget.value);
+            }}
           ></input>
           <ul className={'list-none mt-2 max-h-[70vh] overflow-y-auto'}>
             {filteredPlayers.map((player) => {
@@ -102,7 +108,7 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
                          ? 'line-through italic text-gray-300'
                          : ''
                      }`}
-                    onClick={async () => {
+                    onClick={() => {
                       addPlayer(player.id, player.name, team);
                     }}
                   >

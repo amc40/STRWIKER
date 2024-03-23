@@ -7,16 +7,12 @@ import Script from 'next/script';
 import React from 'react';
 
 export const metadata = {
-  title: 'Next.js 13 + PlanetScale + NextAuth + Tailwind CSS',
+  title: 'STRWIKER',
   description:
-    'A user admin dashboard configured with Next.js, PlanetScale, NextAuth, Tailwind CSS, TypeScript, ESLint, and Prettier.'
+    'Soft table recording wire for interactive kicking equipment for recreation'
 };
 
-export default async function RootLayout({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
@@ -29,4 +25,6 @@ export default async function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

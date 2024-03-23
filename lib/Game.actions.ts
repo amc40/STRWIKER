@@ -16,7 +16,7 @@ export const addPlayerToCurrentGame = async (
   playerId: number,
   team: $Enums.Team
 ) => {
-  new GameLogicService().addPlayerToCurrentPoint(playerId, team);
+  await new GameLogicService().addPlayerToCurrentPoint(playerId, team);
 };
 
 export const recordGoalScored = async (

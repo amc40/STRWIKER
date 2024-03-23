@@ -81,7 +81,7 @@ export class PlayerPointPositionService {
 
   async rotatePlayerPoints(playerPoints: PlayerPoint[]) {
     playerPoints.sort((a, b) => a.position - b.position);
-    this.reorderPlayerPoint(playerPoints[0], playerPoints.length - 1);
+    await this.reorderPlayerPoint(playerPoints[0], playerPoints.length - 1);
   }
 
   getNextPlayerPositionForTeam(
@@ -109,7 +109,7 @@ export class PlayerPointPositionService {
     return this.getRotatyStrategyInGame(currentGame, team);
   }
 
-  private async getRotatyStrategyInGame(game: Game, team: Team) {
+  private getRotatyStrategyInGame(game: Game, team: Team) {
     return team === 'Red' ? game.rotatyRed : game.rotatyBlue;
   }
 

@@ -7,14 +7,6 @@ export const getCurrentPointOrThrow = async (): Promise<Point> => {
   return await getCurrentPointFromGameOrThrow(currentGame);
 };
 
-export const getCurrentPointIdFromGameOrThrow = async (
-  game: Game
-): Promise<number> => {
-  if (!game.currentPointId)
-    throw new Error('No current point for game id ' + game.id);
-  return game.currentPointId;
-};
-
 export const getCurrentPointFromGameOrThrow = async (
   game: Game
 ): Promise<Point> => {

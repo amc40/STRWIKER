@@ -18,34 +18,51 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
 
   const [goals, setGoals] = useState<number | null>(null);
   const [ownGoals, setOwnGoals] = useState<number | null>(null);
-  const x: React.CSSProperties = { textAlign: 'center' };
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const numberOfGoalsScoredByPlayer =
-        await getNumberOfGoalsScoredByPlayerInCurrentGame(playerId);
-      if (numberOfGoalsScoredByPlayer != null) {
-        setGoals(numberOfGoalsScoredByPlayer.goalScored);
-        setOwnGoals(numberOfGoalsScoredByPlayer.ownGoalsScored);
-      }
+    const interval = setInterval(() => {
+      const fetchNumberOfGoalsScored = async () => {
+        const numberOfGoalsScoredByPlayer =
+          await getNumberOfGoalsScoredByPlayerInCurrentGame(playerId);
+        if (numberOfGoalsScoredByPlayer != null) {
+          setGoals(numberOfGoalsScoredByPlayer.goalScored);
+          setOwnGoals(numberOfGoalsScoredByPlayer.ownGoalsScored);
+        }
+      };
+      fetchNumberOfGoalsScored().catch((e) => {
+        console.error(
+          `Error fetching number of goals scored by player id ${playerId}:`,
+          e
+        );
+      });
     }, 1000);
-    return () => { clearInterval(interval); };
+    return () => {
+      clearInterval(interval);
+    };
   }, [playerId]);
 
   const handleGoalClick = () => {
     setGoals((goals ?? 0) + 1);
-    recordGoalScored(player, false);
+    recordGoalScored(player, false).catch((e) => {
+      console.error('Error recording goal:', e);
+    });
   };
 
   const handleOwnGoalClick = () => {
     setOwnGoals((ownGoals ?? 0) + 1);
-    recordGoalScored(player, true);
+    recordGoalScored(player, true).catch((e) => {
+      console.error('Error recording own goal:', e);
+    });
   };
 
   return (
     <div className="z-0 relative bg-white border-slate-300 rounded-lg p-2 mb-5 w-[200px] shadow-lg text-center text-black">
       <span className="right-2 top-2 absolute inline-block">
-        <CircleRemove onRemove={() => { removePlayer(player); }} />
+        <CircleRemove
+          onRemove={() => {
+            removePlayer(player);
+          }}
+        />
       </span>
       <h3 className="my-1 text-lg font-bold">{playerName}</h3>
 

@@ -88,22 +88,29 @@ export const CurrentGameClient: FC<{
 
   // on initial render setup a function to refresh the current game info every MS_BETWEEN_REFRESHES
   useEffect(() => {
-    const refreshInterval = setInterval(async () => {
-      const currentGameInfo = await getCurrentGameInfo();
-      if (currentGameInfo.gameInProgress) {
-        if (awaitingPlayersResponseRef.current) return;
-        setPlayers(currentGameInfo.players);
-        setRedScore(currentGameInfo.redScore);
-        setBlueScore(currentGameInfo.blueScore);
-      } else {
-        setGameInProgress(false);
-      }
+    const refreshInterval = setInterval(() => {
+      const updateCurrentGameInfo = async () => {
+        const currentGameInfo = await getCurrentGameInfo();
+        if (currentGameInfo.gameInProgress) {
+          if (awaitingPlayersResponseRef.current) return;
+          setPlayers(currentGameInfo.players);
+          setRedScore(currentGameInfo.redScore);
+          setBlueScore(currentGameInfo.blueScore);
+        } else {
+          setGameInProgress(false);
+        }
+      };
+      updateCurrentGameInfo().catch((e) => {
+        console.error('Error updating current game info:', e);
+      });
     }, MS_BETWEEN_REFRESHES);
-    return () => { clearInterval(refreshInterval); };
+    return () => {
+      clearInterval(refreshInterval);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const addPlayer = async (
+  const addPlayer = (
     playerId: number,
     playerName: string,
     team: $Enums.Team
@@ -125,10 +132,12 @@ export const CurrentGameClient: FC<{
         setAwaitingPlayersResponse(false);
       }
     };
-    action();
+    action().catch((e) => {
+      console.error(`Error adding player id ${playerId}:`, e);
+    });
   };
 
-  const removePlayer = async (player: PlayerInfo) => {
+  const removePlayer = (player: PlayerInfo) => {
     setAwaitingPlayersResponse(true);
     setPlayers((state) => {
       return state.filter((playerInfo) => playerInfo.id !== player.id);
@@ -140,13 +149,12 @@ export const CurrentGameClient: FC<{
         setAwaitingPlayersResponse(false);
       }
     };
-    action();
+    action().catch((e) => {
+      console.error(`Error removing player id ${player.id}:`, e);
+    });
   };
 
-  const reorderPlayer = async (
-    player: PlayerInfo,
-    destinationIndex: number
-  ) => {
+  const reorderPlayer = (player: PlayerInfo, destinationIndex: number) => {
     setAwaitingPlayersResponse(true);
 
     setPlayers((state) => {
@@ -167,7 +175,12 @@ export const CurrentGameClient: FC<{
         setAwaitingPlayersResponse(false);
       }
     };
-    action();
+    action().catch((e) => {
+      console.error(
+        `Error reordering player id ${player.id} to position ${destinationIndex}:`,
+        e
+      );
+    });
   };
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -182,17 +195,25 @@ export const CurrentGameClient: FC<{
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
 
-    return () => { window.removeEventListener('resize', checkScreenSize); };
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
   }, []);
 
   return gameInProgress ? (
     <main className="flex flex-1 flex-col">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
-        <SettingsButton onClick={() => { setShowSettingsModal(true); }} />
+        <SettingsButton
+          onClick={() => {
+            setShowSettingsModal(true);
+          }}
+        />
       </span>
       <SettingsModal
         show={showSettingsModal}
-        onClose={() => { setShowSettingsModal(false); }}
+        onClose={() => {
+          setShowSettingsModal(false);
+        }}
       />
       <div className="flex flex-1">
         {isMobile ? (
