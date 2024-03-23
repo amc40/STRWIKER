@@ -10,7 +10,7 @@ interface PlayersClientProps {
 }
 
 export const PlayersClient: React.FC<PlayersClientProps> = ({
-  serverPlayers
+  serverPlayers,
 }) => {
   const [players, setPlayers] = useState<Player[]>(serverPlayers);
 
@@ -39,7 +39,7 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
       players.some(
         (player) =>
           player.name.toLowerCase().trim() ===
-          newPlayerName.toLowerCase().trim()
+          newPlayerName.toLowerCase().trim(),
       )
     ) {
       // TODO: display some kind of error
@@ -58,7 +58,7 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
   };
 
   const filteredPlayers = players.filter((player: Player) =>
-    player.name.toLowerCase().includes(searchTerm.toLowerCase())
+    player.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (

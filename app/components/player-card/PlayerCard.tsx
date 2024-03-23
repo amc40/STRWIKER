@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   getNumberOfGoalsScoredByPlayerInCurrentGame,
-  recordGoalScored
+  recordGoalScored,
 } from '../../../lib/Game.actions';
 import { CircleRemove } from './CircleRemove';
 import { PlayerCardStat } from './PlayerCardStat';
@@ -32,7 +32,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
       fetchNumberOfGoalsScored().catch((e) => {
         console.error(
           `Error fetching number of goals scored by player id ${playerId}:`,
-          e
+          e,
         );
       });
     }, 1000);

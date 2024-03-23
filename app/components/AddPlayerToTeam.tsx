@@ -15,7 +15,7 @@ interface AddPlayerToTeamProps {
 const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
   team,
   addPlayer,
-  existingPlayers
+  existingPlayers,
 }) => {
   const [isPending] = useTransition();
   const [showModal, setShowModal] = useState(false);
@@ -37,7 +37,7 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
   }, []);
 
   const filteredPlayers = players.filter((player) =>
-    player.name.toLowerCase().includes(playerFilter.toLowerCase())
+    player.name.toLowerCase().includes(playerFilter.toLowerCase()),
   );
 
   return (

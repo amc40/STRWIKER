@@ -5,7 +5,7 @@ interface SettingTitleProps {
 }
 
 export const SettingsModalSettingHeader: React.FC<SettingTitleProps> = ({
-  title
+  title,
 }) => {
   return (
     <>

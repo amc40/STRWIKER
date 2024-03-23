@@ -2,11 +2,11 @@ import { PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   getAllPointsInCurrentGame,
-  getCurrentPointOrThrow
+  getCurrentPointOrThrow,
 } from './pointRepository';
 
 export async function getAllPlayerPointsByPoint(
-  point: Point
+  point: Point,
 ): Promise<PlayerPoint[]> {
   return await prisma.playerPoint.findMany({ where: { pointId: point.id } });
 }
@@ -16,29 +16,29 @@ export async function getCurrentPlayerPointForPlayerOrThrow(playerId: number) {
   return await prisma.playerPoint.findFirstOrThrow({
     where: {
       pointId: currentPoint.id,
-      playerId
-    }
+      playerId,
+    },
   });
 }
 
 export async function getMaxPlayerPointPositionForTeamInPoint(
   team: Team,
-  point: Point
+  point: Point,
 ) {
   const playerPointWithMaxPosition = await prisma.playerPoint.findFirst({
     where: {
       pointId: point.id,
-      team
+      team,
     },
     orderBy: {
-      position: 'desc'
-    }
+      position: 'desc',
+    },
   });
   return playerPointWithMaxPosition?.position;
 }
 
 export async function getAllPlayerPointsForPlayerInCurrentGame(
-  playerId: number
+  playerId: number,
 ) {
   const currentGamePoints = await getAllPointsInCurrentGame();
   if (currentGamePoints == null) return null;
@@ -46,17 +46,17 @@ export async function getAllPlayerPointsForPlayerInCurrentGame(
     where: {
       playerId,
       pointId: {
-        in: currentGamePoints.map((currentGamePoint) => currentGamePoint.id)
-      }
-    }
+        in: currentGamePoints.map((currentGamePoint) => currentGamePoint.id),
+      },
+    },
   });
 }
 
 export async function deletePlayerPoint(playerPointId: number) {
   await prisma.playerPoint.delete({
     where: {
-      id: playerPointId
-    }
+      id: playerPointId,
+    },
   });
 }
 
@@ -64,95 +64,95 @@ export async function getPlayerPointsInPositionRangeForTeam(
   pointId: number,
   team: Team,
   inclusiveLowerBound: number,
-  exclusiveUpperBound: number
+  exclusiveUpperBound: number,
 ) {
   return await prisma.playerPoint.findMany({
     where: {
       AND: [
         { position: { gte: inclusiveLowerBound } },
-        { position: { lt: exclusiveUpperBound } }
+        { position: { lt: exclusiveUpperBound } },
       ],
       pointId,
-      team
-    }
+      team,
+    },
   });
 }
 
 export async function incrementPlayerPointPositions(
-  playerPoints: PlayerPoint[]
+  playerPoints: PlayerPoint[],
 ) {
   await prisma.playerPoint.updateMany({
     where: {
       id: {
-        in: playerPoints.map((playerPoint) => playerPoint.id)
-      }
+        in: playerPoints.map((playerPoint) => playerPoint.id),
+      },
     },
     data: {
       position: {
-        increment: 1
-      }
-    }
+        increment: 1,
+      },
+    },
   });
 }
 
 export async function decrementPlayerPointPositions(
-  playerPoints: PlayerPoint[]
+  playerPoints: PlayerPoint[],
 ) {
   await prisma.playerPoint.updateMany({
     where: {
       id: {
-        in: playerPoints.map((playerPoint) => playerPoint.id)
-      }
+        in: playerPoints.map((playerPoint) => playerPoint.id),
+      },
     },
     data: {
       position: {
-        decrement: 1
-      }
-    }
+        decrement: 1,
+      },
+    },
   });
 }
 
 export async function decrementPlayerPointPositionsInPointAfter(
   pointId: number,
-  positionThreshold: number
+  positionThreshold: number,
 ) {
   await prisma.playerPoint.updateMany({
     where: {
       pointId,
       position: {
-        gt: positionThreshold
-      }
+        gt: positionThreshold,
+      },
     },
     data: {
       position: {
-        decrement: 1
-      }
-    }
+        decrement: 1,
+      },
+    },
   });
 }
 
 export async function setPlayerPointPosition(
   playerPoint: PlayerPoint,
-  newPosition: number
+  newPosition: number,
 ) {
   await prisma.playerPoint.update({
     where: {
-      id: playerPoint.id
+      id: playerPoint.id,
     },
     data: {
-      position: newPosition
-    }
+      position: newPosition,
+    },
   });
 }
 
 export async function getPlayerPointByPlayerAndPointOrThrow(
   playerId: number,
-  pointId: number
+  pointId: number,
 ) {
   return await prisma.playerPoint.findFirstOrThrow({
     where: {
       playerId,
-      pointId
-    }
+      pointId,
+    },
   });
 }

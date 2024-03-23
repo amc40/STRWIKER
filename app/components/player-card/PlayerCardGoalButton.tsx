@@ -7,7 +7,7 @@ interface PlayerCardGoalButtonProps {
 }
 
 export const PlayerCardGoalButton: React.FC<PlayerCardGoalButtonProps> = (
-  props
+  props,
 ) => {
   return <PrimaryButton className="text-sm" {...props} />;
 };

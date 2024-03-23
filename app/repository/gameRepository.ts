@@ -5,8 +5,8 @@ export const getCurrentGame = async (): Promise<Game | null> => {
   return await prisma.game.findFirst({
     where: {
       completed: false,
-      abandoned: false
-    }
+      abandoned: false,
+    },
   });
 };
 
@@ -14,23 +14,23 @@ export const getCurrentGameOrThrow = async (): Promise<Game> => {
   return await prisma.game.findFirstOrThrow({
     where: {
       completed: false,
-      abandoned: false
-    }
+      abandoned: false,
+    },
   });
 };
 
 export const updateRotatyStrategy = async (
   game: Game,
   rotatyStrategy: RotatyStrategy,
-  team: Team
+  team: Team,
 ) => {
   await prisma.game.update({
     where: {
-      id: game.id
+      id: game.id,
     },
     data: {
       rotatyBlue: team === 'Blue' ? rotatyStrategy : undefined,
-      rotatyRed: team === 'Red' ? rotatyStrategy : undefined
-    }
+      rotatyRed: team === 'Red' ? rotatyStrategy : undefined,
+    },
   });
 };

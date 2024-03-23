@@ -2,7 +2,7 @@ import { RotatyStrategy, Team } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
 import {
   getRotatyStrategy,
-  updateRotatyStrategyAction
+  updateRotatyStrategyAction,
 } from '../../../lib/Game.actions';
 import { Select, SelectOption } from '../Select';
 
@@ -11,10 +11,10 @@ interface RotationStrategySelectorProps {
 }
 
 const options: SelectOption<RotatyStrategy>[] = Object.values(
-  RotatyStrategy
+  RotatyStrategy,
 ).map((rotatyStrategy) => ({
   id: rotatyStrategy,
-  label: rotatyStrategy
+  label: rotatyStrategy,
 }));
 
 export const RotatyStrategySelector: React.FC<
@@ -35,7 +35,7 @@ export const RotatyStrategySelector: React.FC<
     fetchCurrentRotatyStrategy().catch((e) => {
       console.error(
         `Error fetching current rotation strategy for ${team} team:`,
-        e
+        e,
       );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

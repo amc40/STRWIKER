@@ -18,7 +18,7 @@ export const Select = <T extends Id>({
   options,
   selectedId,
   onChange,
-  loading = false
+  loading = false,
 }: SelectProps<T>) => {
   console.log('loading', loading);
   return (

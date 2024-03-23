@@ -20,7 +20,7 @@ export const Team: React.FC<TeamProps> = ({
   removePlayer,
   reorderPlayer,
   children,
-  hideOnSmallScreen = false
+  hideOnSmallScreen = false,
 }) => {
   return (
     <div

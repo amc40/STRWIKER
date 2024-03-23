@@ -9,7 +9,7 @@ interface PrimaryButtonProps {
 export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   text,
   onClick,
-  className
+  className,
 }) => {
   return (
     <button

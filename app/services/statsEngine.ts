@@ -13,8 +13,8 @@ export class StatsEngineFwoar {
   async getPlayerStats(playerId: number) {
     const playerStats = await prisma.playerPoint.findMany({
       where: {
-        playerId
-      }
+        playerId,
+      },
     });
 
     const totalIntentionalGoals = this.getTotalIntentionalGoals(playerStats);
@@ -31,7 +31,7 @@ export class StatsEngineFwoar {
       rattledRatio,
       scoreRatio,
       totalPointsPlayed,
-      ownVsIntentionalGoalRatio
+      ownVsIntentionalGoalRatio,
     };
   }
 
@@ -73,14 +73,14 @@ export class StatsEngineFwoar {
     if (playerPointsForPlayer == null) return null;
 
     const intensionalGoals = this.getTotalIntentionalGoals(
-      playerPointsForPlayer
+      playerPointsForPlayer,
     );
 
     const ownGoals = this.getTotalOwnGoals(playerPointsForPlayer);
 
     return {
       goalScored: intensionalGoals,
-      ownGoalsScored: ownGoals
+      ownGoalsScored: ownGoals,
     };
   }
 

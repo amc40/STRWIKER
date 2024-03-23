@@ -6,11 +6,11 @@ import {
   getMaxPlayerPointPositionForTeamInPoint,
   getPlayerPointsInPositionRangeForTeam,
   incrementPlayerPointPositions,
-  setPlayerPointPosition
+  setPlayerPointPosition,
 } from '../repository/playerPointRepository';
 import {
   getCurrentGameOrThrow,
-  updateRotatyStrategy
+  updateRotatyStrategy,
 } from '../repository/gameRepository';
 
 export class PlayerPointPositionService {
@@ -21,7 +21,7 @@ export class PlayerPointPositionService {
 
   private async reorderPlayerPoint(
     playerPointToReorder: PlayerPoint,
-    newPosition: number
+    newPosition: number,
   ) {
     const oldPosition = playerPointToReorder.position;
     await prisma.$transaction(async () => {
@@ -29,13 +29,13 @@ export class PlayerPointPositionService {
         await this.pushPlayerPointBack(
           playerPointToReorder,
           newPosition,
-          oldPosition
+          oldPosition,
         );
       } else {
         await this.pullPlayerPointForward(
           playerPointToReorder,
           newPosition,
-          oldPosition
+          oldPosition,
         );
       }
     });
@@ -44,7 +44,7 @@ export class PlayerPointPositionService {
   private async pushPlayerPointBack(
     playerPointToPushBack: PlayerPoint,
     newPosition: number,
-    oldPosition: number
+    oldPosition: number,
   ) {
     const { pointId, team } = playerPointToPushBack;
     const otherPlayerPointsToPullForward =
@@ -52,7 +52,7 @@ export class PlayerPointPositionService {
         pointId,
         team,
         oldPosition + 1,
-        newPosition + 1
+        newPosition + 1,
       );
 
     await decrementPlayerPointPositions(otherPlayerPointsToPullForward);
@@ -63,7 +63,7 @@ export class PlayerPointPositionService {
   private async pullPlayerPointForward(
     playerPointToPullForward: PlayerPoint,
     newPosition: number,
-    oldPosition: number
+    oldPosition: number,
   ) {
     const { pointId, team } = playerPointToPullForward;
     const otherPlayerPointsToPushBack =
@@ -71,7 +71,7 @@ export class PlayerPointPositionService {
         pointId,
         team,
         newPosition,
-        oldPosition
+        oldPosition,
       );
 
     await incrementPlayerPointPositions(otherPlayerPointsToPushBack);
@@ -89,12 +89,12 @@ export class PlayerPointPositionService {
     playerTeam: Team,
     numberOfPlayersForTeam: Record<Team, number>,
     scoringTeam: Team,
-    game: Game
+    game: Game,
   ) {
     return this.getNextPlayerPosition(
       previousPosition,
       numberOfPlayersForTeam[playerTeam],
-      this.isTeamRotating(playerTeam, game, scoringTeam)
+      this.isTeamRotating(playerTeam, game, scoringTeam),
     );
   }
 
@@ -115,7 +115,7 @@ export class PlayerPointPositionService {
 
   async updateRotatyStrategyForTeamInCurrentGame(
     rotatyStrategy: RotatyStrategy,
-    team: Team
+    team: Team,
   ) {
     const currentGame = await getCurrentGameOrThrow();
     await updateRotatyStrategy(currentGame, rotatyStrategy, team);
@@ -124,7 +124,7 @@ export class PlayerPointPositionService {
   private getNextPlayerPosition(
     previousPosition: number,
     numberOfPlayersOnTeam: number,
-    isTeamRotating: boolean
+    isTeamRotating: boolean,
   ) {
     if (!isTeamRotating) return previousPosition;
     const newPosition =

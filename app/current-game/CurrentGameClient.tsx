@@ -7,7 +7,7 @@ import {
   addPlayerToCurrentGame,
   getCurrentGameInfo,
   removePlayerFromCurrentGame,
-  reorderPlayer as reorderPlayerAction
+  reorderPlayer as reorderPlayerAction,
 } from '../../lib/Game.actions';
 import SettingsButton from '../components/SettingsButton';
 import { SettingsModal } from '../components/settings-modal/SettingsModal';
@@ -25,7 +25,7 @@ const MOBILE_SCREEN_BREAK_POINT = 768;
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
   playerReordered: PlayerInfo,
-  destinationIndex: number
+  destinationIndex: number,
 ): PlayerInfo => {
   if (player.team !== playerReordered.team) {
     return player;
@@ -34,17 +34,17 @@ const updatePlayerOrderAfterReorder = (
   if (player.id === playerReordered.id) {
     return {
       ...player,
-      position: destinationIndex
+      position: destinationIndex,
     };
   }
 
   if (player.position === playerReordered.position) {
     throw new Error(
       `Not playerReordered, but positions before reordered match. player: ${JSON.stringify(
-        player
+        player,
       )}, playerReordered: ${JSON.stringify(
-        playerReordered
-      )}, destinationIndex: ${destinationIndex}`
+        playerReordered,
+      )}, destinationIndex: ${destinationIndex}`,
     );
   }
 
@@ -54,7 +54,7 @@ const updatePlayerOrderAfterReorder = (
     }
     return {
       ...player,
-      position: player.position + 1
+      position: player.position + 1,
     };
   }
 
@@ -64,7 +64,7 @@ const updatePlayerOrderAfterReorder = (
 
   return {
     ...player,
-    position: player.position - 1
+    position: player.position - 1,
   };
 };
 
@@ -113,7 +113,7 @@ export const CurrentGameClient: FC<{
   const addPlayer = (
     playerId: number,
     playerName: string,
-    team: $Enums.Team
+    team: $Enums.Team,
   ) => {
     setAwaitingPlayersResponse(true);
     setPlayers((state) => [
@@ -122,8 +122,8 @@ export const CurrentGameClient: FC<{
         id: playerId,
         name: playerName,
         team,
-        position: Math.max(...state.map((player) => player.position)) + 1
-      }
+        position: Math.max(...state.map((player) => player.position)) + 1,
+      },
     ]);
     const action = async () => {
       try {
@@ -160,7 +160,7 @@ export const CurrentGameClient: FC<{
     setPlayers((state) => {
       try {
         return state.map((playerInfo) =>
-          updatePlayerOrderAfterReorder(playerInfo, player, destinationIndex)
+          updatePlayerOrderAfterReorder(playerInfo, player, destinationIndex),
         );
       } catch (e) {
         console.error(e);
@@ -178,7 +178,7 @@ export const CurrentGameClient: FC<{
     action().catch((e) => {
       console.error(
         `Error reordering player id ${player.id} to position ${destinationIndex}:`,
-        e
+        e,
       );
     });
   };

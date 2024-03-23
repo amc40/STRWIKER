@@ -40,13 +40,13 @@ export default Stats;
 
 enum Rarity {
   NORMAL,
-  HOLOGRAPHIC
+  HOLOGRAPHIC,
 }
 
 const PlayerCard = ({
   name,
   gamesPlayed,
-  rarity
+  rarity,
 }: {
   name: string;
   gamesPlayed: number;

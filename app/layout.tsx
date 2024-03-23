@@ -9,7 +9,7 @@ import React from 'react';
 export const metadata = {
   title: 'STRWIKER',
   description:
-    'Soft table recording wire for interactive kicking equipment for recreation'
+    'Soft table recording wire for interactive kicking equipment for recreation',
 };
 
 const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => {

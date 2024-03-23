@@ -12,14 +12,14 @@ async function populatePlayers() {
     'Jordan',
     'John',
     'Mike',
-    'Henry'
+    'Henry',
   ].map(
     async (name) =>
       await prisma.player.create({
         data: {
-          name
-        }
-      })
+          name,
+        },
+      }),
   );
 }
 
@@ -27,23 +27,23 @@ async function populateGames() {
   const game = await prisma.game.create({
     data: {
       rotatyBlue: 'Always',
-      rotatyRed: 'Always'
-    }
+      rotatyRed: 'Always',
+    },
   });
 
   const point = await prisma.point.create({
     data: {
-      gameId: game.id
-    }
+      gameId: game.id,
+    },
   });
 
   await prisma.game.update({
     where: {
-      id: game.id
+      id: game.id,
     },
     data: {
-      currentPointId: point.id
-    }
+      currentPointId: point.id,
+    },
   });
 }
 

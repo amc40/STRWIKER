@@ -4,20 +4,20 @@ module.exports = {
     'prettier',
     'eslint:recommended',
     'plugin:@typescript-eslint/strict-type-checked',
-    'plugin:@typescript-eslint/stylistic-type-checked'
+    'plugin:@typescript-eslint/stylistic-type-checked',
   ],
   parserOptions: {
     project: ['./tsconfig.json'],
-    tsconfigRootDir: __dirname
+    tsconfigRootDir: __dirname,
   },
   rules: {
     // should use tailwind css
-    'react/forbid-dom-props': ['error', { forbid: ['style'] }]
+    'react/forbid-dom-props': ['error', { forbid: ['style'] }],
   },
   overrides: [
     {
       extends: ['plugin:@typescript-eslint/disable-type-checked'],
-      files: ['./**/*.js']
-    }
-  ]
+      files: ['./**/*.js'],
+    },
+  ],
 };

@@ -44,7 +44,7 @@
     "arrowParens": "always",
     "singleQuote": true,
     "tabWidth": 2,
-    "trailingComma": "none"
+    "trailingComma": "all"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",

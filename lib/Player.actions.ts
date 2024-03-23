@@ -3,7 +3,7 @@
 import { Player, Prisma } from '@prisma/client';
 import {
   createPlayer,
-  getAllPlayersNameAscIdAsc
+  getAllPlayersNameAscIdAsc,
 } from '../app/repository/playerRepository';
 
 export const addPlayer = async ({ name }: Prisma.PlayerCreateInput) => {
