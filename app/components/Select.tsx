@@ -25,7 +25,9 @@ export const Select = <T extends Id>({
     <select
       value={selectedId}
       className="block w-full px-4 py-2 mt-2 border border-gray-300 bg-white rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
-      onChange={(e) => { onChange(e.target.value as T); }}
+      onChange={(e) => {
+        onChange(e.target.value as T);
+      }}
       disabled={loading}
     >
       {loading ? (
