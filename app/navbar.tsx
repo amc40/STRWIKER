@@ -9,14 +9,20 @@ import Image from 'next/image';
 
 const navigation = [
   { name: 'Current Game', href: '/current-game' },
-  { name: 'Players', href: '/players' }
+  { name: 'Players', href: '/players' },
 ];
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function Navbar({ user }: { user: any }) {
+interface User {
+  name?: string | null;
+  image?: string | null;
+  email?: string | null;
+}
+
+export default function Navbar({ user }: { user?: User }) {
   const pathname = usePathname();
 
   return (
@@ -58,7 +64,7 @@ export default function Navbar({ user }: { user: any }) {
                         pathname === item.href
                           ? 'border-slate-500 text-gray-900'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                        'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                        'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium',
                       )}
                       aria-current={pathname === item.href ? 'page' : undefined}
                     >
@@ -74,10 +80,10 @@ export default function Navbar({ user }: { user: any }) {
                       <span className="sr-only">Open user menu</span>
                       <Image
                         className="h-8 w-8 rounded-full"
-                        src={user?.image || 'https://avatar.vercel.sh/leerob'}
+                        src={user?.image ?? 'https://avatar.vercel.sh/leerob'}
                         height={32}
                         width={32}
-                        alt={`${user?.name || 'placeholder'} avatar`}
+                        alt={`${user?.name ?? 'placeholder'} avatar`}
                       />
                     </Menu.Button>
                   </div>
@@ -97,9 +103,13 @@ export default function Navbar({ user }: { user: any }) {
                             <button
                               className={classNames(
                                 active ? 'bg-gray-100' : '',
-                                'flex w-full px-4 py-2 text-sm text-gray-700'
+                                'flex w-full px-4 py-2 text-sm text-gray-700',
                               )}
-                              onClick={() => signOut()}
+                              onClick={() => {
+                                signOut().catch((e) => {
+                                  console.error('Error signing out:', e);
+                                });
+                              }}
                             >
                               Sign out
                             </button>
@@ -111,9 +121,16 @@ export default function Navbar({ user }: { user: any }) {
                             <button
                               className={classNames(
                                 active ? 'bg-gray-100' : '',
-                                'flex w-full px-4 py-2 text-sm text-gray-700'
+                                'flex w-full px-4 py-2 text-sm text-gray-700',
                               )}
-                              onClick={() => signIn('github')}
+                              onClick={() => {
+                                signIn('github').catch((e) => {
+                                  console.error(
+                                    'Error signing in with GitHub',
+                                    e,
+                                  );
+                                });
+                              }}
                             >
                               Sign in
                             </button>
@@ -148,7 +165,7 @@ export default function Navbar({ user }: { user: any }) {
                     pathname === item.href
                       ? 'bg-slate-50 border-slate-500 text-slate-700'
                       : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800',
-                    'block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                    'block pl-3 pr-4 py-2 border-l-4 text-base font-medium',
                   )}
                   aria-current={pathname === item.href ? 'page' : undefined}
                 >
@@ -163,7 +180,7 @@ export default function Navbar({ user }: { user: any }) {
                     <div className="flex-shrink-0">
                       <Image
                         className="h-8 w-8 rounded-full"
-                        src={user.image}
+                        src={user.image ?? 'https://avatar.vercel.sh/leerob'}
                         height={32}
                         width={32}
                         alt={`${user.name} avatar`}
@@ -180,7 +197,11 @@ export default function Navbar({ user }: { user: any }) {
                   </div>
                   <div className="mt-3 space-y-1">
                     <button
-                      onClick={() => signOut()}
+                      onClick={() => {
+                        signOut().catch((e) => {
+                          console.error('Error signing out:', e);
+                        });
+                      }}
                       className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     >
                       Sign out
@@ -190,7 +211,11 @@ export default function Navbar({ user }: { user: any }) {
               ) : (
                 <div className="mt-3 space-y-1">
                   <button
-                    onClick={() => signIn('github')}
+                    onClick={() => {
+                      signIn('github').catch((e) => {
+                        console.error('Error signing in with GitHub', e);
+                      });
+                    }}
                     className="flex w-full px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                   >
                     Sign in

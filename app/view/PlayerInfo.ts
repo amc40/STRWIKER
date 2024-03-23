@@ -15,10 +15,10 @@ export const playerPointWithPlayerToPlayerInfo = ({
   playerId,
   team,
   position,
-  player
+  player,
 }: PlayerPointWithPlayer): PlayerInfo => ({
   id: playerId,
   name: player.name,
   team: team,
-  position
+  position,
 });

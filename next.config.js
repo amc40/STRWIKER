@@ -3,18 +3,18 @@ const CopyPlugin = require('copy-webpack-plugin');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['avatars.githubusercontent.com', 'avatar.vercel.sh']
+    domains: ['avatars.githubusercontent.com', 'avatar.vercel.sh'],
   },
   experimental: {
-    serverComponentsExternalPackages: ['@tremor/react']
+    serverComponentsExternalPackages: ['@tremor/react'],
   },
   async redirects() {
     return [
       {
         source: '/',
         destination: '/current-game',
-        permanent: true
-      }
+        permanent: true,
+      },
     ];
   },
   webpack: (config) => {
@@ -22,13 +22,13 @@ const nextConfig = {
       new CopyPlugin({
         patterns: [
           { from: 'node_modules/vanilla-tilt/dist', to: '../public' },
-          { from: 'app/images', to: '../public/images' }
-        ]
-      })
+          { from: 'app/images', to: '../public/images' },
+        ],
+      }),
     );
 
     return config;
-  }
+  },
 };
 
 module.exports = nextConfig;

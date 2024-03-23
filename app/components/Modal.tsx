@@ -2,7 +2,7 @@ import React, { FC, ReactNode } from 'react';
 import { Cross } from './icons/Cross';
 
 export interface CustomModalProps {
-  show: Boolean;
+  show: boolean;
   onClose: () => void;
 }
 
@@ -25,7 +25,9 @@ const Modal: FC<ModalProps> = ({ title, children, show, onClose }) => {
     >
       <div
         className={'bg-white opacity-100 text-black rounded-md p-5 pt-2'}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
       >
         <div className="flex justify-between items-center">
           <h1 className="text-xl md:text-3xl font-semibold">{title}</h1>

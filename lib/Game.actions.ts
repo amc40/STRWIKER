@@ -14,23 +14,23 @@ export const getCurrentGameInfo = async (): Promise<GameInfo> => {
 
 export const addPlayerToCurrentGame = async (
   playerId: number,
-  team: $Enums.Team
+  team: $Enums.Team,
 ) => {
-  new GameLogicService().addPlayerToCurrentPoint(playerId, team);
+  await new GameLogicService().addPlayerToCurrentPoint(playerId, team);
 };
 
 export const recordGoalScored = async (
   scorerInfo: PlayerInfo,
-  ownGoal: boolean
+  ownGoal: boolean,
 ) => {
   return new GameLogicService().scoreGoalInCurrentGame(scorerInfo.id, ownGoal);
 };
 
 export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
-  playerId: number
+  playerId: number,
 ) => {
   return new StatsEngineFwoar().getNumberOfGoalsScoredByPlayerInCurrentGame(
-    playerId
+    playerId,
   );
 };
 
@@ -49,7 +49,7 @@ export const startGame = async () => {
 export const reorderPlayer = async (playerId: number, newPosition: number) => {
   await new PlayerPointPositionService().reorderPlayerInCurrentGame(
     playerId,
-    newPosition
+    newPosition,
   );
 };
 
@@ -59,10 +59,10 @@ export const getRotatyStrategy = async (team: Team) => {
 
 export const updateRotatyStrategyAction = async (
   rotatyStrategy: RotatyStrategy,
-  team: Team
+  team: Team,
 ) => {
-  return await new PlayerPointPositionService().updateRotatyStrategyForTeamInCurrentGame(
+  await new PlayerPointPositionService().updateRotatyStrategyForTeamInCurrentGame(
     rotatyStrategy,
-    team
+    team,
   );
 };

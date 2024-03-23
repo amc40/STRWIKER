@@ -5,11 +5,12 @@ const authOptions: NextAuthOptions = {
   providers: [
     GithubProvider({
       clientId: String(process.env.GITHUB_ID),
-      clientSecret: String(process.env.GITHUB_SECRET)
-    })
-  ]
+      clientSecret: String(process.env.GITHUB_SECRET),
+    }),
+  ],
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

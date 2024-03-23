@@ -7,23 +7,15 @@ export const getCurrentPointOrThrow = async (): Promise<Point> => {
   return await getCurrentPointFromGameOrThrow(currentGame);
 };
 
-export const getCurrentPointIdFromGameOrThrow = async (
-  game: Game
-): Promise<number> => {
-  if (!game.currentPointId)
-    throw new Error('No current point for game id ' + game.id);
-  return game.currentPointId;
-};
-
 export const getCurrentPointFromGameOrThrow = async (
-  game: Game
+  game: Game,
 ): Promise<Point> => {
   if (!game.currentPointId)
     throw new Error('No current point for game id ' + game.id);
   return await prisma.point.findFirstOrThrow({
     where: {
-      id: game.currentPointId
-    }
+      id: game.currentPointId,
+    },
   });
 };
 
@@ -32,23 +24,23 @@ export const getCurrentPointAndPlayersFromGameOrThrow = async (game: Game) => {
     throw new Error('No current point for game id ' + game.id);
   return await prisma.point.findFirstOrThrow({
     where: {
-      id: game.currentPointId
+      id: game.currentPointId,
     },
     include: {
       playerPoints: {
         include: {
-          player: true
-        }
-      }
-    }
+          player: true,
+        },
+      },
+    },
   });
 };
 
 export async function getPointFromPlayerPoint(
-  playerPoint: PlayerPoint
+  playerPoint: PlayerPoint,
 ): Promise<Point> {
   return await prisma.point.findFirstOrThrow({
-    where: { id: playerPoint.pointId }
+    where: { id: playerPoint.pointId },
   });
 }
 
@@ -57,7 +49,7 @@ export async function getAllPointsInCurrentGame() {
   if (currentGame == null) return null;
   return await prisma.point.findMany({
     where: {
-      gameId: currentGame.id
-    }
+      gameId: currentGame.id,
+    },
   });
 }

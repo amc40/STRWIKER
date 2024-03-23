@@ -2,9 +2,7 @@ import React from 'react';
 import { StartGameButton } from '../components/StartGameButton';
 import { RefreshWhenGameStarts } from '../components/RefreshWhenGameStarts';
 
-interface NoGameInProgressProps {}
-
-export const NoGameInProgress: React.FC<NoGameInProgressProps> = ({}) => {
+export const NoGameInProgress: React.FC = () => {
   return (
     <main className="flex-1 flex items-center justify-center">
       <div className="text-center">
@@ -13,6 +11,7 @@ export const NoGameInProgress: React.FC<NoGameInProgressProps> = ({}) => {
         </h1>
         <StartGameButton />
       </div>
+      {/* This must be its own component as it must be a client component */}
       <RefreshWhenGameStarts />
     </main>
   );

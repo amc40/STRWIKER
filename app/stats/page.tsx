@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { getPlayers } from '../../lib/Player.actions';
 import { Player } from '@prisma/client';
 
-export default async function Stats() {
+const Stats: React.FC = () => {
   // TODO: pass in initial data from server
   const [players, setPlayers] = useState<Player[]>([]);
 
@@ -13,7 +13,9 @@ export default async function Stats() {
       const players = await getPlayers();
       setPlayers(players);
     };
-    populatePlayers();
+    populatePlayers().catch((e) => {
+      console.error('Error populating players:', e);
+    });
   }, []);
 
   return (
@@ -32,17 +34,19 @@ export default async function Stats() {
       </CardContainer>
     </>
   );
-}
+};
+
+export default Stats;
 
 enum Rarity {
   NORMAL,
-  HOLOGRAPHIC
+  HOLOGRAPHIC,
 }
 
 const PlayerCard = ({
   name,
   gamesPlayed,
-  rarity
+  rarity,
 }: {
   name: string;
   gamesPlayed: number;

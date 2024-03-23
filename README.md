@@ -41,3 +41,4 @@ It uses:
 - [ ] Add stat for how much you increase a partner's performance
 - [ ] Add magic link auth / login
 - [ ] Add easy flow for joining game as blue or red team using QR / NFC
+- [ ] Improve error handling by showing a message to the user, rather than just logging to the console

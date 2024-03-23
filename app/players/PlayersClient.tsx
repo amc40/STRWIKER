@@ -10,7 +10,7 @@ interface PlayersClientProps {
 }
 
 export const PlayersClient: React.FC<PlayersClientProps> = ({
-  serverPlayers
+  serverPlayers,
 }) => {
   const [players, setPlayers] = useState<Player[]>(serverPlayers);
 
@@ -20,9 +20,14 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
   };
 
   useEffect(() => {
-    const interval = setInterval(populatePlayers, 1000);
-    populatePlayers();
-    return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      populatePlayers().catch((e) => {
+        console.error('Error populating players:', e);
+      });
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const [newPlayerName, setNewPlayerName] = useState('');
@@ -34,7 +39,7 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
       players.some(
         (player) =>
           player.name.toLowerCase().trim() ===
-          newPlayerName.toLowerCase().trim()
+          newPlayerName.toLowerCase().trim(),
       )
     ) {
       // TODO: display some kind of error
@@ -48,16 +53,12 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
 
     // Maybe add a useOptimistic call here
     await addPlayer({ name: formattedName });
-    populatePlayers();
+    await populatePlayers();
     setNewPlayerName('');
   };
 
-  const handleSearch = (event: any) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const filteredPlayers = players.filter((player: any) =>
-    player.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPlayers = players.filter((player: Player) =>
+    player.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -70,17 +71,28 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
             type="text"
             placeholder="Enter player name"
             value={newPlayerName}
-            onChange={(e) => setNewPlayerName(e.target.value)}
+            onChange={(e) => {
+              setNewPlayerName(e.target.value);
+            }}
             className="my-4 mr-2 p-1.5 border border-black rounded"
           />
-          <PrimaryButton text="Add Player" onClick={handleAddPlayer} />
+          <PrimaryButton
+            text="Add Player"
+            onClick={() => {
+              handleAddPlayer().catch((e) => {
+                console.error('Error adding new player:', e);
+              });
+            }}
+          />
         </div>
 
         <input
           type="text"
           placeholder="Search players..."
           value={searchTerm}
-          onChange={handleSearch}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
           className="mb-3 p-2"
         />
 

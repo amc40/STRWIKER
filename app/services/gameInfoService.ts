@@ -9,7 +9,7 @@ export class GameInfoService {
 
     if (currentGame == null) {
       return {
-        gameInProgress: false
+        gameInProgress: false,
       };
     }
 
@@ -21,7 +21,7 @@ export class GameInfoService {
       players: currentPointPlayers.map(playerPointWithPlayerToPlayerInfo),
       redScore: currentPointAndPlayers.currentRedScore,
       blueScore: currentPointAndPlayers.currentBlueScore,
-      gameInProgress: true
+      gameInProgress: true,
     };
   }
 }

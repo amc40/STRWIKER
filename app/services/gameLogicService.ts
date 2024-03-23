@@ -5,13 +5,13 @@ import {
   deletePlayerPoint,
   getAllPlayerPointsByPoint,
   getCurrentPlayerPointForPlayerOrThrow,
-  getPlayerPointByPlayerAndPointOrThrow
+  getPlayerPointByPlayerAndPointOrThrow,
 } from '../repository/playerPointRepository';
 import { PlayerPointPositionService } from './playerPointPositionService';
 import { getCurrentGameOrThrow } from '../repository/gameRepository';
 import {
   getCurrentPointFromGameOrThrow,
-  getCurrentPointOrThrow
+  getCurrentPointOrThrow,
 } from '../repository/pointRepository';
 
 export class GameLogicService {
@@ -23,16 +23,16 @@ export class GameLogicService {
     await prisma.$transaction(async () => {
       // TODO: set rotaty dependant on number of players
       const game = await prisma.game.create({
-        data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' }
+        data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' },
       });
       const initialPoint = await this.createPoint(0, 0, game);
       await prisma.game.update({
         where: {
-          id: game.id
+          id: game.id,
         },
         data: {
-          currentPointId: initialPoint.id
-        }
+          currentPointId: initialPoint.id,
+        },
       });
     });
   }
@@ -40,10 +40,10 @@ export class GameLogicService {
   private async createPoint(
     currentRedScore: number,
     currentBlueScore: number,
-    game: Game
+    game: Game,
   ) {
     return await prisma.point.create({
-      data: { currentRedScore, currentBlueScore, gameId: game.id }
+      data: { currentRedScore, currentBlueScore, gameId: game.id },
     });
   }
 
@@ -56,7 +56,7 @@ export class GameLogicService {
     const position =
       await this.playerPointPositionService.getNewPlayerPositionForTeam(
         team,
-        point
+        point,
       );
     await prisma.playerPoint.create({
       data: {
@@ -66,8 +66,8 @@ export class GameLogicService {
         scoredGoal: false,
         team,
         playerId,
-        pointId: point.id
-      }
+        pointId: point.id,
+      },
     });
   }
 
@@ -77,17 +77,17 @@ export class GameLogicService {
 
     await prisma.$transaction(async () => {
       const deletePlayerPointPromise = deletePlayerPoint(
-        currentPlayerPointForPlayer.id
+        currentPlayerPointForPlayer.id,
       );
 
       const decrementPlayerPointPositionssAfterRemovedPlayerPromise =
         decrementPlayerPointPositionsInPointAfter(
           currentPlayerPointForPlayer.pointId,
-          currentPlayerPointForPlayer.position
+          currentPlayerPointForPlayer.position,
         );
       await Promise.all([
         deletePlayerPointPromise,
-        decrementPlayerPointPositionssAfterRemovedPlayerPromise
+        decrementPlayerPointPositionssAfterRemovedPlayerPromise,
       ]);
     });
   }
@@ -101,14 +101,14 @@ export class GameLogicService {
 
     const playerPoint = await getPlayerPointByPlayerAndPointOrThrow(
       playerId,
-      currentPoint.id
+      currentPoint.id,
     );
 
     await gameLogicService.scoreGoal(
       playerPoint,
       ownGoal,
       currentPoint,
-      currentGame
+      currentGame,
     );
   }
 
@@ -116,26 +116,26 @@ export class GameLogicService {
     scorerPlayerPoint: PlayerPoint,
     ownGoal: boolean,
     finishedPoint: Point,
-    game: Game
+    game: Game,
   ) {
     await prisma.$transaction(async () => {
       const updatePlayerScored = prisma.playerPoint.update({
         where: {
-          id: scorerPlayerPoint.id
+          id: scorerPlayerPoint.id,
         },
         data: {
           scoredGoal: !ownGoal,
-          ownGoal: ownGoal
-        }
+          ownGoal: ownGoal,
+        },
       });
 
       const updatePointEndTime = prisma.point.update({
         where: {
-          id: finishedPoint.id
+          id: finishedPoint.id,
         },
         data: {
-          endTime: new Date()
-        }
+          endTime: new Date(),
+        },
       });
 
       const scoringTeam = ownGoal
@@ -155,7 +155,7 @@ export class GameLogicService {
           scoringTeam,
           game,
           newBlueScore,
-          newRedScore
+          newRedScore,
         );
       }
       await Promise.all([updatePlayerScored, updatePointEndTime]);
@@ -174,27 +174,27 @@ export class GameLogicService {
     scoringTeam: Team,
     game: Game,
     newBlueScore: number,
-    newRedScore: number
+    newRedScore: number,
   ) {
     const newPoint = await prisma.point.create({
       data: {
         currentBlueScore: newBlueScore,
         currentRedScore: newRedScore,
-        gameId: game.id
-      }
+        gameId: game.id,
+      },
     });
     const oldPlayerPoints = await getAllPlayerPointsByPoint(finishedPoint);
 
     const redPlayerPoints = oldPlayerPoints.filter(
-      (playerPoint) => playerPoint.team === Team.Red
+      (playerPoint) => playerPoint.team === Team.Red,
     );
     const bluePlayerPoints = oldPlayerPoints.filter(
-      (playerPoint) => playerPoint.team === Team.Blue
+      (playerPoint) => playerPoint.team === Team.Blue,
     );
 
     const numberOfPlayersPerTeam: Record<Team, number> = {
       Red: redPlayerPoints.length,
-      Blue: bluePlayerPoints.length
+      Blue: bluePlayerPoints.length,
     };
 
     const newPlayerPointsToCreate = oldPlayerPoints.map((oldPlayerPoint) => ({
@@ -209,34 +209,34 @@ export class GameLogicService {
         oldPlayerPoint.team,
         numberOfPlayersPerTeam,
         scoringTeam,
-        game
-      )
+        game,
+      ),
     }));
 
     await prisma.playerPoint.createMany({
-      data: newPlayerPointsToCreate
+      data: newPlayerPointsToCreate,
     });
 
     await prisma.game.update({
       where: {
-        id: game.id
+        id: game.id,
       },
       data: {
-        currentPointId: newPoint.id
-      }
+        currentPointId: newPoint.id,
+      },
     });
   }
 
   async endGame(game: Game, finalScoreBlue: number, finalScoreRed: number) {
     await prisma.game.update({
       where: {
-        id: game.id
+        id: game.id,
       },
       data: {
         completed: true,
         finalScoreBlue,
-        finalScoreRed
-      }
+        finalScoreRed,
+      },
     });
   }
 
@@ -248,24 +248,24 @@ export class GameLogicService {
     await this.abandonGame(
       currentGame,
       currentPoint.currentBlueScore,
-      currentPoint.currentRedScore
+      currentPoint.currentRedScore,
     );
   }
 
   private async abandonGame(
     game: Game,
     finalScoreBlue: number,
-    finalScoreRed: number
+    finalScoreRed: number,
   ) {
     await prisma.game.update({
       where: {
-        id: game.id
+        id: game.id,
       },
       data: {
         abandoned: true,
         finalScoreBlue,
-        finalScoreRed
-      }
+        finalScoreRed,
+      },
     });
   }
 

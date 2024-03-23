@@ -1,20 +1,20 @@
-import { Player, PlayerPoint } from '@prisma/client';
+import { PlayerPoint } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import { getAllPlayerPointsForPlayerInCurrentGame } from '../repository/playerPointRepository';
 
-type PlayerPointStats = {
+interface PlayerPointStats {
   team: string;
   scoredGoal: boolean;
   ownGoal: boolean;
   rattled: boolean;
-};
+}
 
 export class StatsEngineFwoar {
   async getPlayerStats(playerId: number) {
     const playerStats = await prisma.playerPoint.findMany({
       where: {
-        playerId
-      }
+        playerId,
+      },
     });
 
     const totalIntentionalGoals = this.getTotalIntentionalGoals(playerStats);
@@ -31,7 +31,7 @@ export class StatsEngineFwoar {
       rattledRatio,
       scoreRatio,
       totalPointsPlayed,
-      ownVsIntentionalGoalRatio
+      ownVsIntentionalGoalRatio,
     };
   }
 
@@ -73,56 +73,60 @@ export class StatsEngineFwoar {
     if (playerPointsForPlayer == null) return null;
 
     const intensionalGoals = this.getTotalIntentionalGoals(
-      playerPointsForPlayer
+      playerPointsForPlayer,
     );
 
     const ownGoals = this.getTotalOwnGoals(playerPointsForPlayer);
 
     return {
       goalScored: intensionalGoals,
-      ownGoalsScored: ownGoals
+      ownGoalsScored: ownGoals,
     };
   }
 
-  updateElosOnGoal(winners: Player[], opposition: Player[]) {
-    const numberOfWinners = winners.length;
-    const numberOfEnemies = opposition.length;
-    winners.forEach((winner) => {
-      opposition.forEach((enemy) =>
-        this.updatePlayerElos(
-          winner,
-          enemy,
-          1 / (numberOfWinners * numberOfEnemies)
-        )
-      );
-    });
-  }
+  // TODO: replace this with calculation of elos, then separate bulk update
+  // async updateElosOnGoal(winners: Player[], opposition: Player[]) {
+  //   const numberOfWinners = winners.length;
+  //   const numberOfEnemies = opposition.length;
+  //   const updateOperations = winners.flatMap((winner) => {
+  //     return opposition.map((enemy) => {
+  //       return this.updatePlayerElos(
+  //         winner,
+  //         enemy,
+  //         1 / (numberOfWinners * numberOfEnemies)
+  //       );
+  //     });
+  //   });
+  //   await Promise.all(updateOperations);
+  // }
 
-  updatePlayerElos(winner: Player, loser: Player, scaler?: number) {
-    const [newWinnerElo, newLoserElo] = this.calculateElos(
-      winner.elo,
-      loser.elo,
-      scaler
-    );
+  // async updatePlayerElos(winner: Player, loser: Player, scaler?: number) {
+  //   const [newWinnerElo, newLoserElo] = this.calculateElos(
+  //     winner.elo,
+  //     loser.elo,
+  //     scaler
+  //   );
 
-    prisma.player.update({
-      where: {
-        id: winner.id
-      },
-      data: {
-        elo: newWinnerElo
-      }
-    });
+  //   const updateWinner = prisma.player.update({
+  //     where: {
+  //       id: winner.id
+  //     },
+  //     data: {
+  //       elo: newWinnerElo
+  //     }
+  //   });
 
-    prisma.player.update({
-      where: {
-        id: loser.id
-      },
-      data: {
-        elo: newLoserElo
-      }
-    });
-  }
+  //   const updateLoser = prisma.player.update({
+  //     where: {
+  //       id: loser.id
+  //     },
+  //     data: {
+  //       elo: newLoserElo
+  //     }
+  //   });
+
+  //   await Promise.all([updateWinner, updateLoser]);
+  // }
 
   calculateElos(winnerElo: number, loserElo: number, scaler?: number) {
     const K = scaler ? 32 / scaler : 32;

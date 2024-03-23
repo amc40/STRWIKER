@@ -20,7 +20,7 @@ export const Team: React.FC<TeamProps> = ({
   removePlayer,
   reorderPlayer,
   children,
-  hideOnSmallScreen = false
+  hideOnSmallScreen = false,
 }) => {
   return (
     <div
@@ -34,7 +34,7 @@ export const Team: React.FC<TeamProps> = ({
         <span className={'flex-grow text-right text-5xl'}>{score}</span>
       </h2>
       <DragDropContext
-        onDragEnd={async (onDragEndResponder) => {
+        onDragEnd={(onDragEndResponder) => {
           const destinationIndex = onDragEndResponder.destination?.index;
           if (destinationIndex == null) return;
           const playerId = Number.parseInt(onDragEndResponder.draggableId);
