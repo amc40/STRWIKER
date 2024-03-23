@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { data } from 'autoprefixer';
 
 const prisma = new PrismaClient();
 
