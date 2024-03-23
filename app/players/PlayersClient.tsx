@@ -22,7 +22,7 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
   useEffect(() => {
     const interval = setInterval(populatePlayers, 1000);
     populatePlayers();
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); };
   }, []);
 
   const [newPlayerName, setNewPlayerName] = useState('');
@@ -70,7 +70,7 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
             type="text"
             placeholder="Enter player name"
             value={newPlayerName}
-            onChange={(e) => setNewPlayerName(e.target.value)}
+            onChange={(e) => { setNewPlayerName(e.target.value); }}
             className="my-4 mr-2 p-1.5 border border-black rounded"
           />
           <PrimaryButton text="Add Player" onClick={handleAddPlayer} />

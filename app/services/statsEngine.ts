@@ -2,12 +2,12 @@ import { Player, PlayerPoint } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import { getAllPlayerPointsForPlayerInCurrentGame } from '../repository/playerPointRepository';
 
-type PlayerPointStats = {
+interface PlayerPointStats {
   team: string;
   scoredGoal: boolean;
   ownGoal: boolean;
   rattled: boolean;
-};
+}
 
 export class StatsEngineFwoar {
   async getPlayerStats(playerId: number) {
@@ -89,11 +89,11 @@ export class StatsEngineFwoar {
     const numberOfEnemies = opposition.length;
     winners.forEach((winner) => {
       opposition.forEach((enemy) =>
-        this.updatePlayerElos(
+        { this.updatePlayerElos(
           winner,
           enemy,
           1 / (numberOfWinners * numberOfEnemies)
-        )
+        ); }
       );
     });
   }

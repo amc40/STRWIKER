@@ -29,7 +29,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
         setOwnGoals(numberOfGoalsScoredByPlayer.ownGoalsScored);
       }
     }, 1000);
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); };
   }, [playerId]);
 
   const handleGoalClick = () => {
@@ -45,7 +45,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
   return (
     <div className="z-0 relative bg-white border-slate-300 rounded-lg p-2 mb-5 w-[200px] shadow-lg text-center text-black">
       <span className="right-2 top-2 absolute inline-block">
-        <CircleRemove onRemove={() => removePlayer(player)} />
+        <CircleRemove onRemove={() => { removePlayer(player); }} />
       </span>
       <h3 className="my-1 text-lg font-bold">{playerName}</h3>
 

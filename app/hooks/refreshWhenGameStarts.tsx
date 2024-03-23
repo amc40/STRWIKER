@@ -13,7 +13,7 @@ export const useRefreshWhenGameStarts = () => {
         window.location.reload();
       }
     }, refreshInterval);
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };

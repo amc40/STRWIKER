@@ -61,7 +61,7 @@ export const updateRotatyStrategyAction = async (
   rotatyStrategy: RotatyStrategy,
   team: Team
 ) => {
-  return await new PlayerPointPositionService().updateRotatyStrategyForTeamInCurrentGame(
+  await new PlayerPointPositionService().updateRotatyStrategyForTeamInCurrentGame(
     rotatyStrategy,
     team
   );

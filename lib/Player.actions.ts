@@ -7,7 +7,7 @@ import {
 } from '../app/repository/playerRepository';
 
 export const addPlayer = async ({ name }: Prisma.PlayerCreateInput) => {
-  return await createPlayer(name);
+  await createPlayer(name);
 };
 
 export const getPlayers = async (): Promise<Player[]> => {

@@ -99,7 +99,7 @@ export const CurrentGameClient: FC<{
         setGameInProgress(false);
       }
     }, MS_BETWEEN_REFRESHES);
-    return () => clearInterval(refreshInterval);
+    return () => { clearInterval(refreshInterval); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -182,17 +182,17 @@ export const CurrentGameClient: FC<{
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
 
-    return () => window.removeEventListener('resize', checkScreenSize);
+    return () => { window.removeEventListener('resize', checkScreenSize); };
   }, []);
 
   return gameInProgress ? (
     <main className="flex flex-1 flex-col">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
-        <SettingsButton onClick={() => setShowSettingsModal(true)} />
+        <SettingsButton onClick={() => { setShowSettingsModal(true); }} />
       </span>
       <SettingsModal
         show={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
+        onClose={() => { setShowSettingsModal(false); }}
       />
       <div className="flex flex-1">
         {isMobile ? (
