@@ -1,6 +1,5 @@
 import React from 'react';
 import { StartGameButton } from '../components/StartGameButton';
-import { useRefreshWhenGameStarts } from '../hooks/refreshWhenGameStarts';
 import { RefreshWhenGameStarts } from '../components/RefreshWhenGameStarts';
 
 interface NoGameInProgressProps {}

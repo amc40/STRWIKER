@@ -8,7 +8,6 @@ import {
   incrementPlayerPointPositions,
   setPlayerPointPosition
 } from '../repository/playerPointRepository';
-import { getCurrentPointOrThrow } from '../repository/pointRepository';
 import {
   getCurrentGameOrThrow,
   updateRotatyStrategy
