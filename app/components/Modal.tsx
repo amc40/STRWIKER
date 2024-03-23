@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useEffect } from 'react';
+import React, { FC, ReactNode } from 'react';
 import { Cross } from './icons/Cross';
 
 export interface CustomModalProps {
@@ -6,7 +6,7 @@ export interface CustomModalProps {
   onClose: () => void;
 }
 
-export interface ModalProps extends CustomModalProps {
+interface ModalProps extends CustomModalProps {
   title: string | ReactNode;
   children?: JSX.Element;
 }

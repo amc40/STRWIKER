@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-  PlayerInfo,
   getNumberOfGoalsScoredByPlayerInCurrentGame,
   recordGoalScored
 } from '../../../lib/Game.actions';
 import { CircleRemove } from './CircleRemove';
 import { PlayerCardStat } from './PlayerCardStat';
 import { PlayerCardGoalButton } from './PlayerCardGoalButton';
+import { PlayerInfo } from '../../view/PlayerInfo';
 
 interface PlayerCardProps {
   player: PlayerInfo;

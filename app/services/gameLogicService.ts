@@ -1,102 +1,43 @@
-import { Game, PlayerPoint, Point, Prisma, Team } from '@prisma/client';
+import { Game, PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
-import { getPointFromPlayerPoint } from '../repository/pointRepository';
-import { getAllPlayerPointsByPoint } from '../repository/playerPointRepository';
+import {
+  decrementPlayerPointPositionsInPointAfter,
+  deletePlayerPoint,
+  getAllPlayerPointsByPoint,
+  getCurrentPlayerPointForPlayerOrThrow,
+  getPlayerPointByPlayerAndPointOrThrow
+} from '../repository/playerPointRepository';
+import { PlayerPointPositionService } from './playerPointPositionService';
 import { getCurrentGameOrThrow } from '../repository/gameRepository';
+import {
+  getCurrentPointFromGameOrThrow,
+  getCurrentPointOrThrow
+} from '../repository/pointRepository';
 
 export class GameLogicService {
   NUMBER_OF_POINTS_TO_WIN = 10;
 
+  playerPointPositionService = new PlayerPointPositionService();
+
   async startGame() {
-    // TODO: set rotaty dependant on number of players
-    const game = await prisma.game.create({
-      data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' }
-    });
-    const initialPoint = await this.createPoint(0, 0, game);
-    await prisma.game.update({
-      where: {
-        id: game.id
-      },
-      data: {
-        currentPointId: initialPoint.id
-      }
-    });
-  }
-
-  createPlayer(name: string) {
-    prisma.player.create({ data: { name } });
-  }
-
-  async reorderPlayerPoint(
-    reorderPlayerPoint: PlayerPoint,
-    newPosition: number
-  ) {
-    const oldPosition = reorderPlayerPoint.position;
     await prisma.$transaction(async () => {
-      if (newPosition > oldPosition) {
-        // pushing it back
-        const playerPoints = await prisma.playerPoint.findMany({
-          where: {
-            AND: [
-              { position: { gt: oldPosition } },
-              { position: { lte: newPosition } }
-            ],
-            pointId: reorderPlayerPoint.pointId,
-            team: reorderPlayerPoint.team
-          }
-        });
-
-        await prisma.playerPoint.updateMany({
-          where: {
-            id: {
-              in: playerPoints.map((playerPoint) => playerPoint.id)
-            }
-          },
-          data: {
-            position: {
-              decrement: 1
-            }
-          }
-        });
-      } else {
-        // pulling it foward
-        const playerPoints = await prisma.playerPoint.findMany({
-          where: {
-            AND: [
-              { position: { lt: oldPosition } },
-              { position: { gte: newPosition } }
-            ],
-            pointId: reorderPlayerPoint.pointId,
-            team: reorderPlayerPoint.team
-          }
-        });
-
-        await prisma.playerPoint.updateMany({
-          where: {
-            id: {
-              in: playerPoints.map((playerPoint) => playerPoint.id)
-            }
-          },
-          data: {
-            position: {
-              increment: 1
-            }
-          }
-        });
-      }
-
-      await prisma.playerPoint.update({
+      // TODO: set rotaty dependant on number of players
+      const game = await prisma.game.create({
+        data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' }
+      });
+      const initialPoint = await this.createPoint(0, 0, game);
+      await prisma.game.update({
         where: {
-          id: reorderPlayerPoint.id
+          id: game.id
         },
         data: {
-          position: newPosition
+          currentPointId: initialPoint.id
         }
       });
     });
   }
 
-  async createPoint(
+  private async createPoint(
     currentRedScore: number,
     currentBlueScore: number,
     game: Game
@@ -106,7 +47,72 @@ export class GameLogicService {
     });
   }
 
-  async scoreGoal(
+  async addPlayerToCurrentPoint(playerId: number, team: Team) {
+    const currentPoint = await getCurrentPointOrThrow();
+    return this.addPlayerToPoint(playerId, team, currentPoint);
+  }
+
+  private async addPlayerToPoint(playerId: number, team: Team, point: Point) {
+    const position =
+      await this.playerPointPositionService.getNewPlayerPositionForTeam(
+        team,
+        point
+      );
+    await prisma.playerPoint.create({
+      data: {
+        ownGoal: false,
+        position,
+        rattled: false,
+        scoredGoal: false,
+        team,
+        playerId,
+        pointId: point.id
+      }
+    });
+  }
+
+  async removePlayerFromCurrentPoint(playerId: number) {
+    const currentPlayerPointForPlayer =
+      await getCurrentPlayerPointForPlayerOrThrow(playerId);
+
+    await prisma.$transaction(async () => {
+      const deletePlayerPointPromise = deletePlayerPoint(
+        currentPlayerPointForPlayer.id
+      );
+
+      const decrementPlayerPointPositionssAfterRemovedPlayerPromise =
+        decrementPlayerPointPositionsInPointAfter(
+          currentPlayerPointForPlayer.pointId,
+          currentPlayerPointForPlayer.position
+        );
+      await Promise.all([
+        deletePlayerPointPromise,
+        decrementPlayerPointPositionssAfterRemovedPlayerPromise
+      ]);
+    });
+  }
+
+  async scoreGoalInCurrentGame(playerId: number, ownGoal: boolean) {
+    const gameLogicService = new GameLogicService();
+
+    const currentGame = await getCurrentGameOrThrow();
+
+    const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
+
+    const playerPoint = await getPlayerPointByPlayerAndPointOrThrow(
+      playerId,
+      currentPoint.id
+    );
+
+    await gameLogicService.scoreGoal(
+      playerPoint,
+      ownGoal,
+      currentPoint,
+      currentGame
+    );
+  }
+
+  private async scoreGoal(
     scorerPlayerPoint: PlayerPoint,
     ownGoal: boolean,
     finishedPoint: Point,
@@ -133,7 +139,7 @@ export class GameLogicService {
       });
 
       const scoringTeam = ownGoal
-        ? opposingTeam(scorerPlayerPoint.team)
+        ? this.opposingTeam(scorerPlayerPoint.team)
         : scorerPlayerPoint.team;
 
       const newBlueScore =
@@ -141,10 +147,9 @@ export class GameLogicService {
       const newRedScore =
         finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0);
 
-      if (
-        newBlueScore < this.NUMBER_OF_POINTS_TO_WIN &&
-        newRedScore < this.NUMBER_OF_POINTS_TO_WIN
-      ) {
+      if (this.isGameOver(newBlueScore, newRedScore)) {
+        await this.endGame(game, newBlueScore, newRedScore);
+      } else {
         await this.setupNextPoint(
           finishedPoint,
           scoringTeam,
@@ -152,14 +157,19 @@ export class GameLogicService {
           newBlueScore,
           newRedScore
         );
-      } else {
-        await this.endGame(game, newBlueScore, newRedScore);
       }
       await Promise.all([updatePlayerScored, updatePointEndTime]);
     });
   }
 
-  async setupNextPoint(
+  private isGameOver(newBlueScore: number, newRedScore: number) {
+    return (
+      newBlueScore >= this.NUMBER_OF_POINTS_TO_WIN ||
+      newRedScore >= this.NUMBER_OF_POINTS_TO_WIN
+    );
+  }
+
+  private async setupNextPoint(
     finishedPoint: Point,
     scoringTeam: Team,
     game: Game,
@@ -175,12 +185,17 @@ export class GameLogicService {
     });
     const oldPlayerPoints = await getAllPlayerPointsByPoint(finishedPoint);
 
-    const redPlayers = oldPlayerPoints.filter(
+    const redPlayerPoints = oldPlayerPoints.filter(
       (playerPoint) => playerPoint.team === Team.Red
     );
-    const bluePlayers = oldPlayerPoints.filter(
+    const bluePlayerPoints = oldPlayerPoints.filter(
       (playerPoint) => playerPoint.team === Team.Blue
     );
+
+    const numberOfPlayersPerTeam: Record<Team, number> = {
+      Red: redPlayerPoints.length,
+      Blue: bluePlayerPoints.length
+    };
 
     const newPlayerPointsToCreate = oldPlayerPoints.map((oldPlayerPoint) => ({
       playerId: oldPlayerPoint.playerId,
@@ -189,12 +204,12 @@ export class GameLogicService {
       scoredGoal: false,
       rattled: false,
       team: oldPlayerPoint.team,
-      position: getNextPlayerPosition(
+      position: this.playerPointPositionService.getNextPlayerPositionForTeam(
         oldPlayerPoint.position,
-        oldPlayerPoint.team == Team.Red
-          ? redPlayers.length
-          : bluePlayers.length,
-        isTeamRotating(oldPlayerPoint.team, game, scoringTeam)
+        oldPlayerPoint.team,
+        numberOfPlayersPerTeam,
+        scoringTeam,
+        game
       )
     }));
 
@@ -212,11 +227,6 @@ export class GameLogicService {
     });
   }
 
-  async rotatePlayers(playerPoints: PlayerPoint[]) {
-    playerPoints.sort((a, b) => a.position - b.position);
-    this.reorderPlayerPoint(playerPoints[0], playerPoints.length - 1);
-  }
-
   async endGame(game: Game, finalScoreBlue: number, finalScoreRed: number) {
     await prisma.game.update({
       where: {
@@ -229,40 +239,37 @@ export class GameLogicService {
       }
     });
   }
-}
 
-function getNextPlayerPosition(
-  previousPosition: number,
-  numberOfPlayersOnTeam: number,
-  isTeamRotating: boolean
-) {
-  if (!isTeamRotating) return previousPosition;
-  const newPosition =
-    previousPosition === 0 ? numberOfPlayersOnTeam - 1 : previousPosition - 1;
-  return newPosition;
-}
+  async abandonCurrentGame() {
+    const currentGame = await getCurrentGameOrThrow();
 
-function isTeamRotating(team: Team, game: Game, scoringTeam: Team) {
-  const rotationStrategy = getTeamRotationStrategyInGame(team, game);
-  switch (rotationStrategy) {
-    case 'Never':
-      return false;
-    case 'Always':
-      return true;
-    case 'OnConcede':
-      return team !== scoringTeam;
+    const currentPoint = await getCurrentPointFromGameOrThrow(currentGame);
+
+    await this.abandonGame(
+      currentGame,
+      currentPoint.currentBlueScore,
+      currentPoint.currentRedScore
+    );
   }
-}
 
-function getTeamRotationStrategyInGame(team: Team, game: Game) {
-  switch (team) {
-    case 'Red':
-      return game.rotatyRed;
-    case 'Blue':
-      return game.rotatyBlue;
+  private async abandonGame(
+    game: Game,
+    finalScoreBlue: number,
+    finalScoreRed: number
+  ) {
+    await prisma.game.update({
+      where: {
+        id: game.id
+      },
+      data: {
+        abandoned: true,
+        finalScoreBlue,
+        finalScoreRed
+      }
+    });
   }
-}
 
-function opposingTeam(team: Team) {
-  return team === Team.Red ? Team.Blue : Team.Red;
+  private opposingTeam(team: Team) {
+    return team === Team.Red ? Team.Blue : Team.Red;
+  }
 }

@@ -5,11 +5,6 @@ import {
   getCurrentPointOrThrow
 } from './pointRepository';
 
-export async function getAllCurrentPlayerPoints() {
-  const currentPoint = await getCurrentPointOrThrow();
-  return await getAllPlayerPointsByPoint(currentPoint);
-}
-
 export async function getAllPlayerPointsByPoint(
   point: Point
 ): Promise<PlayerPoint[]> {
@@ -26,13 +21,13 @@ export async function getCurrentPlayerPointForPlayerOrThrow(playerId: number) {
   });
 }
 
-export async function getMaxPlayerPointPositionForTeaminCurrentPoint(
-  team: Team
+export async function getMaxPlayerPointPositionForTeamInPoint(
+  team: Team,
+  point: Point
 ) {
-  const currentPoint = await getCurrentPointOrThrow();
   const playerPointWithMaxPosition = await prisma.playerPoint.findFirst({
     where: {
-      pointId: currentPoint.id,
+      pointId: point.id,
       team
     },
     orderBy: {
@@ -61,6 +56,103 @@ export async function deletePlayerPoint(playerPointId: number) {
   await prisma.playerPoint.delete({
     where: {
       id: playerPointId
+    }
+  });
+}
+
+export async function getPlayerPointsInPositionRangeForTeam(
+  pointId: number,
+  team: Team,
+  inclusiveLowerBound: number,
+  exclusiveUpperBound: number
+) {
+  return await prisma.playerPoint.findMany({
+    where: {
+      AND: [
+        { position: { gte: inclusiveLowerBound } },
+        { position: { lt: exclusiveUpperBound } }
+      ],
+      pointId,
+      team
+    }
+  });
+}
+
+export async function incrementPlayerPointPositions(
+  playerPoints: PlayerPoint[]
+) {
+  await prisma.playerPoint.updateMany({
+    where: {
+      id: {
+        in: playerPoints.map((playerPoint) => playerPoint.id)
+      }
+    },
+    data: {
+      position: {
+        increment: 1
+      }
+    }
+  });
+}
+
+export async function decrementPlayerPointPositions(
+  playerPoints: PlayerPoint[]
+) {
+  await prisma.playerPoint.updateMany({
+    where: {
+      id: {
+        in: playerPoints.map((playerPoint) => playerPoint.id)
+      }
+    },
+    data: {
+      position: {
+        decrement: 1
+      }
+    }
+  });
+}
+
+export async function decrementPlayerPointPositionsInPointAfter(
+  pointId: number,
+  positionThreshold: number
+) {
+  await prisma.playerPoint.updateMany({
+    where: {
+      pointId,
+      position: {
+        gt: positionThreshold
+      }
+    },
+    data: {
+      position: {
+        decrement: 1
+      }
+    }
+  });
+}
+
+export async function setPlayerPointPosition(
+  playerPoint: PlayerPoint,
+  newPosition: number
+) {
+  await prisma.playerPoint.update({
+    where: {
+      id: playerPoint.id
+    },
+    data: {
+      position: newPosition
+    }
+  });
+}
+
+export async function getPlayerPointByPlayerAndPointOrThrow(
+  playerId: number,
+  pointId: number
+) {
+  return await prisma.playerPoint.findFirstOrThrow({
+    where: {
+      playerId,
+      pointId
     }
   });
 }

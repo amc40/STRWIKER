@@ -27,6 +27,23 @@ export const getCurrentPointFromGameOrThrow = async (
   });
 };
 
+export const getCurrentPointAndPlayersFromGameOrThrow = async (game: Game) => {
+  if (!game.currentPointId)
+    throw new Error('No current point for game id ' + game.id);
+  return await prisma.point.findFirstOrThrow({
+    where: {
+      id: game.currentPointId
+    },
+    include: {
+      playerPoints: {
+        include: {
+          player: true
+        }
+      }
+    }
+  });
+};
+
 export async function getPointFromPlayerPoint(
   playerPoint: PlayerPoint
 ): Promise<Point> {
