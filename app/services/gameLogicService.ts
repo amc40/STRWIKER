@@ -164,7 +164,7 @@ export class GameLogicService {
 
   private isGameOver(newBlueScore: number, newRedScore: number) {
     return (
-      newBlueScore >= this.NUMBER_OF_POINTS_TO_WIN &&
+      newBlueScore >= this.NUMBER_OF_POINTS_TO_WIN ||
       newRedScore >= this.NUMBER_OF_POINTS_TO_WIN
     );
   }
