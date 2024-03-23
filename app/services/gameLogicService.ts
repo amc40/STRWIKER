@@ -75,19 +75,21 @@ export class GameLogicService {
     const currentPlayerPointForPlayer =
       await getCurrentPlayerPointForPlayerOrThrow(playerId);
 
-    const deletePlayerPointPromise = deletePlayerPoint(
-      currentPlayerPointForPlayer.id
-    );
-
-    const decrementPlayerPointPositionssAfterRemovedPlayerPromise =
-      decrementPlayerPointPositionsInPointAfter(
-        currentPlayerPointForPlayer.pointId,
-        currentPlayerPointForPlayer.position
+    await prisma.$transaction(async () => {
+      const deletePlayerPointPromise = deletePlayerPoint(
+        currentPlayerPointForPlayer.id
       );
-    await Promise.all([
-      deletePlayerPointPromise,
-      decrementPlayerPointPositionssAfterRemovedPlayerPromise
-    ]);
+
+      const decrementPlayerPointPositionssAfterRemovedPlayerPromise =
+        decrementPlayerPointPositionsInPointAfter(
+          currentPlayerPointForPlayer.pointId,
+          currentPlayerPointForPlayer.position
+        );
+      await Promise.all([
+        deletePlayerPointPromise,
+        decrementPlayerPointPositionssAfterRemovedPlayerPromise
+      ]);
+    });
   }
 
   async scoreGoalInCurrentGame(playerId: number, ownGoal: boolean) {

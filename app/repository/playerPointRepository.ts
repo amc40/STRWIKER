@@ -118,7 +118,7 @@ export async function decrementPlayerPointPositionsInPointAfter(
 ) {
   await prisma.playerPoint.updateMany({
     where: {
-      pointId: pointId,
+      pointId,
       position: {
         gt: positionThreshold
       }
