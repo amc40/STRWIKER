@@ -4,13 +4,7 @@ import { $Enums, RotatyStrategy, Team } from '@prisma/client';
 import { GameLogicService } from '../app/services/gameLogicService';
 import { PlayerPointPositionService } from '../app/services/playerPointPositionService';
 import { PlayerInfo } from '../app/view/PlayerInfo';
-import { GameInfo } from '../app/view/CurrentGameInfo';
-import { GameInfoService } from '../app/services/gameInfoService';
 import { StatsEngineFwoar } from '../app/services/statsEngine';
-
-export const getCurrentGameInfo = async (): Promise<GameInfo> => {
-  return await new GameInfoService().getCurrentGameInfo();
-};
 
 export const addPlayerToCurrentGame = async (
   playerId: number,

@@ -1,14 +1,7 @@
 import { PlayerInfo } from './PlayerInfo';
 
-interface NotInProgressGameInfo {
-  gameInProgress: false;
-}
-
-interface InProgressGameInfo {
+export interface GameInfo {
   players: PlayerInfo[];
   redScore: number;
   blueScore: number;
-  gameInProgress: true;
 }
-
-export type GameInfo = NotInProgressGameInfo | InProgressGameInfo;

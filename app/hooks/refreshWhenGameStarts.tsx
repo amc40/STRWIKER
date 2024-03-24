@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCurrentGameInfo } from '../../lib/Game.actions';
+import { fetchCurrentGameInfo } from '../network/fetchCurrentGameInfo';
 
 const refreshInterval = 500;
 
@@ -9,7 +9,7 @@ export const useRefreshWhenGameStarts = () => {
   const [gameInProgress, setGameInProgress] = useState(false);
 
   const fetchGameInProgress = async () => {
-    return (await getCurrentGameInfo()).gameInProgress;
+    return (await fetchCurrentGameInfo()) != null;
   };
 
   useEffect(() => {
