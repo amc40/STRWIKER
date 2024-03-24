@@ -34,6 +34,7 @@ model Game {
   rotatyBlue     RotatyStrategy
 
   @@index([startTime])
+  @@index([completed, abandoned])
 }
 
 enum RotatyStrategy {
