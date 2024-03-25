@@ -1,13 +1,11 @@
+import { GameInfoService } from '../services/gameInfoService';
 import { CurrentGameClient } from './CurrentGameClient';
 import { NoGameInProgress } from './NoGameInProgress';
-import { fetchCurrentGameInfo } from '../network/fetchCurrentGameInfo';
 
-const MS_BETWEEN_REFRESHES = 1000;
+const gameInfoService = new GameInfoService();
 
 export default async function Page() {
-  const currentGameInfo = await fetchCurrentGameInfo(MS_BETWEEN_REFRESHES);
-
-  console.log(currentGameInfo);
+  const currentGameInfo = await gameInfoService.getCurrentGameInfo();
 
   return currentGameInfo != null ? (
     <CurrentGameClient
