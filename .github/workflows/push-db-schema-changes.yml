@@ -19,6 +19,6 @@ jobs:
       - name: Push DB Schema changes with prisma
         run: npx prisma db push
         env:
-          POSTGRES_PRISMA_URL: ${{secrets.POSTGRES_PRISMA_URL}}
+          DATABASE_URL: ${{secrets.DATABASE_URL}}
 
         
