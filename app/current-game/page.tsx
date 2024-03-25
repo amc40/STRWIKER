@@ -1,11 +1,13 @@
+import { GameInfoService } from '../services/gameInfoService';
 import { CurrentGameClient } from './CurrentGameClient';
-import { getCurrentGameInfo } from '../../lib/Game.actions';
 import { NoGameInProgress } from './NoGameInProgress';
 
-export default async function Page() {
-  const currentGameInfo = await getCurrentGameInfo();
+const gameInfoService = new GameInfoService();
 
-  return currentGameInfo.gameInProgress ? (
+export default async function Page() {
+  const currentGameInfo = await gameInfoService.getCurrentGameInfo();
+
+  return currentGameInfo != null ? (
     <CurrentGameClient
       serverRedScore={currentGameInfo.redScore}
       serverBlueScore={currentGameInfo.blueScore}

@@ -4,13 +4,11 @@ import { GameInfo } from '../view/CurrentGameInfo';
 import { playerPointWithPlayerToPlayerInfo } from '../view/PlayerInfo';
 
 export class GameInfoService {
-  async getCurrentGameInfo(): Promise<GameInfo> {
+  async getCurrentGameInfo(): Promise<GameInfo | null> {
     const currentGame = await getCurrentGame();
 
     if (currentGame == null) {
-      return {
-        gameInProgress: false,
-      };
+      return null;
     }
 
     const currentPointAndPlayers =
@@ -21,7 +19,6 @@ export class GameInfoService {
       players: currentPointPlayers.map(playerPointWithPlayerToPlayerInfo),
       redScore: currentPointAndPlayers.currentRedScore,
       blueScore: currentPointAndPlayers.currentBlueScore,
-      gameInProgress: true,
     };
   }
 }

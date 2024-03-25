@@ -5,7 +5,6 @@ import { Team } from '../components/Team';
 import AddPlayerToTeam from '../components/AddPlayerToTeam';
 import {
   addPlayerToCurrentGame,
-  getCurrentGameInfo,
   removePlayerFromCurrentGame,
   reorderPlayer as reorderPlayerAction,
 } from '../../lib/Game.actions';
@@ -17,6 +16,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
 import { PlayerInfo } from '../view/PlayerInfo';
+import { fetchCurrentGameInfo } from '../network/fetchCurrentGameInfo';
 
 const MS_BETWEEN_REFRESHES = 1000;
 
@@ -90,8 +90,8 @@ export const CurrentGameClient: FC<{
   useEffect(() => {
     const refreshInterval = setInterval(() => {
       const updateCurrentGameInfo = async () => {
-        const currentGameInfo = await getCurrentGameInfo();
-        if (currentGameInfo.gameInProgress) {
+        const currentGameInfo = await fetchCurrentGameInfo();
+        if (currentGameInfo != null) {
           if (awaitingPlayersResponseRef.current) return;
           setPlayers(currentGameInfo.players);
           setRedScore(currentGameInfo.redScore);
