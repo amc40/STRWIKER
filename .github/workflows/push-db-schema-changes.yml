@@ -7,6 +7,7 @@ on:
 jobs:
   push_db_schema_changes:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: checkout
         uses: actions/checkout@v3
