@@ -10,14 +10,17 @@ import {
 import { PlayerPointPositionService } from './playerPointPositionService';
 import { getCurrentGameOrThrow } from '../repository/gameRepository';
 import {
+  getPointAndPlayersFromPointIdOrThrow,
   getCurrentPointFromGameOrThrow,
   getCurrentPointOrThrow,
 } from '../repository/pointRepository';
+import { StatsEngineFwoar } from './statsEngine';
 
 export class GameLogicService {
   NUMBER_OF_POINTS_TO_WIN = 10;
 
   playerPointPositionService = new PlayerPointPositionService();
+  statsEngine = new StatsEngineFwoar();
 
   async startGame() {
     await prisma.$transaction(async () => {
@@ -142,6 +145,11 @@ export class GameLogicService {
         ? this.opposingTeam(scorerPlayerPoint.team)
         : scorerPlayerPoint.team;
 
+      const updatePlayerElos = this.updateElosForPlayersInPoint(
+        scoringTeam,
+        finishedPoint,
+      );
+
       const newBlueScore =
         finishedPoint.currentBlueScore + (scoringTeam === Team.Blue ? 1 : 0);
       const newRedScore =
@@ -158,7 +166,12 @@ export class GameLogicService {
           newRedScore,
         );
       }
-      await Promise.all([updatePlayerScored, updatePointEndTime]);
+
+      await Promise.all([
+        updatePlayerScored,
+        updatePointEndTime,
+        updatePlayerElos,
+      ]);
     });
   }
 
@@ -267,6 +280,34 @@ export class GameLogicService {
         finalScoreRed,
       },
     });
+  }
+
+  private async updateElosForPlayersInPoint(scoringTeam: Team, point: Point) {
+    const participatingPlayers = await this.getParticipatingPlayersInPoint(
+      point.id,
+    );
+
+    const winningPlayers = participatingPlayers.filter(
+      (player) => player.team === scoringTeam,
+    );
+    const losingPlayers = participatingPlayers.filter(
+      (player) => player.team !== scoringTeam,
+    );
+
+    await this.statsEngine.updateElosOnGoal(winningPlayers, losingPlayers);
+  }
+
+  private async getParticipatingPlayersInPoint(pointId: number) {
+    const { playerPoints: allPlayersPointsAndPlayersInPoint } =
+      await getPointAndPlayersFromPointIdOrThrow(pointId);
+    const participatingPlayerPointsAndPlayersInPoint =
+      allPlayersPointsAndPlayersInPoint.filter(
+        (playerPoint) => playerPoint.position <= 1,
+      );
+    return participatingPlayerPointsAndPlayersInPoint.map((playerPoint) => ({
+      ...playerPoint.player,
+      team: playerPoint.team,
+    }));
   }
 
   private opposingTeam(team: Team) {

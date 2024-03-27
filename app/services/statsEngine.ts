@@ -1,4 +1,4 @@
-import { PlayerPoint } from '@prisma/client';
+import { Player, PlayerPoint } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import { getAllPlayerPointsForPlayerInCurrentGame } from '../repository/playerPointRepository';
 
@@ -84,51 +84,54 @@ export class StatsEngineFwoar {
     };
   }
 
-  // TODO: replace this with calculation of elos, then separate bulk update
-  // async updateElosOnGoal(winners: Player[], opposition: Player[]) {
-  //   const numberOfWinners = winners.length;
-  //   const numberOfEnemies = opposition.length;
-  //   const updateOperations = winners.flatMap((winner) => {
-  //     return opposition.map((enemy) => {
-  //       return this.updatePlayerElos(
-  //         winner,
-  //         enemy,
-  //         1 / (numberOfWinners * numberOfEnemies)
-  //       );
-  //     });
-  //   });
-  //   await Promise.all(updateOperations);
-  // }
+  async updateElosOnGoal(winners: Player[], opposition: Player[]) {
+    const numberOfWinners = winners.length;
+    const numberOfEnemies = opposition.length;
+    const updateOperations = winners.flatMap((winner) => {
+      return opposition.map((enemy) => {
+        return this.updatePlayerElos(
+          winner,
+          enemy,
+          1 / (numberOfWinners * numberOfEnemies),
+        );
+      });
+    });
+    await Promise.all(updateOperations);
+  }
 
-  // async updatePlayerElos(winner: Player, loser: Player, scaler?: number) {
-  //   const [newWinnerElo, newLoserElo] = this.calculateElos(
-  //     winner.elo,
-  //     loser.elo,
-  //     scaler
-  //   );
+  private async updatePlayerElos(
+    winner: Player,
+    loser: Player,
+    scaler?: number,
+  ) {
+    const [newWinnerElo, newLoserElo] = this.calculateElos(
+      winner.elo,
+      loser.elo,
+      scaler,
+    );
 
-  //   const updateWinner = prisma.player.update({
-  //     where: {
-  //       id: winner.id
-  //     },
-  //     data: {
-  //       elo: newWinnerElo
-  //     }
-  //   });
+    const updateWinner = prisma.player.update({
+      where: {
+        id: winner.id,
+      },
+      data: {
+        elo: newWinnerElo,
+      },
+    });
 
-  //   const updateLoser = prisma.player.update({
-  //     where: {
-  //       id: loser.id
-  //     },
-  //     data: {
-  //       elo: newLoserElo
-  //     }
-  //   });
+    const updateLoser = prisma.player.update({
+      where: {
+        id: loser.id,
+      },
+      data: {
+        elo: newLoserElo,
+      },
+    });
 
-  //   await Promise.all([updateWinner, updateLoser]);
-  // }
+    await Promise.all([updateWinner, updateLoser]);
+  }
 
-  calculateElos(winnerElo: number, loserElo: number, scaler?: number) {
+  private calculateElos(winnerElo: number, loserElo: number, scaler?: number) {
     const K = scaler ? 32 / scaler : 32;
     const expectedScoreWinner =
       1 / (1 + Math.pow(10, (loserElo - winnerElo) / 400));
