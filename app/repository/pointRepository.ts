@@ -22,9 +22,13 @@ export const getCurrentPointFromGameOrThrow = async (
 export const getCurrentPointAndPlayersFromGameOrThrow = async (game: Game) => {
   if (!game.currentPointId)
     throw new Error('No current point for game id ' + game.id);
+  return await getPointAndPlayersFromPointIdOrThrow(game.currentPointId);
+};
+
+export const getPointAndPlayersFromPointIdOrThrow = async (pointId: number) => {
   return await prisma.point.findFirstOrThrow({
     where: {
-      id: game.currentPointId,
+      id: pointId,
     },
     include: {
       playerPoints: {
