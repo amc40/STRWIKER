@@ -19,6 +19,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
   const [goals, setGoals] = useState<number | null>(null);
   const [ownGoals, setOwnGoals] = useState<number | null>(null);
 
+  const [recordingGoal, setRecordingGoal] = useState(false);
+  const [recordingOwnGoal, setRecordingOwnGoal] = useState(false);
+
   useEffect(() => {
     const interval = setInterval(() => {
       const fetchNumberOfGoalsScored = async () => {
@@ -42,17 +45,25 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
   }, [playerId]);
 
   const handleGoalClick = () => {
-    setGoals((goals ?? 0) + 1);
-    recordGoalScored(player, false).catch((e) => {
-      console.error('Error recording goal:', e);
-    });
+    setRecordingGoal(true);
+    recordGoalScored(player, false)
+      .catch((e) => {
+        console.error('Error recording goal:', e);
+      })
+      .finally(() => {
+        setRecordingGoal(false);
+      });
   };
 
   const handleOwnGoalClick = () => {
-    setOwnGoals((ownGoals ?? 0) + 1);
-    recordGoalScored(player, true).catch((e) => {
-      console.error('Error recording own goal:', e);
-    });
+    setRecordingOwnGoal(true);
+    recordGoalScored(player, true)
+      .catch((e) => {
+        console.error('Error recording own goal:', e);
+      })
+      .finally(() => {
+        setRecordingOwnGoal(false);
+      });
   };
 
   return (
@@ -69,8 +80,16 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
       <PlayerCardStat text={`Goals: ${goals ?? '-'}`} />
       <PlayerCardStat text={`Own Goals: ${ownGoals ?? '-'}`} />
       <div className="flex place-content-around">
-        <PlayerCardGoalButton text="Goal" onClick={handleGoalClick} />
-        <PlayerCardGoalButton text="Own Goal" onClick={handleOwnGoalClick} />
+        <PlayerCardGoalButton
+          text="Goal"
+          onClick={handleGoalClick}
+          loading={recordingGoal}
+        />
+        <PlayerCardGoalButton
+          text="Own Goal"
+          onClick={handleOwnGoalClick}
+          loading={recordingOwnGoal}
+        />
       </div>
     </div>
   );
