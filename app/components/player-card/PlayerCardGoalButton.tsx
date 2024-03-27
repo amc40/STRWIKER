@@ -4,6 +4,7 @@ import { PrimaryButton } from '../PrimaryButton';
 interface PlayerCardGoalButtonProps {
   text: string;
   onClick: () => void;
+  loading: boolean;
 }
 
 export const PlayerCardGoalButton: React.FC<PlayerCardGoalButtonProps> = (
