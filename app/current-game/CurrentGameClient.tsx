@@ -1,7 +1,7 @@
 'use client';
-import { $Enums } from '@prisma/client';
+import { $Enums, RotatyStrategy } from '@prisma/client';
 import { FC, useEffect, useRef, useState } from 'react';
-import { Team } from '../components/Team';
+import { Team } from '../components/team/Team';
 import AddPlayerToTeam from '../components/AddPlayerToTeam';
 import {
   addPlayerToCurrentGame,
@@ -71,12 +71,26 @@ const updatePlayerOrderAfterReorder = (
 export const CurrentGameClient: FC<{
   serverRedScore: number;
   serverBlueScore: number;
+  serverBlueRotatyStrategy: RotatyStrategy;
+  serverRedRotatyStrategy: RotatyStrategy;
   serverPlayers: PlayerInfo[];
-}> = ({ serverRedScore, serverBlueScore, serverPlayers }) => {
+}> = ({
+  serverRedScore,
+  serverBlueScore,
+  serverRedRotatyStrategy,
+  serverBlueRotatyStrategy,
+  serverPlayers,
+}) => {
   const [gameInProgress, setGameInProgress] = useState(true);
   const [players, setPlayers] = useState(serverPlayers);
   const [redScore, setRedScore] = useState(serverRedScore);
   const [blueScore, setBlueScore] = useState(serverBlueScore);
+  const [redRotatyStrategy, setRedRotatyStrategy] = useState(
+    serverRedRotatyStrategy,
+  );
+  const [blueRotatyStrategy, setBlueRotatyStrategy] = useState(
+    serverBlueRotatyStrategy,
+  );
 
   const [awaitingPlayersResponse, setAwaitingPlayersResponse] = useState(false);
   // this prevents the value of awaitingPlayersResponse being captured by the closure in the refresh useEffect
@@ -94,8 +108,10 @@ export const CurrentGameClient: FC<{
         if (currentGameInfo != null) {
           if (awaitingPlayersResponseRef.current) return;
           setPlayers(currentGameInfo.players);
-          setRedScore(currentGameInfo.redScore);
-          setBlueScore(currentGameInfo.blueScore);
+          setRedScore(currentGameInfo.teamInfo.Red.score);
+          setBlueScore(currentGameInfo.teamInfo.Blue.score);
+          setRedRotatyStrategy(currentGameInfo.teamInfo.Red.rotatyStrategy);
+          setBlueRotatyStrategy(currentGameInfo.teamInfo.Blue.rotatyStrategy);
         } else {
           setGameInProgress(false);
         }
@@ -200,6 +216,21 @@ export const CurrentGameClient: FC<{
     };
   }, []);
 
+  const openSettingsModal = () => {
+    setShowSettingsModal(true);
+  };
+
+  const setRotatyStrategy = (
+    team: $Enums.Team,
+    rotatyStrategy: RotatyStrategy,
+  ) => {
+    if (team === $Enums.Team.Red) {
+      setRedRotatyStrategy(rotatyStrategy);
+    } else {
+      setBlueRotatyStrategy(rotatyStrategy);
+    }
+  };
+
   return gameInProgress ? (
     <main className="flex flex-1 flex-col">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
@@ -214,6 +245,9 @@ export const CurrentGameClient: FC<{
         onClose={() => {
           setShowSettingsModal(false);
         }}
+        redRotatyStrategy={redRotatyStrategy}
+        blueRotatyStrategy={blueRotatyStrategy}
+        setRotatyStrategy={setRotatyStrategy}
       />
       <div className="flex flex-1">
         {isMobile ? (
@@ -226,8 +260,10 @@ export const CurrentGameClient: FC<{
                     .filter((player) => player.team === 'Blue')
                     .sort((a, b) => a.position - b.position)}
                   score={blueScore}
+                  rotatyStrategy={blueRotatyStrategy}
                   removePlayer={removePlayer}
                   reorderPlayer={reorderPlayer}
+                  openSettingsModal={openSettingsModal}
                 >
                   <AddPlayerToTeam
                     team={$Enums.Team.Blue}
@@ -245,8 +281,10 @@ export const CurrentGameClient: FC<{
                     .filter((player) => player.team === 'Red')
                     .sort((a, b) => a.position - b.position)}
                   score={redScore}
+                  rotatyStrategy={redRotatyStrategy}
                   removePlayer={removePlayer}
                   reorderPlayer={reorderPlayer}
+                  openSettingsModal={openSettingsModal}
                 >
                   <AddPlayerToTeam
                     team={$Enums.Team.Red}
@@ -265,8 +303,10 @@ export const CurrentGameClient: FC<{
                 .filter((player) => player.team === 'Blue')
                 .sort((a, b) => a.position - b.position)}
               score={blueScore}
+              rotatyStrategy={blueRotatyStrategy}
               removePlayer={removePlayer}
               reorderPlayer={reorderPlayer}
+              openSettingsModal={openSettingsModal}
             >
               <AddPlayerToTeam
                 team={$Enums.Team.Blue}
@@ -280,8 +320,10 @@ export const CurrentGameClient: FC<{
                 .filter((player) => player.team === 'Red')
                 .sort((a, b) => a.position - b.position)}
               score={redScore}
+              rotatyStrategy={redRotatyStrategy}
               removePlayer={removePlayer}
               reorderPlayer={reorderPlayer}
+              openSettingsModal={openSettingsModal}
               // The initial render wil be for the desktop site, but we don't want to show the Red on the small screens
               hideOnSmallScreen={true}
             >

@@ -54,10 +54,6 @@ export const reorderPlayer = async (playerId: number, newPosition: number) => {
   revalidateCurrentGame();
 };
 
-export const getRotatyStrategy = async (team: Team) => {
-  return new PlayerPointPositionService().getRotatyStrategyInCurrentGame(team);
-};
-
 export const updateRotatyStrategyAction = async (
   rotatyStrategy: RotatyStrategy,
   team: Team,

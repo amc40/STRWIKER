@@ -20,7 +20,6 @@ export const Select = <T extends Id>({
   onChange,
   loading = false,
 }: SelectProps<T>) => {
-  console.log('loading', loading);
   return (
     <select
       value={selectedId}

@@ -9,8 +9,10 @@ export default async function Page() {
 
   return currentGameInfo != null ? (
     <CurrentGameClient
-      serverRedScore={currentGameInfo.redScore}
-      serverBlueScore={currentGameInfo.blueScore}
+      serverRedScore={currentGameInfo.teamInfo.Red.score}
+      serverBlueScore={currentGameInfo.teamInfo.Blue.score}
+      serverRedRotatyStrategy={currentGameInfo.teamInfo.Red.rotatyStrategy}
+      serverBlueRotatyStrategy={currentGameInfo.teamInfo.Blue.rotatyStrategy}
       serverPlayers={currentGameInfo.players}
     />
   ) : (
