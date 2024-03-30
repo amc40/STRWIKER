@@ -11,8 +11,8 @@ export default async function Page() {
     <CurrentGameClient
       serverRedScore={currentGameInfo.teamInfo.Red.score}
       serverBlueScore={currentGameInfo.teamInfo.Blue.score}
-      serverRedRotaty={currentGameInfo.teamInfo.Red.rotatyStrategy}
-      serverBlueRotaty={currentGameInfo.teamInfo.Blue.rotatyStrategy}
+      serverRedRotatyStrategy={currentGameInfo.teamInfo.Red.rotatyStrategy}
+      serverBlueRotatyStrategy={currentGameInfo.teamInfo.Blue.rotatyStrategy}
       serverPlayers={currentGameInfo.players}
     />
   ) : (

@@ -1,13 +1,12 @@
 import { RotatyStrategy, Team } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
-import {
-  getRotatyStrategy,
-  updateRotatyStrategyAction,
-} from '../../../lib/Game.actions';
+import { updateRotatyStrategyAction } from '../../../lib/Game.actions';
 import { Select, SelectOption } from '../Select';
 
 interface RotationStrategySelectorProps {
   team: Team;
+  rotatyStrategy: RotatyStrategy;
+  setRotatyStrategy: (team: Team, rotatyStrategy: RotatyStrategy) => void;
 }
 
 const options: SelectOption<RotatyStrategy>[] = Object.values(
@@ -19,27 +18,14 @@ const options: SelectOption<RotatyStrategy>[] = Object.values(
 
 export const RotatyStrategySelector: React.FC<
   RotationStrategySelectorProps
-> = ({ team }) => {
-  const [selectedRotatyStrategy, setSelectedRotatyStrategy] = useState<
-    RotatyStrategy | undefined
-  >(undefined);
-  const [loading, setLoading] = useState(true);
+> = ({ team, rotatyStrategy, setRotatyStrategy }) => {
+  const [selectedRotatyStrategy, setSelectedRotatyStrategy] =
+    useState<RotatyStrategy>(rotatyStrategy);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchCurrentRotatyStrategy = async () => {
-      const currentRotatyStrategy = await getRotatyStrategy(team);
-      console.log('current rotaty strategy', currentRotatyStrategy);
-      setSelectedRotatyStrategy(currentRotatyStrategy);
-      setLoading(false);
-    };
-    fetchCurrentRotatyStrategy().catch((e) => {
-      console.error(
-        `Error fetching current rotation strategy for ${team} team:`,
-        e,
-      );
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setSelectedRotatyStrategy(rotatyStrategy);
+  }, [rotatyStrategy]);
 
   const updateRotatyStrategy = (rotatyStrategy: RotatyStrategy) => {
     setLoading(true);
@@ -47,7 +33,8 @@ export const RotatyStrategySelector: React.FC<
       try {
         await updateRotatyStrategyAction(rotatyStrategy, team);
         setSelectedRotatyStrategy(rotatyStrategy);
-        // TODO: show configmration
+        setRotatyStrategy(team, rotatyStrategy);
+        // TODO: show confirmation
       } finally {
         setLoading(false);
       }
