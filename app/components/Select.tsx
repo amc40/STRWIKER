@@ -1,5 +1,4 @@
 import React from 'react';
-import { Spinner } from './icons/Spinner';
 
 type Id = number | string;
 
