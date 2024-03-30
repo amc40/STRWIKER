@@ -5,6 +5,7 @@ import { FC, useEffect, useState, useTransition } from 'react';
 import Modal from './Modal';
 import { getPlayers } from '../../lib/Player.actions';
 import { PlayerInfo } from '../view/PlayerInfo';
+import { Plus } from './icons/Plus';
 
 interface AddPlayerToTeamProps {
   team: $Enums.Team;
@@ -42,18 +43,21 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
 
   return (
     <>
-      <button
-        className={
-          'my-5 p-3 bg-yellow-100 text-black rounded-md active:bg-yellow-200'
-        }
-        type="button"
-        onClick={() => {
-          setShowModal(true);
-        }}
-        disabled={isPending}
-      >
-        Add
-      </button>
+      <div>
+        <button
+          className={
+            'flex items-center justify-center w-full p-3 bg-yellow-100 text-black rounded-md active:bg-yellow-200'
+          }
+          type="button"
+          onClick={() => {
+            setShowModal(true);
+          }}
+          disabled={isPending}
+        >
+          <Plus />
+          Add Player
+        </button>
+      </div>
       <Modal
         title={
           <>

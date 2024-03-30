@@ -40,48 +40,52 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
         score={score}
         openSettingsModal={openSettingsModal}
       />
-      <DragDropContext
-        onDragEnd={(onDragEndResponder) => {
-          const destinationIndex = onDragEndResponder.destination?.index;
-          if (destinationIndex == null) return;
-          const playerId = Number.parseInt(onDragEndResponder.draggableId);
-          const playerInfo = members.find((member) => member.id === playerId);
-          if (!playerInfo)
-            throw new Error(`There is no team member with id: ${playerId}`);
-          reorderPlayer(playerInfo, destinationIndex);
-        }}
-      >
-        <Droppable droppableId={`${team}-players`}>
-          {(provided) => (
-            <ul
-              className={`${team}-players inline-block`}
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
-              {members.map((member, index) => (
-                <Draggable
-                  key={member.id}
-                  draggableId={`${member.id}`}
-                  index={index}
-                >
-                  {(provided) => (
-                    <li
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <PlayerCard player={member} removePlayer={removePlayer} />
-                    </li>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </ul>
-          )}
-        </Droppable>
-      </DragDropContext>
-
-      {children}
+      <div className="inline-block">
+        <DragDropContext
+          onDragEnd={(onDragEndResponder) => {
+            const destinationIndex = onDragEndResponder.destination?.index;
+            if (destinationIndex == null) return;
+            const playerId = Number.parseInt(onDragEndResponder.draggableId);
+            const playerInfo = members.find((member) => member.id === playerId);
+            if (!playerInfo)
+              throw new Error(`There is no team member with id: ${playerId}`);
+            reorderPlayer(playerInfo, destinationIndex);
+          }}
+        >
+          <Droppable droppableId={`${team}-players`}>
+            {(provided) => (
+              <ul
+                className={`${team}-players inline-block`}
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
+                {members.map((member, index) => (
+                  <Draggable
+                    key={member.id}
+                    draggableId={`${member.id}`}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <li
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <PlayerCard
+                          player={member}
+                          removePlayer={removePlayer}
+                        />
+                      </li>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
+        </DragDropContext>
+        {children}
+      </div>
     </div>
   );
 };
