@@ -1,7 +1,8 @@
-import { $Enums } from '@prisma/client';
+import { $Enums, RotatyStrategy } from '@prisma/client';
 import PlayerCard from './player-card/PlayerCard';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { PlayerInfo } from '../view/PlayerInfo';
+import { RotatyStrategyStatus } from './RotationStrategyStatus';
 
 interface TeamProps {
   team: $Enums.Team;
@@ -31,6 +32,7 @@ export const Team: React.FC<TeamProps> = ({
     >
       <h2 className={'flex'}>
         Team {team}{' '}
+        <RotatyStrategyStatus rotatyStrategy={RotatyStrategy.Always} />
         <span className={'flex-grow text-right text-5xl'}>{score}</span>
       </h2>
       <DragDropContext
