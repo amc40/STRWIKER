@@ -17,8 +17,16 @@ export class GameInfoService {
     const currentPointPlayers = currentPointAndPlayers.playerPoints;
     return {
       players: currentPointPlayers.map(playerPointWithPlayerToPlayerInfo),
-      redScore: currentPointAndPlayers.currentRedScore,
-      blueScore: currentPointAndPlayers.currentBlueScore,
+      teamInfo: {
+        Red: {
+          score: currentPointAndPlayers.currentRedScore,
+          rotatyStrategy: currentGame.rotatyRed,
+        },
+        Blue: {
+          score: currentPointAndPlayers.currentBlueScore,
+          rotatyStrategy: currentGame.rotatyBlue,
+        },
+      },
     };
   }
 }

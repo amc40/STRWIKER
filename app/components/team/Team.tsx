@@ -1,25 +1,29 @@
 import { $Enums, RotatyStrategy } from '@prisma/client';
-import PlayerCard from './player-card/PlayerCard';
+import PlayerCard from '../player-card/PlayerCard';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { PlayerInfo } from '../view/PlayerInfo';
-import { RotatyStrategyStatus } from './RotationStrategyStatus';
+import { PlayerInfo } from '../../view/PlayerInfo';
+import { TeamHeader } from './TeamHeader';
+import { PropsWithChildren } from 'react';
 
 interface TeamProps {
   team: $Enums.Team;
   members: PlayerInfo[];
+  rotatyStrategy: RotatyStrategy;
   score: number;
-  children?: JSX.Element;
   removePlayer: (player: PlayerInfo) => void;
   reorderPlayer: (player: PlayerInfo, destinationIndex: number) => void;
+  openSettingsModal: () => void;
   hideOnSmallScreen?: boolean;
 }
 
-export const Team: React.FC<TeamProps> = ({
+export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
   team,
   members,
+  rotatyStrategy,
   score,
   removePlayer,
   reorderPlayer,
+  openSettingsModal,
   children,
   hideOnSmallScreen = false,
 }) => {
@@ -30,11 +34,12 @@ export const Team: React.FC<TeamProps> = ({
       } 
       ${team === $Enums.Team.Red ? 'bg-team-red' : 'bg-team-blue'}`}
     >
-      <h2 className={'flex'}>
-        Team {team}{' '}
-        <RotatyStrategyStatus rotatyStrategy={RotatyStrategy.Always} />
-        <span className={'flex-grow text-right text-5xl'}>{score}</span>
-      </h2>
+      <TeamHeader
+        team={team}
+        rotatyStrategy={rotatyStrategy}
+        score={score}
+        openSettingsModal={openSettingsModal}
+      />
       <DragDropContext
         onDragEnd={(onDragEndResponder) => {
           const destinationIndex = onDragEndResponder.destination?.index;
