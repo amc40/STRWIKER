@@ -4,22 +4,20 @@ import { StatsTHead } from '../stats-table/StatsTHead';
 import { StatsTBody } from '../stats-table/StatsTBody';
 import { StatsHeadTR } from '../stats-table/StatsHeadTR';
 import { StatsTH } from '../stats-table/StatsTH';
-import { StatsEngineFwoar } from '../../services/statsEngine';
 import { StatsTR } from '../stats-table/StatsBodyTR';
 import { StatsTD } from '../stats-table/StatsTD';
+import { Player } from '@prisma/client';
 
 interface NumberOfGoalsScoredTableProps {
-  gameId: number;
+  playersAndNumberOfGoalsScored: {
+    player: Player;
+    goalsScored: number;
+  }[];
 }
-
-const statsEngine = new StatsEngineFwoar();
 
 export const NumberOfGoalsScoredTable: React.FC<
   NumberOfGoalsScoredTableProps
-> = async ({ gameId }) => {
-  const playersAndNumberOfGoalsScored =
-    await statsEngine.getNumberOfGoalsScoredByEachPlayerInGame(gameId);
-
+> = ({ playersAndNumberOfGoalsScored }) => {
   return (
     <StatsTable>
       <StatsTHead>
@@ -29,14 +27,12 @@ export const NumberOfGoalsScoredTable: React.FC<
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
-        {playersAndNumberOfGoalsScored.map(
-          ({ playerId, player, goalsScored }) => (
-            <StatsTR key={playerId}>
-              <StatsTD>{player.name}</StatsTD>
-              <StatsTD>{goalsScored}</StatsTD>
-            </StatsTR>
-          ),
-        )}
+        {playersAndNumberOfGoalsScored.map(({ player, goalsScored }) => (
+          <StatsTR key={player.id}>
+            <StatsTD>{player.name}</StatsTD>
+            <StatsTD>{goalsScored}</StatsTD>
+          </StatsTR>
+        ))}
       </StatsTBody>
     </StatsTable>
   );
