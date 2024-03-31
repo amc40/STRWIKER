@@ -37,7 +37,7 @@ const GameServer: React.FC<GameServerProps> = async ({ params }) => {
     await statsEngine.getNumberOfOwnGoalsScoredByEachPlayerInGame(gameId);
 
   return (
-    <div className="w-screen container mx-auto p-4">
+    <div className="w-screen flex flex-1 container mx-auto p-4">
       <StatsSwiper>
         <NumberOfGoalsScoredTable
           playersAndNumberOfGoalsScored={playersAndNumberOfGoalsScored}
