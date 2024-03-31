@@ -64,6 +64,11 @@ export async function getCountOfGoalsScoredByEachPlayerInGame(gameId: number) {
         gameId,
       },
     },
+    orderBy: {
+      _count: {
+        playerId: 'desc',
+      },
+    },
   });
 }
 
@@ -79,6 +84,11 @@ export async function getCountOfOwnGoalsScoredByEachPlayerInGame(
       ownGoal: true,
       point: {
         gameId,
+      },
+    },
+    orderBy: {
+      _count: {
+        playerId: 'desc',
       },
     },
   });
