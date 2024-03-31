@@ -1,14 +1,10 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { NumberOfGoalsScoredTable } from '../../components/game/NumberOfGoalsScoredTable';
 import { notFound } from 'next/navigation';
-import {
-  doesGameIdExist,
-  getAllNotInProgressGameIds,
-} from '../../repository/gameRepository';
+import { doesGameIdExist } from '../../repository/gameRepository';
 import { StatsSwiper } from '../../components/stats-swiper/StatsSwiper';
-import { SwiperSlide } from 'swiper/react';
-import { StatsSwiperSlide } from '../../components/stats-swiper/StatsSwiperSlide';
 import { StatsEngineFwoar } from '../../services/statsEngine';
+import { NumberOfOwnGoalsTable } from '../../components/game/NumberOfOwnGoalsTable';
 
 interface GameServerParams {
   gameId: string;
@@ -37,19 +33,18 @@ const GameServer: React.FC<GameServerProps> = async ({ params }) => {
   const playersAndNumberOfGoalsScored =
     await statsEngine.getNumberOfGoalsScoredByEachPlayerInGame(gameId);
 
+  const playersAndNumberOfOwnGoals =
+    await statsEngine.getNumberOfOwnGoalsScoredByEachPlayerInGame(gameId);
+
   return (
-    <div className="w-screen">
+    <div className="w-screen container mx-auto p-4">
       <StatsSwiper>
-        <StatsSwiperSlide>
-          <NumberOfGoalsScoredTable
-            playersAndNumberOfGoalsScored={playersAndNumberOfGoalsScored}
-          />
-        </StatsSwiperSlide>
-        <StatsSwiperSlide>
-          <NumberOfGoalsScoredTable
-            playersAndNumberOfGoalsScored={playersAndNumberOfGoalsScored}
-          />
-        </StatsSwiperSlide>
+        <NumberOfGoalsScoredTable
+          playersAndNumberOfGoalsScored={playersAndNumberOfGoalsScored}
+        />
+        <NumberOfOwnGoalsTable
+          playersAndNumberOfOwnGoals={playersAndNumberOfOwnGoals}
+        />
       </StatsSwiper>
     </div>
   );
