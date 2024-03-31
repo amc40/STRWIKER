@@ -20,3 +20,13 @@ export const getAllPlayersNameAscIdAsc = async () => {
     ],
   });
 };
+
+export const getPlayersWithIdsIn = async (playerIds: number[]) => {
+  return await prisma.player.findMany({
+    where: {
+      id: {
+        in: playerIds,
+      },
+    },
+  });
+};

@@ -52,6 +52,38 @@ export async function getAllPlayerPointsForPlayerInCurrentGame(
   });
 }
 
+export async function getCountOfGoalsScoredByEachPlayerInGame(gameId: number) {
+  return await prisma.playerPoint.groupBy({
+    by: 'playerId',
+    _count: {
+      playerId: true,
+    },
+    where: {
+      scoredGoal: true,
+      point: {
+        gameId,
+      },
+    },
+  });
+}
+
+export async function getCountOfOwnGoalsScoredByEachPlayerInGame(
+  gameId: number,
+) {
+  return await prisma.playerPoint.groupBy({
+    by: 'playerId',
+    _count: {
+      playerId: true,
+    },
+    where: {
+      ownGoal: true,
+      point: {
+        gameId,
+      },
+    },
+  });
+}
+
 export async function deletePlayerPoint(playerPointId: number) {
   await prisma.playerPoint.delete({
     where: {

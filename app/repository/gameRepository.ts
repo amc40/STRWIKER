@@ -34,3 +34,27 @@ export const updateRotatyStrategy = async (
     },
   });
 };
+
+export const doesGameIdExist = async (gameId: number) => {
+  const numberOfGamesWithId = await prisma.game.count({
+    where: {
+      id: gameId,
+    },
+  });
+  return numberOfGamesWithId > 0;
+};
+
+export const getAllNotInProgressGameIds = async () => {
+  const wrappedGameIds = await prisma.game.findMany({
+    select: {
+      id: true,
+    },
+    where: {
+      NOT: {
+        completed: false,
+        abandoned: false,
+      },
+    },
+  });
+  return wrappedGameIds.map(({ id }) => id);
+};

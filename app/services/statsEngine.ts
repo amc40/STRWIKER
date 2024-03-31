@@ -1,6 +1,11 @@
 import { Player, PlayerPoint } from '@prisma/client';
 import prisma from '../../lib/planetscale';
-import { getAllPlayerPointsForPlayerInCurrentGame } from '../repository/playerPointRepository';
+import {
+  getAllPlayerPointsForPlayerInCurrentGame,
+  getCountOfGoalsScoredByEachPlayerInGame as getCountOfGoalsScoredByEachPlayerIdInGame,
+  getCountOfOwnGoalsScoredByEachPlayerInGame as getCountOfOwnGoalsScoredByEachPlayerIdInGame,
+} from '../repository/playerPointRepository';
+import { PlayerService } from './playerService';
 
 interface PlayerPointStats {
   team: string;
@@ -10,6 +15,8 @@ interface PlayerPointStats {
 }
 
 export class StatsEngineFwoar {
+  playerService = new PlayerService();
+
   async getPlayerStats(playerId: number) {
     const playerStats = await prisma.playerPoint.findMany({
       where: {
@@ -66,6 +73,35 @@ export class StatsEngineFwoar {
   getOwnVsIntentionalGoalRatio(playerStats: PlayerPoint[]) {
     return this.getTotalOwnGoals(playerStats) / this.getTotalGoals(playerStats);
   }
+
+  async getNumberOfGoalsScoredByEachPlayerInGame(gameId: number) {
+    const countOfGoalsScoredByEachPlayerId =
+      await getCountOfGoalsScoredByEachPlayerIdInGame(gameId);
+
+    const goalsScoredByEachPlayerId = countOfGoalsScoredByEachPlayerId.map(
+      ({ playerId, _count }) => ({
+        playerId,
+        goalsScored: _count.playerId,
+      }),
+    );
+
+    return this.playerService.joinWithPlayers(goalsScoredByEachPlayerId);
+  }
+
+  async getNumberOfOwnGoalsScoredByEachPlayerInGame(gameId: number) {
+    const countOfOwnGoalsScoredByEachPlayerId =
+      await getCountOfOwnGoalsScoredByEachPlayerIdInGame(gameId);
+
+    const ownGoalsByEachPlayerId = countOfOwnGoalsScoredByEachPlayerId.map(
+      ({ playerId, _count }) => ({
+        playerId,
+        ownGoals: _count.playerId,
+      }),
+    );
+
+    return this.playerService.joinWithPlayers(ownGoalsByEachPlayerId);
+  }
+
   async getNumberOfGoalsScoredByPlayerInCurrentGame(playerId: number) {
     const playerPointsForPlayer =
       await getAllPlayerPointsForPlayerInCurrentGame(playerId);
