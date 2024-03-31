@@ -27,7 +27,7 @@
     "js-cookie": "^3.0.5",
     "kysely": "^0.25.0",
     "kysely-planetscale": "^1.4.0",
-    "next": "^14.1.0",
+    "next": "^14.1.4",
     "next-auth": "^4.24.6",
     "postcss": "^8.4.24",
     "prop-types": "^15.8.1",
@@ -53,7 +53,7 @@
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "eslint": "^8.56.0",
-    "eslint-config-next": "^14.1.0",
+    "eslint-config-next": "^14.1.4",
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.0.3",
     "prisma": "^5.2.0"
