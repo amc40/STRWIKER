@@ -27,6 +27,13 @@ export const NumberOfGoalsScoredTable: React.FC<
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
+        {playersAndNumberOfGoalsScored.length === 0 ? (
+          <StatsTR>
+            <StatsTD className="text-center" colSpan={2}>
+              🤔 No goals in this game
+            </StatsTD>
+          </StatsTR>
+        ) : null}
         {playersAndNumberOfGoalsScored.map(({ player, goalsScored }) => (
           <StatsTR key={player.id}>
             <StatsTD>{player.name}</StatsTD>

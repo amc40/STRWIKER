@@ -27,6 +27,13 @@ export const NumberOfOwnGoalsTable: React.FC<NumberOfOwnGoalsTableProps> = ({
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
+        {playersAndNumberOfOwnGoals.length === 0 ? (
+          <StatsTR>
+            <StatsTD className="text-center" colSpan={2}>
+              🎯 No own goals in this game
+            </StatsTD>
+          </StatsTR>
+        ) : null}
         {playersAndNumberOfOwnGoals.map(({ player, ownGoals }) => (
           <StatsTR key={player.id}>
             <StatsTD>{player.name}</StatsTD>
