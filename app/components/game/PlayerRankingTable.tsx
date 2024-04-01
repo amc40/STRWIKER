@@ -7,6 +7,7 @@ import { StatsTBody } from '../stats-table/StatsTBody';
 import { StatsTD } from '../stats-table/StatsTD';
 import { StatsTH } from '../stats-table/StatsTH';
 import { StatsTHead } from '../stats-table/StatsTHead';
+import { EmojiMedalsTD } from '../stats-table/EmojiMedalsTD';
 
 interface PlayerRankingTableProps {
   playersOrderedByDescendingElos: Player[];
@@ -19,13 +20,15 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
     <StatsTable>
       <StatsTHead>
         <StatsHeadTR>
+          <StatsTH></StatsTH>
           <StatsTH>Player Name</StatsTH>
           <StatsTH>Elo</StatsTH>
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
-        {playersOrderedByDescendingElos.map(({ id, name, elo }) => (
+        {playersOrderedByDescendingElos.map(({ id, name, elo }, index) => (
           <StatsTR key={id}>
+            <EmojiMedalsTD index={index} />
             <StatsTD>{name}</StatsTD>
             <StatsTD>{elo}</StatsTD>
           </StatsTR>
