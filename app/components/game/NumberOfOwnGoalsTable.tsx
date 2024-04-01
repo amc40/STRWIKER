@@ -18,6 +18,7 @@ interface NumberOfOwnGoalsTableProps {
 export const NumberOfOwnGoalsTable: React.FC<NumberOfOwnGoalsTableProps> = ({
   playersAndNumberOfOwnGoals,
 }) => {
+  // TODO: split by attack and defence goals
   return (
     <StatsTable>
       <StatsTHead>
