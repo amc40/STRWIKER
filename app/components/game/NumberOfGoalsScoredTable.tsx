@@ -7,6 +7,7 @@ import { StatsTH } from '../stats-table/StatsTH';
 import { StatsTR } from '../stats-table/StatsBodyTR';
 import { StatsTD } from '../stats-table/StatsTD';
 import { Player } from '@prisma/client';
+import { EmojiMedalsTD } from '../stats-table/EmojiMedalsTD';
 
 interface NumberOfGoalsScoredTableProps {
   playersAndNumberOfGoalsScored: {
@@ -37,11 +38,7 @@ export const NumberOfGoalsScoredTable: React.FC<
         ) : null}
         {playersAndNumberOfGoalsScored.map(({ player, goalsScored }, index) => (
           <StatsTR key={player.id}>
-            <StatsTD className="w-1 px-1 text-center text-xl">
-              {index === 0 ? <span>🥇</span> : null}
-              {index === 1 ? <span>🥈</span> : null}
-              {index === 2 ? <span>🥉</span> : null}
-            </StatsTD>
+            <EmojiMedalsTD index={index} />
             <StatsTD>{player.name}</StatsTD>
             <StatsTD>{goalsScored}</StatsTD>
           </StatsTR>
