@@ -22,6 +22,7 @@ export const NumberOfGoalsScoredTable: React.FC<
     <StatsTable>
       <StatsTHead>
         <StatsHeadTR>
+          <StatsTH></StatsTH>
           <StatsTH>Player Name</StatsTH>
           <StatsTH>Goals Scored</StatsTH>
         </StatsHeadTR>
@@ -29,13 +30,18 @@ export const NumberOfGoalsScoredTable: React.FC<
       <StatsTBody>
         {playersAndNumberOfGoalsScored.length === 0 ? (
           <StatsTR>
-            <StatsTD className="text-center" colSpan={2}>
+            <StatsTD className="py-4 text-center" colSpan={3}>
               🤔 No goals in this game
             </StatsTD>
           </StatsTR>
         ) : null}
-        {playersAndNumberOfGoalsScored.map(({ player, goalsScored }) => (
+        {playersAndNumberOfGoalsScored.map(({ player, goalsScored }, index) => (
           <StatsTR key={player.id}>
+            <StatsTD className="w-1 px-1 text-center text-xl">
+              {index === 0 ? <span>🥇</span> : null}
+              {index === 1 ? <span>🥈</span> : null}
+              {index === 2 ? <span>🥉</span> : null}
+            </StatsTD>
             <StatsTD>{player.name}</StatsTD>
             <StatsTD>{goalsScored}</StatsTD>
           </StatsTR>

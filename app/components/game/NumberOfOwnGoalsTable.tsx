@@ -29,7 +29,7 @@ export const NumberOfOwnGoalsTable: React.FC<NumberOfOwnGoalsTableProps> = ({
       <StatsTBody>
         {playersAndNumberOfOwnGoals.length === 0 ? (
           <StatsTR>
-            <StatsTD className="text-center" colSpan={2}>
+            <StatsTD className="py-4 text-center" colSpan={2}>
               🎯 No own goals in this game
             </StatsTD>
           </StatsTR>
