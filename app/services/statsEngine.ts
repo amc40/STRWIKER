@@ -1,4 +1,4 @@
-import { Player, PlayerPoint } from '@prisma/client';
+import { Player, PlayerPoint, Point } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   getAllPlayerPointsForPlayerInCurrentGame,
@@ -6,6 +6,11 @@ import {
   getCountOfOwnGoalsScoredByEachPlayerInGame as getCountOfOwnGoalsScoredByEachPlayerIdInGame,
 } from '../repository/playerPointRepository';
 import { PlayerService } from './playerService';
+import {
+  getAllPointsInCurrentGame,
+  getAllPointsInGame,
+} from '../repository/pointRepository';
+import moment from 'moment';
 
 interface PlayerPointStats {
   team: string;
@@ -141,6 +146,30 @@ export class StatsEngineFwoar {
 
       return { ...element, ranking: currentRanking };
     });
+  }
+
+  async getLongestPointsInGame(gameId: number, take: number) {
+    const pointsAndDurations =
+      await this.getAllPointsInGameWithDuration(gameId);
+    pointsAndDurations.sort(
+      (
+        { durationInSeconds: durationInSecondsA },
+        { durationInSeconds: durationInSecondsB },
+      ) => durationInSecondsB - durationInSecondsA,
+    );
+  }
+
+  private async joinWithParticipants<T extends Point>(point: T) {}
+
+  private async getAllPointsInGameWithDuration(gameId: number) {
+    const pointsInGame = await getAllPointsInGame(gameId);
+    return pointsInGame.map((point) => ({
+      ...point,
+      durationInSeconds: moment(point.endTime).diff(
+        moment(point.startTime),
+        'seconds',
+      ),
+    }));
   }
 
   async updateElosOnGoal(winners: Player[], opposition: Player[]) {
