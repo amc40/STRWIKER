@@ -30,3 +30,11 @@ export const getPlayersWithIdsIn = async (playerIds: number[]) => {
     },
   });
 };
+
+export const getPlayersOrderedByDescendingElos = async () => {
+  return await prisma.player.findMany({
+    orderBy: {
+      elo: 'desc',
+    },
+  });
+};

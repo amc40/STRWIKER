@@ -5,6 +5,8 @@ import { doesGameIdExist } from '../../repository/gameRepository';
 import { StatsSwiper } from '../../components/stats-swiper/StatsSwiper';
 import { StatsEngineFwoar } from '../../services/statsEngine';
 import { NumberOfOwnGoalsTable } from '../../components/game/NumberOfOwnGoalsTable';
+import { PlayerRankingTable } from '../../components/game/PlayerRankingTable';
+import { getPlayersOrderedByDescendingElos } from '../../repository/playerRepository';
 
 interface GameServerParams {
   gameId: string;
@@ -36,6 +38,9 @@ const GameServer: React.FC<GameServerProps> = async ({ params }) => {
   const playersAndNumberOfOwnGoals =
     await statsEngine.getNumberOfOwnGoalsScoredByEachPlayerInGame(gameId);
 
+  const playersOrderedByDescendingElos =
+    await getPlayersOrderedByDescendingElos();
+
   return (
     <div className="w-screen flex flex-1 container mx-auto p-4">
       <StatsSwiper>
@@ -44,6 +49,9 @@ const GameServer: React.FC<GameServerProps> = async ({ params }) => {
         />
         <NumberOfOwnGoalsTable
           playersAndNumberOfOwnGoals={playersAndNumberOfOwnGoals}
+        />
+        <PlayerRankingTable
+          playersOrderedByDescendingElos={playersOrderedByDescendingElos}
         />
       </StatsSwiper>
     </div>
