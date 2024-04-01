@@ -8,13 +8,14 @@ import { StatsTD } from '../stats-table/StatsTD';
 import { StatsTH } from '../stats-table/StatsTH';
 import { StatsTHead } from '../stats-table/StatsTHead';
 import { EmojiMedalsTD } from '../stats-table/RankingTD';
+import { WithRanking } from '../../services/statsEngine';
 
 interface PlayerRankingTableProps {
-  playersOrderedByDescendingElos: Player[];
+  playersOrderedByDescendingElosWithRanking: WithRanking<Player>[];
 }
 
 export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
-  playersOrderedByDescendingElos,
+  playersOrderedByDescendingElosWithRanking: playersOrderedByDescendingElos,
 }) => {
   return (
     <StatsTable>
@@ -26,9 +27,9 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
-        {playersOrderedByDescendingElos.map(({ id, name, elo }, index) => (
+        {playersOrderedByDescendingElos.map(({ id, name, elo, ranking }) => (
           <StatsTR key={id}>
-            <EmojiMedalsTD index={index} />
+            <EmojiMedalsTD ranking={ranking} />
             <StatsTD>{name}</StatsTD>
             <StatsTD>{elo}</StatsTD>
           </StatsTR>

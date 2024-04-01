@@ -8,17 +8,20 @@ import { StatsTR } from '../stats-table/StatsBodyTR';
 import { StatsTD } from '../stats-table/StatsTD';
 import { Player } from '@prisma/client';
 import { EmojiMedalsTD } from '../stats-table/RankingTD';
+import { WithRanking } from '../../services/statsEngine';
+
+interface PlayersAndNumberOfGoalsScored {
+  player: Player;
+  goalsScored: number;
+}
 
 interface NumberOfGoalsScoredTableProps {
-  playersAndNumberOfGoalsScored: {
-    player: Player;
-    goalsScored: number;
-  }[];
+  playersAndNumberOfGoalsScoredWithRanking: WithRanking<PlayersAndNumberOfGoalsScored>[];
 }
 
 export const NumberOfGoalsScoredTable: React.FC<
   NumberOfGoalsScoredTableProps
-> = ({ playersAndNumberOfGoalsScored }) => {
+> = ({ playersAndNumberOfGoalsScoredWithRanking }) => {
   return (
     <StatsTable>
       <StatsTHead>
@@ -29,20 +32,22 @@ export const NumberOfGoalsScoredTable: React.FC<
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
-        {playersAndNumberOfGoalsScored.length === 0 ? (
+        {playersAndNumberOfGoalsScoredWithRanking.length === 0 ? (
           <StatsTR>
             <StatsTD className="py-4 text-center" colSpan={3}>
               🤔 No goals in this game
             </StatsTD>
           </StatsTR>
         ) : null}
-        {playersAndNumberOfGoalsScored.map(({ player, goalsScored }, index) => (
-          <StatsTR key={player.id}>
-            <EmojiMedalsTD index={index} />
-            <StatsTD>{player.name}</StatsTD>
-            <StatsTD>{goalsScored}</StatsTD>
-          </StatsTR>
-        ))}
+        {playersAndNumberOfGoalsScoredWithRanking.map(
+          ({ player, goalsScored, ranking }) => (
+            <StatsTR key={player.id}>
+              <EmojiMedalsTD ranking={ranking} />
+              <StatsTD>{player.name}</StatsTD>
+              <StatsTD>{goalsScored}</StatsTD>
+            </StatsTR>
+          ),
+        )}
       </StatsTBody>
     </StatsTable>
   );

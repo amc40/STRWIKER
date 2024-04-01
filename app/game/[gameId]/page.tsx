@@ -34,24 +34,38 @@ const GameServer: React.FC<GameServerProps> = async ({ params }) => {
   //  Next.js where async Server Components could not be passed as children of Client components
   const playersAndNumberOfGoalsScored =
     await statsEngine.getNumberOfGoalsScoredByEachPlayerInGame(gameId);
+  const playersAndNumberOfGoalsScoredWithRanking =
+    statsEngine.fromOrderedByStatAddRanking(
+      playersAndNumberOfGoalsScored,
+      ({ goalsScored }) => goalsScored,
+    );
 
   const playersAndNumberOfOwnGoals =
     await statsEngine.getNumberOfOwnGoalsScoredByEachPlayerInGame(gameId);
 
   const playersOrderedByDescendingElos =
     await getPlayersOrderedByDescendingElos();
+  const playersOrderedByDescendingElosWithRanking =
+    statsEngine.fromOrderedByStatAddRanking(
+      playersOrderedByDescendingElos,
+      ({ elo }) => elo,
+    );
 
   return (
     <div className="w-screen flex flex-1 container mx-auto p-4">
       <StatsSwiper>
         <NumberOfGoalsScoredTable
-          playersAndNumberOfGoalsScored={playersAndNumberOfGoalsScored}
+          playersAndNumberOfGoalsScoredWithRanking={
+            playersAndNumberOfGoalsScoredWithRanking
+          }
         />
         <NumberOfOwnGoalsTable
           playersAndNumberOfOwnGoals={playersAndNumberOfOwnGoals}
         />
         <PlayerRankingTable
-          playersOrderedByDescendingElos={playersOrderedByDescendingElos}
+          playersOrderedByDescendingElosWithRanking={
+            playersOrderedByDescendingElosWithRanking
+          }
         />
       </StatsSwiper>
     </div>

@@ -14,6 +14,8 @@ interface PlayerPointStats {
   rattled: boolean;
 }
 
+export type WithRanking<T> = T & { ranking: number };
+
 export class StatsEngineFwoar {
   playerService = new PlayerService();
 
@@ -118,6 +120,27 @@ export class StatsEngineFwoar {
       goalScored: intensionalGoals,
       ownGoalsScored: ownGoals,
     };
+  }
+
+  // Note: rankings start from 1
+  fromOrderedByStatAddRanking<T>(
+    orderedByBestStatFirst: T[],
+    getStatFromElement: (element: T) => number,
+  ): WithRanking<T>[] {
+    let prevStat: number | null = null;
+    let currentRanking = 0;
+
+    return orderedByBestStatFirst.map((element) => {
+      const currentStat = getStatFromElement(element);
+
+      if (prevStat === null || currentStat !== prevStat) {
+        currentRanking += 1;
+      }
+
+      prevStat = currentStat;
+
+      return { ...element, ranking: currentRanking };
+    });
   }
 
   async updateElosOnGoal(winners: Player[], opposition: Player[]) {
