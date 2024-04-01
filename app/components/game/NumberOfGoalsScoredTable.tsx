@@ -7,7 +7,7 @@ import { StatsTH } from '../stats-table/StatsTH';
 import { StatsTR } from '../stats-table/StatsBodyTR';
 import { StatsTD } from '../stats-table/StatsTD';
 import { Player } from '@prisma/client';
-import { EmojiMedalsTD } from '../stats-table/EmojiMedalsTD';
+import { EmojiMedalsTD } from '../stats-table/RankingTD';
 
 interface NumberOfGoalsScoredTableProps {
   playersAndNumberOfGoalsScored: {

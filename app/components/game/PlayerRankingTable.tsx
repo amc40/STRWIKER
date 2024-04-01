@@ -7,7 +7,7 @@ import { StatsTBody } from '../stats-table/StatsTBody';
 import { StatsTD } from '../stats-table/StatsTD';
 import { StatsTH } from '../stats-table/StatsTH';
 import { StatsTHead } from '../stats-table/StatsTHead';
-import { EmojiMedalsTD } from '../stats-table/EmojiMedalsTD';
+import { EmojiMedalsTD } from '../stats-table/RankingTD';
 
 interface PlayerRankingTableProps {
   playersOrderedByDescendingElos: Player[];
