@@ -17,7 +17,7 @@
     "@hello-pangea/dnd": "^16.5.0",
     "@heroicons/react": "^2.0.18",
     "@planetscale/database": "^1.7.0",
-    "@prisma/client": "^5.2.0",
+    "@prisma/client": "^5.12.1",
     "@tremor/react": "^3.0.1",
     "@vercel/analytics": "^1.2.1",
     "autoprefixer": "^10.4.18",
