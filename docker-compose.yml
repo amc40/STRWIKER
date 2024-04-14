@@ -1,18 +1,17 @@
 version: '3.9'
 
 services:
-  mysql:
-    image: mysql:latest
+  postgres:
+    image: postgres:latest
     container_name: strwiker_db
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: strwiker
-      MYSQL_USER: dev_username
-      MYSQL_PASSWORD: dev_password
+      POSTGRES_USER: dev_username
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: strwiker
     ports:
-      - '3306:3306'
+      - '5432:5432'
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/mysql
 
 volumes:
-  mysql_data:
+  postgres_data:
