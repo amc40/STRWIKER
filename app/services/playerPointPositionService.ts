@@ -14,6 +14,8 @@ import {
 } from '../repository/gameRepository';
 
 export class PlayerPointPositionService {
+  static ACTIVE_PLAYER_MAX_POSITION = 2;
+
   async reorderPlayerInCurrentGame(playerId: number, newPosition: number) {
     const playerPoint = await getCurrentPlayerPointForPlayerOrThrow(playerId);
     return this.reorderPlayerPoint(playerPoint, newPosition);

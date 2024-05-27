@@ -51,9 +51,13 @@ export async function getPointFromPlayerPoint(
 export async function getAllPointsInCurrentGame() {
   const currentGame = await getCurrentGame();
   if (currentGame == null) return null;
+  return getAllPointsInGame(currentGame.id);
+}
+
+export async function getAllPointsInGame(gameId: number) {
   return await prisma.point.findMany({
     where: {
-      gameId: currentGame.id,
+      gameId,
     },
   });
 }

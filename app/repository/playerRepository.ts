@@ -20,3 +20,21 @@ export const getAllPlayersNameAscIdAsc = async () => {
     ],
   });
 };
+
+export const getPlayersWithIdsIn = async (playerIds: number[]) => {
+  return await prisma.player.findMany({
+    where: {
+      id: {
+        in: playerIds,
+      },
+    },
+  });
+};
+
+export const getPlayersOrderedByDescendingElos = async () => {
+  return await prisma.player.findMany({
+    orderBy: {
+      elo: 'desc',
+    },
+  });
+};

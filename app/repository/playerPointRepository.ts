@@ -11,6 +11,23 @@ export async function getAllPlayerPointsByPoint(
   return await prisma.playerPoint.findMany({ where: { pointId: point.id } });
 }
 
+export async function getAllPlayerPointsAndPlayersByPointWherePositionLessThan(
+  point: Point,
+  positionUpperThreshold: number,
+) {
+  return await prisma.playerPoint.findMany({
+    where: {
+      pointId: point.id,
+      position: {
+        lt: positionUpperThreshold,
+      },
+    },
+    include: {
+      player: true,
+    },
+  });
+}
+
 export async function getCurrentPlayerPointForPlayerOrThrow(playerId: number) {
   const currentPoint = await getCurrentPointOrThrow();
   return await prisma.playerPoint.findFirstOrThrow({
@@ -47,6 +64,48 @@ export async function getAllPlayerPointsForPlayerInCurrentGame(
       playerId,
       pointId: {
         in: currentGamePoints.map((currentGamePoint) => currentGamePoint.id),
+      },
+    },
+  });
+}
+
+export async function getCountOfGoalsScoredByEachPlayerInGame(gameId: number) {
+  return await prisma.playerPoint.groupBy({
+    by: 'playerId',
+    _count: {
+      playerId: true,
+    },
+    where: {
+      scoredGoal: true,
+      point: {
+        gameId,
+      },
+    },
+    orderBy: {
+      _count: {
+        playerId: 'desc',
+      },
+    },
+  });
+}
+
+export async function getCountOfOwnGoalsScoredByEachPlayerInGame(
+  gameId: number,
+) {
+  return await prisma.playerPoint.groupBy({
+    by: 'playerId',
+    _count: {
+      playerId: true,
+    },
+    where: {
+      ownGoal: true,
+      point: {
+        gameId,
+      },
+    },
+    orderBy: {
+      _count: {
+        playerId: 'desc',
       },
     },
   });
