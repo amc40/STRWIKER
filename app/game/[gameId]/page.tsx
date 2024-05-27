@@ -7,6 +7,8 @@ import { StatsEngineFwoar } from '../../services/statsEngine';
 import { NumberOfOwnGoalsTable } from '../../components/game/NumberOfOwnGoalsTable';
 import { PlayerRankingTable } from '../../components/game/PlayerRankingTable';
 import { getPlayersOrderedByDescendingElos } from '../../repository/playerRepository';
+import { LongestPointsTable } from '../../components/game/LongestPointsTable';
+import { GameLogicService } from '../../services/gameLogicService';
 
 interface GameServerParams {
   gameId: string;
@@ -17,6 +19,9 @@ interface GameServerProps {
 }
 
 const statsEngine = new StatsEngineFwoar();
+const gameLogicService = new GameLogicService();
+
+const NUMBER_OF_LONGEST_POINTS_TO_DISPLAY = 5;
 
 const GameServer: React.FC<GameServerProps> = async ({ params }) => {
   const { gameId: gameIdString } = params;
@@ -43,6 +48,17 @@ const GameServer: React.FC<GameServerProps> = async ({ params }) => {
   const playersAndNumberOfOwnGoals =
     await statsEngine.getNumberOfOwnGoalsScoredByEachPlayerInGame(gameId);
 
+  const longestPoints = await statsEngine.getLongestPointsInGame(
+    gameId,
+    NUMBER_OF_LONGEST_POINTS_TO_DISPLAY,
+  );
+  const longestPointsWithActivePlayers = await Promise.all(
+    longestPoints.map(
+      async (pointAndDuration) =>
+        await gameLogicService.joinPointWithActivePlayers(pointAndDuration),
+    ),
+  );
+
   const playersOrderedByDescendingElos =
     await getPlayersOrderedByDescendingElos();
   const playersOrderedByDescendingElosWithRanking =
@@ -61,6 +77,9 @@ const GameServer: React.FC<GameServerProps> = async ({ params }) => {
         />
         <NumberOfOwnGoalsTable
           playersAndNumberOfOwnGoals={playersAndNumberOfOwnGoals}
+        />
+        <LongestPointsTable
+          longestPointsWithActivePlayers={longestPointsWithActivePlayers}
         />
         <PlayerRankingTable
           playersOrderedByDescendingElosWithRanking={

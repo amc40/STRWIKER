@@ -1,4 +1,4 @@
-import { Player, PlayerPoint, Point } from '@prisma/client';
+import { Player, PlayerPoint } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   getAllPlayerPointsForPlayerInCurrentGame,
@@ -6,10 +6,7 @@ import {
   getCountOfOwnGoalsScoredByEachPlayerInGame as getCountOfOwnGoalsScoredByEachPlayerIdInGame,
 } from '../repository/playerPointRepository';
 import { PlayerService } from './playerService';
-import {
-  getAllPointsInCurrentGame,
-  getAllPointsInGame,
-} from '../repository/pointRepository';
+import { getAllPointsInGame } from '../repository/pointRepository';
 import moment from 'moment';
 
 interface PlayerPointStats {
@@ -151,15 +148,17 @@ export class StatsEngineFwoar {
   async getLongestPointsInGame(gameId: number, take: number) {
     const pointsAndDurations =
       await this.getAllPointsInGameWithDuration(gameId);
+
     pointsAndDurations.sort(
       (
         { durationInSeconds: durationInSecondsA },
         { durationInSeconds: durationInSecondsB },
       ) => durationInSecondsB - durationInSecondsA,
     );
-  }
+    const topPointsAndDurations = pointsAndDurations.slice(0, take);
 
-  private async joinWithParticipants<T extends Point>(point: T) {}
+    return topPointsAndDurations;
+  }
 
   private async getAllPointsInGameWithDuration(gameId: number) {
     const pointsInGame = await getAllPointsInGame(gameId);

@@ -1,8 +1,9 @@
-import { Game, PlayerPoint, Point, Team } from '@prisma/client';
+import { Game, Player, PlayerPoint, Point, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   decrementPlayerPointPositionsInPointAfter,
   deletePlayerPoint,
+  getAllPlayerPointsAndPlayersByPointWherePositionLessThan,
   getAllPlayerPointsByPoint,
   getCurrentPlayerPointForPlayerOrThrow,
   getPlayerPointByPlayerAndPointOrThrow,
@@ -308,6 +309,36 @@ export class GameLogicService {
       ...playerPoint.player,
       team: playerPoint.team,
     }));
+  }
+
+  async joinPointWithActivePlayers<T extends Point>(
+    point: T,
+  ): Promise<T & { blueActivePlayers: Player[]; redActivePlayers: Player[] }> {
+    const playerPointsWithActivePlayers =
+      await getAllPlayerPointsAndPlayersByPointWherePositionLessThan(
+        point,
+        PlayerPointPositionService.ACTIVE_PLAYER_MAX_POSITION,
+      );
+
+    const blueActivePlayers = playerPointsWithActivePlayers
+      .filter((playerPoint) => playerPoint.team === Team.Blue)
+      .map(
+        (playerPointWithParticipatingPlayer) =>
+          playerPointWithParticipatingPlayer.player,
+      );
+
+    const redActivePlayers = playerPointsWithActivePlayers
+      .filter((playerPoint) => playerPoint.team === Team.Red)
+      .map(
+        (playerPointWithParticipatingPlayer) =>
+          playerPointWithParticipatingPlayer.player,
+      );
+
+    return {
+      ...point,
+      blueActivePlayers,
+      redActivePlayers,
+    };
   }
 
   private opposingTeam(team: Team) {

@@ -7,58 +7,64 @@ import { StatsTR } from '../stats-table/StatsBodyTR';
 import { StatsTBody } from '../stats-table/StatsTBody';
 import { StatsTD } from '../stats-table/StatsTD';
 import { Player } from '@prisma/client';
+import moment from 'moment';
+import 'moment-duration-format';
 
-interface PointLengthWithParticipants {
+interface PointLengthWithActivePlayers {
   id: number;
-  blueScore: number;
-  redScore: number;
+  currentRedScore: number;
+  currentBlueScore: number;
   durationInSeconds: number;
-  blueParticipants: Player[];
-  redParticipants: Player[];
+  blueActivePlayers: Player[];
+  redActivePlayers: Player[];
 }
 
 interface LongestPointsTableProps {
-  longestPointsWithParticipants: PointLengthWithParticipants[];
+  longestPointsWithActivePlayers: PointLengthWithActivePlayers[];
 }
 
 export const LongestPointsTable: React.FC<LongestPointsTableProps> = ({
-  longestPointsWithParticipants,
+  longestPointsWithActivePlayers,
 }) => {
   return (
     <StatsTable>
       <StatsTHead>
         <StatsHeadTR>
+          <StatsTH>🔵 Blue Players</StatsTH>
           <StatsTH>🔵 Blue Score</StatsTH>
           <StatsTH>🔴 Red Score</StatsTH>
-          <StatsTH>🔵 Blue Participants</StatsTH>
-          <StatsTH>🔴 Red Participants</StatsTH>
+          <StatsTH>🔴 Red Players</StatsTH>
           <StatsTH>⏱️ Length</StatsTH>
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
-        {longestPointsWithParticipants.map(
+        {longestPointsWithActivePlayers.map(
           ({
             id,
-            blueScore,
-            redScore,
-            blueParticipants,
-            redParticipants,
+            currentBlueScore: blueScore,
+            currentRedScore: redScore,
+            blueActivePlayers,
+            redActivePlayers,
             durationInSeconds,
           }) => (
             <StatsTR key={id}>
+              <StatsTD>
+                {blueActivePlayers
+                  .map((activePlayer) => activePlayer.name)
+                  .join(', ')}
+              </StatsTD>
               <StatsTD>{blueScore}</StatsTD>
               <StatsTD>{redScore}</StatsTD>
               <StatsTD>
-                {blueParticipants
-                  .map((participant) => participant.name)
+                {redActivePlayers
+                  .map((activePlayer) => activePlayer.name)
                   .join(', ')}
               </StatsTD>
               <StatsTD>
-                {redParticipants
-                  .map((participant) => participant.name)
-                  .join(', ')}
+                {moment
+                  .duration(durationInSeconds, 'seconds')
+                  .format('m [min] s [s]')}
               </StatsTD>
-              <StatsTD>{durationInSeconds}</StatsTD>
             </StatsTR>
           ),
         )}
