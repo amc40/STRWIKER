@@ -6,13 +6,14 @@ import { PlayerPointPositionService } from '../app/services/playerPointPositionS
 import { PlayerInfo } from '../app/view/PlayerInfo';
 import { StatsEngineFwoar } from '../app/services/statsEngine';
 import { revalidatePath } from 'next/cache';
+import { supabaseClient } from '../app/utils/supabase';
 
 export const addPlayerToCurrentGame = async (
   playerId: number,
   team: $Enums.Team,
 ) => {
   await new GameLogicService().addPlayerToCurrentPoint(playerId, team);
-  revalidateCurrentGame();
+  await revalidateCurrentGame();
 };
 
 export const recordGoalScored = async (
@@ -20,7 +21,7 @@ export const recordGoalScored = async (
   ownGoal: boolean,
 ) => {
   await new GameLogicService().scoreGoalInCurrentGame(scorerInfo.id, ownGoal);
-  revalidateCurrentGame();
+  await revalidateCurrentGame();
 };
 
 export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
@@ -33,17 +34,17 @@ export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
 
 export const removePlayerFromCurrentGame = async (playerId: number) => {
   await new GameLogicService().removePlayerFromCurrentPoint(playerId);
-  revalidateCurrentGame();
+  await revalidateCurrentGame();
 };
 
 export const abandonCurrentGame = async () => {
   await new GameLogicService().abandonCurrentGame();
-  revalidateCurrentGame();
+  await revalidateCurrentGame();
 };
 
 export const startGame = async () => {
   await new GameLogicService().startGame();
-  revalidateCurrentGame();
+  await revalidateCurrentGame();
 };
 
 export const reorderPlayer = async (playerId: number, newPosition: number) => {
@@ -51,7 +52,7 @@ export const reorderPlayer = async (playerId: number, newPosition: number) => {
     playerId,
     newPosition,
   );
-  revalidateCurrentGame();
+  await revalidateCurrentGame();
 };
 
 export const updateRotatyStrategyAction = async (
@@ -62,9 +63,19 @@ export const updateRotatyStrategyAction = async (
     rotatyStrategy,
     team,
   );
-  revalidateCurrentGame();
+  await revalidateCurrentGame();
 };
 
-const revalidateCurrentGame = () => {
+const revalidateCurrentGame = async () => {
   revalidatePath('/current-game', 'page');
+  const channel = supabaseClient.channel('test');
+  await channel.send({
+    type: 'broadcast',
+    event: 'test',
+    payload: {
+      testText: 'hello world!',
+    },
+  });
+
+  await supabaseClient.removeChannel(channel);
 };

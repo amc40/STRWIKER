@@ -17,6 +17,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { PlayerInfo } from '../view/PlayerInfo';
 import { fetchCurrentGameInfo } from '../network/fetchCurrentGameInfo';
+import { supabaseClient } from '../utils/supabase';
 
 const MS_BETWEEN_REFRESHES = 1000;
 
@@ -99,6 +100,18 @@ export const CurrentGameClient: FC<{
   useEffect(() => {
     awaitingPlayersResponseRef.current = awaitingPlayersResponse;
   }, [awaitingPlayersResponse]);
+
+  useEffect(() => {
+    const taskListener = supabaseClient
+      .channel('test')
+      .on('broadcast', { event: 'test' }, (payload) => {
+        console.log('Change received!', payload);
+      })
+      .subscribe();
+
+    // add return right here!
+    return () => void taskListener.unsubscribe();
+  }, []);
 
   // on initial render setup a function to refresh the current game info every MS_BETWEEN_REFRESHES
   useEffect(() => {
