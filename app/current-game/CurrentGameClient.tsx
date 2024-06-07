@@ -10,7 +10,6 @@ import {
 } from '../../lib/Game.actions';
 import SettingsButton from '../components/SettingsButton';
 import { SettingsModal } from '../components/settings-modal/SettingsModal';
-import { NoGameInProgress } from './NoGameInProgress';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -18,6 +17,7 @@ import 'swiper/css';
 import { PlayerInfo } from '../view/PlayerInfo';
 import { supabaseClient } from '../utils/supabase';
 import { GameInfo } from '../view/CurrentGameInfo';
+import { useRouter } from 'next/navigation';
 
 const MOBILE_SCREEN_BREAK_POINT = 768;
 
@@ -80,7 +80,6 @@ export const CurrentGameClient: FC<{
   serverBlueRotatyStrategy,
   serverPlayers,
 }) => {
-  const [gameInProgress, setGameInProgress] = useState(true);
   const [players, setPlayers] = useState(serverPlayers);
   const [redScore, setRedScore] = useState(serverRedScore);
   const [blueScore, setBlueScore] = useState(serverBlueScore);
@@ -114,6 +113,23 @@ export const CurrentGameClient: FC<{
 
     return () => void taskListener.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    awaitingPlayersResponseRef.current = awaitingPlayersResponse;
+  }, [awaitingPlayersResponse]);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const taskListener = supabaseClient
+      .channel('current-game')
+      .on('broadcast', { event: 'game-end' }, () => {
+        router.replace('/no-game-in-progress');
+      })
+      .subscribe();
+
+    return () => void taskListener.unsubscribe();
+  }, [router]);
 
   const addPlayer = (
     playerId: number,
@@ -220,7 +236,7 @@ export const CurrentGameClient: FC<{
     }
   };
 
-  return gameInProgress ? (
+  return (
     <main className="flex flex-1 flex-col">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
         <SettingsButton
@@ -326,7 +342,5 @@ export const CurrentGameClient: FC<{
         )}
       </div>
     </main>
-  ) : (
-    <NoGameInProgress />
   );
 };

@@ -1,7 +1,7 @@
 'use server';
 
 import { $Enums, RotatyStrategy, Team } from '@prisma/client';
-import { GameLogicService } from '../app/services/gameLogicService';
+import { GameLogicService, IsGameEnd } from '../app/services/gameLogicService';
 import { PlayerPointPositionService } from '../app/services/playerPointPositionService';
 import { PlayerInfo } from '../app/view/PlayerInfo';
 import { StatsEngineFwoar } from '../app/services/statsEngine';
@@ -23,8 +23,15 @@ export const recordGoalScored = async (
   scorerInfo: PlayerInfo,
   ownGoal: boolean,
 ) => {
-  await new GameLogicService().scoreGoalInCurrentGame(scorerInfo.id, ownGoal);
-  await registerUpdatedGameState();
+  const isGameEnd = await new GameLogicService().scoreGoalInCurrentGame(
+    scorerInfo.id,
+    ownGoal,
+  );
+  if (isGameEnd == IsGameEnd.GAME_ENDS) {
+    await registerGameEnd();
+  } else {
+    await registerUpdatedGameState();
+  }
 };
 
 export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
@@ -42,12 +49,12 @@ export const removePlayerFromCurrentGame = async (playerId: number) => {
 
 export const abandonCurrentGame = async () => {
   await new GameLogicService().abandonCurrentGame();
-  await registerUpdatedGameState();
+  await registerGameEnd();
 };
 
 export const startGame = async () => {
   await new GameLogicService().startGame();
-  await registerUpdatedGameState();
+  await registerGameStart();
 };
 
 export const reorderPlayer = async (playerId: number, newPosition: number) => {
@@ -77,6 +84,30 @@ const registerUpdatedGameState = async () => {
     type: 'broadcast',
     event: 'game-state',
     payload: currentGame,
+  });
+
+  await supabaseClient.removeChannel(channel);
+};
+
+const registerGameStart = async () => {
+  revalidatePath('/current-game', 'page');
+  revalidatePath('/no-game-in-progress', 'page');
+  const channel = supabaseClient.channel('current-game');
+  await channel.send({
+    type: 'broadcast',
+    event: 'game-start',
+  });
+
+  await supabaseClient.removeChannel(channel);
+};
+
+const registerGameEnd = async () => {
+  revalidatePath('/current-game', 'page');
+  revalidatePath('/no-game-in-progress', 'page');
+  const channel = supabaseClient.channel('current-game');
+  await channel.send({
+    type: 'broadcast',
+    event: 'game-end',
   });
 
   await supabaseClient.removeChannel(channel);

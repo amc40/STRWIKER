@@ -1,13 +1,19 @@
+import { redirect } from 'next/navigation';
 import { GameInfoService } from '../services/gameInfoService';
 import { CurrentGameClient } from './CurrentGameClient';
-import { NoGameInProgress } from './NoGameInProgress';
 
 const gameInfoService = new GameInfoService();
 
 export default async function Page() {
   const currentGameInfo = await gameInfoService.getCurrentGameInfo();
 
-  return currentGameInfo != null ? (
+  console.log('currentGameInfo', currentGameInfo);
+
+  if (currentGameInfo == null) {
+    redirect('/no-game-in-progress');
+  }
+
+  return (
     <CurrentGameClient
       serverRedScore={currentGameInfo.teamInfo.Red.score}
       serverBlueScore={currentGameInfo.teamInfo.Blue.score}
@@ -15,7 +21,5 @@ export default async function Page() {
       serverBlueRotatyStrategy={currentGameInfo.teamInfo.Blue.rotatyStrategy}
       serverPlayers={currentGameInfo.players}
     />
-  ) : (
-    <NoGameInProgress />
   );
 }
