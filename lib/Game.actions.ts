@@ -4,7 +4,6 @@ import { $Enums, RotatyStrategy, Team } from '@prisma/client';
 import { GameLogicService, IsGameEnd } from '../app/services/gameLogicService';
 import { PlayerPointPositionService } from '../app/services/playerPointPositionService';
 import { PlayerInfo } from '../app/view/PlayerInfo';
-import { StatsEngineFwoar } from '../app/services/statsEngine';
 import { revalidatePath } from 'next/cache';
 import { supabaseClient } from '../app/utils/supabase';
 import { GameInfoService } from '../app/services/gameInfoService';
@@ -32,14 +31,6 @@ export const recordGoalScored = async (
   } else {
     await registerUpdatedGameState();
   }
-};
-
-export const getNumberOfGoalsScoredByPlayerInCurrentGame = async (
-  playerId: number,
-) => {
-  return await new StatsEngineFwoar().getNumberOfGoalsScoredByPlayerInCurrentGame(
-    playerId,
-  );
 };
 
 export const removePlayerFromCurrentGame = async (playerId: number) => {

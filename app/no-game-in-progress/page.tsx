@@ -6,11 +6,9 @@ import { GameInfoService } from '../services/gameInfoService';
 const gameInfoService = new GameInfoService();
 
 export default async function Page() {
-  const currentGameInfo = await gameInfoService.getCurrentGameInfo();
+  const gameInProgress = await gameInfoService.isGameInProgress();
 
-  console.log('currentGameInfo', currentGameInfo);
-
-  if (currentGameInfo != null) {
+  if (gameInProgress) {
     redirect('/current-game');
   }
 

@@ -144,6 +144,8 @@ export const CurrentGameClient: FC<{
         name: playerName,
         team,
         position: Math.max(...state.map((player) => player.position)) + 1,
+        goalsScored: 0,
+        ownGoalsScored: 0,
       },
     ]);
     const action = async () => {
