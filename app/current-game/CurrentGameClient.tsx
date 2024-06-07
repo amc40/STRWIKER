@@ -16,10 +16,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
 import { PlayerInfo } from '../view/PlayerInfo';
-import { fetchCurrentGameInfo } from '../network/fetchCurrentGameInfo';
 import { supabaseClient } from '../utils/supabase';
-
-const MS_BETWEEN_REFRESHES = 1000;
+import { GameInfo } from '../view/CurrentGameInfo';
 
 const MOBILE_SCREEN_BREAK_POINT = 768;
 
@@ -103,40 +101,18 @@ export const CurrentGameClient: FC<{
 
   useEffect(() => {
     const taskListener = supabaseClient
-      .channel('test')
-      .on('broadcast', { event: 'test' }, (payload) => {
-        console.log('Change received!', payload);
+      .channel('current-game')
+      .on('broadcast', { event: 'game-state' }, ({ payload }) => {
+        const currentGameInfo = payload as GameInfo;
+        setPlayers(currentGameInfo.players);
+        setRedScore(currentGameInfo.teamInfo.Red.score);
+        setBlueScore(currentGameInfo.teamInfo.Blue.score);
+        setRedRotatyStrategy(currentGameInfo.teamInfo.Red.rotatyStrategy);
+        setBlueRotatyStrategy(currentGameInfo.teamInfo.Blue.rotatyStrategy);
       })
       .subscribe();
 
-    // add return right here!
     return () => void taskListener.unsubscribe();
-  }, []);
-
-  // on initial render setup a function to refresh the current game info every MS_BETWEEN_REFRESHES
-  useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      const updateCurrentGameInfo = async () => {
-        const currentGameInfo = await fetchCurrentGameInfo();
-        if (currentGameInfo != null) {
-          if (awaitingPlayersResponseRef.current) return;
-          setPlayers(currentGameInfo.players);
-          setRedScore(currentGameInfo.teamInfo.Red.score);
-          setBlueScore(currentGameInfo.teamInfo.Blue.score);
-          setRedRotatyStrategy(currentGameInfo.teamInfo.Red.rotatyStrategy);
-          setBlueRotatyStrategy(currentGameInfo.teamInfo.Blue.rotatyStrategy);
-        } else {
-          setGameInProgress(false);
-        }
-      };
-      updateCurrentGameInfo().catch((e) => {
-        console.error('Error updating current game info:', e);
-      });
-    }, MS_BETWEEN_REFRESHES);
-    return () => {
-      clearInterval(refreshInterval);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addPlayer = (
