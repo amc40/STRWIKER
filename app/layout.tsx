@@ -15,11 +15,11 @@ export const metadata = {
 const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen grid grid-cols-1 grid-rows-layout">
         <Suspense>
           <Nav />
         </Suspense>
-        {children}
+        <div>{children}</div>
         <Analytics />
         <Script type="module" src="vanilla-tilt.js" strategy="lazyOnload" />
       </body>
