@@ -34,6 +34,7 @@ export class GameInfoService {
 
     const currentPointPlayers = currentPointAndPlayers.playerPoints;
     return {
+      gameId: currentGame.id,
       players: currentPointPlayers.map((playerPointWithPlayer) => {
         const goalsScored = this.getGoalsScoredForPlayerIdFromAllPlayerPoints(
           playerPointWithPlayer.playerId,

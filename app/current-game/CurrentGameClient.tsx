@@ -68,12 +68,14 @@ const updatePlayerOrderAfterReorder = (
 };
 
 export const CurrentGameClient: FC<{
+  serverGameId: number;
   serverRedScore: number;
   serverBlueScore: number;
   serverBlueRotatyStrategy: RotatyStrategy;
   serverRedRotatyStrategy: RotatyStrategy;
   serverPlayers: PlayerInfo[];
 }> = ({
+  serverGameId,
   serverRedScore,
   serverBlueScore,
   serverRedRotatyStrategy,
@@ -104,7 +106,7 @@ export const CurrentGameClient: FC<{
     const gameEndListener = supabaseClient
       .channel('current-game-end')
       .on('broadcast', { event: 'game-end' }, () => {
-        router.replace('/no-game-in-progress');
+        router.replace(`/game/${serverGameId}/stats`);
       })
       .subscribe();
 
@@ -124,7 +126,7 @@ export const CurrentGameClient: FC<{
       void gameStateListener.unsubscribe();
       void gameEndListener.unsubscribe();
     };
-  }, [router]);
+  }, [router, serverGameId]);
 
   useEffect(() => {
     awaitingPlayersResponseRef.current = awaitingPlayersResponse;
