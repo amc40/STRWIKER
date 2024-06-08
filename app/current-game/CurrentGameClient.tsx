@@ -240,7 +240,7 @@ export const CurrentGameClient: FC<{
   };
 
   return (
-    <main className="flex flex-1 flex-col">
+    <main className="h-full">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
         <SettingsButton
           onClick={() => {
