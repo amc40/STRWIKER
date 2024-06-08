@@ -18,6 +18,9 @@ export default {
         primary: '#4CAF50',
         secondary: '#F9DC5C',
       },
+      gridTemplateRows: {
+        layout: '4rem 1fr',
+      },
     },
     safelist: [
       {
