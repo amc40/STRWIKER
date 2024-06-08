@@ -4,6 +4,8 @@ import { CurrentGameClient } from './CurrentGameClient';
 
 const gameInfoService = new GameInfoService();
 
+export const revalidate = 10;
+
 export default async function Page() {
   const currentGameInfo = await gameInfoService.getCurrentGameInfo();
 
