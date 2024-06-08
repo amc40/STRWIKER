@@ -1,4 +1,4 @@
-import { Game, Player, PlayerPoint, Point, Team } from '@prisma/client';
+import { Game, Player, PlayerPoint, Point, Prisma, Team } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   decrementPlayerPointPositionsInPointAfter,
@@ -64,6 +64,7 @@ export class GameLogicService {
       },
       {
         timeout: 10000,
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
       },
     );
   }
