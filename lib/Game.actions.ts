@@ -4,7 +4,6 @@ import { $Enums, RotatyStrategy, Team } from '@prisma/client';
 import { GameLogicService, IsGameEnd } from '../app/services/gameLogicService';
 import { PlayerPointPositionService } from '../app/services/playerPointPositionService';
 import { PlayerInfo } from '../app/view/PlayerInfo';
-import { revalidatePath } from 'next/cache';
 import { supabaseClient } from '../app/utils/supabase';
 import { GameInfoService } from '../app/services/gameInfoService';
 
@@ -68,7 +67,6 @@ export const updateRotatyStrategyAction = async (
 };
 
 const registerUpdatedGameState = async () => {
-  revalidatePath('/current-game', 'page');
   const channel = supabaseClient.channel('current-game-state');
   const currentGame = await gameInfoService.getCurrentGameInfo();
   await channel.send({
@@ -81,8 +79,6 @@ const registerUpdatedGameState = async () => {
 };
 
 const registerGameStart = async () => {
-  revalidatePath('/current-game', 'page');
-  revalidatePath('/no-game-in-progress', 'page');
   const channel = supabaseClient.channel('current-game-start');
   await channel.send({
     type: 'broadcast',
@@ -94,8 +90,6 @@ const registerGameStart = async () => {
 };
 
 const registerGameEnd = async () => {
-  revalidatePath('/current-game', 'page');
-  revalidatePath('/no-game-in-progress', 'page');
   const channel = supabaseClient.channel('current-game-end');
   await channel.send({
     type: 'broadcast',
