@@ -8,7 +8,7 @@ export const RedirectToCurrentGameWhenGameStarts: React.FC = () => {
 
   useEffect(() => {
     const taskListener = supabaseClient
-      .channel('current-game')
+      .channel('current-game-start')
       .on('broadcast', { event: 'game-start' }, () => {
         router.replace('/current-game');
       })

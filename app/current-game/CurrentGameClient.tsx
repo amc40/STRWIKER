@@ -98,9 +98,18 @@ export const CurrentGameClient: FC<{
     awaitingPlayersResponseRef.current = awaitingPlayersResponse;
   }, [awaitingPlayersResponse]);
 
+  const router = useRouter();
+
   useEffect(() => {
-    const taskListener = supabaseClient
-      .channel('current-game')
+    const gameEndListener = supabaseClient
+      .channel('current-game-end')
+      .on('broadcast', { event: 'game-end' }, () => {
+        router.replace('/no-game-in-progress');
+      })
+      .subscribe();
+
+    const gameStateListener = supabaseClient
+      .channel('current-game-state')
       .on('broadcast', { event: 'game-state' }, ({ payload }) => {
         const currentGameInfo = payload as GameInfo;
         setPlayers(currentGameInfo.players);
@@ -111,25 +120,15 @@ export const CurrentGameClient: FC<{
       })
       .subscribe();
 
-    return () => void taskListener.unsubscribe();
-  }, []);
+    return () => {
+      void gameStateListener.unsubscribe();
+      void gameEndListener.unsubscribe();
+    };
+  }, [router]);
 
   useEffect(() => {
     awaitingPlayersResponseRef.current = awaitingPlayersResponse;
   }, [awaitingPlayersResponse]);
-
-  const router = useRouter();
-
-  useEffect(() => {
-    const taskListener = supabaseClient
-      .channel('current-game')
-      .on('broadcast', { event: 'game-end' }, () => {
-        router.replace('/no-game-in-progress');
-      })
-      .subscribe();
-
-    return () => void taskListener.unsubscribe();
-  }, [router]);
 
   const addPlayer = (
     playerId: number,

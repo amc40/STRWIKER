@@ -6,7 +6,6 @@ import { PrimaryButton } from './PrimaryButton';
 export const StartGameButton: React.FC = () => {
   const onClick = async () => {
     await startGame();
-    window.location.reload();
   };
 
   return (

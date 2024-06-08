@@ -69,7 +69,7 @@ export const updateRotatyStrategyAction = async (
 
 const registerUpdatedGameState = async () => {
   revalidatePath('/current-game', 'page');
-  const channel = supabaseClient.channel('current-game');
+  const channel = supabaseClient.channel('current-game-state');
   const currentGame = await gameInfoService.getCurrentGameInfo();
   await channel.send({
     type: 'broadcast',
@@ -83,10 +83,11 @@ const registerUpdatedGameState = async () => {
 const registerGameStart = async () => {
   revalidatePath('/current-game', 'page');
   revalidatePath('/no-game-in-progress', 'page');
-  const channel = supabaseClient.channel('current-game');
+  const channel = supabaseClient.channel('current-game-start');
   await channel.send({
     type: 'broadcast',
     event: 'game-start',
+    payload: {},
   });
 
   await supabaseClient.removeChannel(channel);
@@ -95,10 +96,11 @@ const registerGameStart = async () => {
 const registerGameEnd = async () => {
   revalidatePath('/current-game', 'page');
   revalidatePath('/no-game-in-progress', 'page');
-  const channel = supabaseClient.channel('current-game');
+  const channel = supabaseClient.channel('current-game-end');
   await channel.send({
     type: 'broadcast',
     event: 'game-end',
+    payload: {},
   });
 
   await supabaseClient.removeChannel(channel);
