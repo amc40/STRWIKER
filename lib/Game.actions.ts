@@ -9,6 +9,16 @@ import { GameInfoService } from '../app/services/gameInfoService';
 
 const gameInfoService = new GameInfoService();
 
+export const startGame = async () => {
+  await new GameLogicService().startGame();
+  await registerGameStart();
+};
+
+export const abandonCurrentGame = async () => {
+  await new GameLogicService().abandonCurrentGame();
+  await registerGameEnd();
+};
+
 export const addPlayerToCurrentGame = async (
   playerId: number,
   team: $Enums.Team,
@@ -35,16 +45,6 @@ export const recordGoalScored = async (
 export const removePlayerFromCurrentGame = async (playerId: number) => {
   await new GameLogicService().removePlayerFromCurrentPoint(playerId);
   await registerUpdatedGameState();
-};
-
-export const abandonCurrentGame = async () => {
-  await new GameLogicService().abandonCurrentGame();
-  await registerGameEnd();
-};
-
-export const startGame = async () => {
-  await new GameLogicService().startGame();
-  await registerGameStart();
 };
 
 export const reorderPlayer = async (playerId: number, newPosition: number) => {
