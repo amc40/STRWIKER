@@ -5,7 +5,7 @@ import { GameInfoService } from '../services/gameInfoService';
 
 const gameInfoService = new GameInfoService();
 
-export const revalidate = 10;
+export const dynamic = 'force-dynamic';
 
 export default async function Page() {
   const gameInProgress = await gameInfoService.isGameInProgress();
