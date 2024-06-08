@@ -31,10 +31,27 @@ export class GameLogicService {
   async startGame() {
     await prisma.$transaction(
       async () => {
+        const existingGameInProgressPromise = prisma.game.findFirst({
+          where: {
+            completed: false,
+            abandoned: false,
+          },
+        });
+
         // TODO: set rotaty dependant on number of players
-        const game = await prisma.game.create({
+        const gamePromise = prisma.game.create({
           data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' },
         });
+
+        const [existingGameInProgress, game] = await Promise.all([
+          existingGameInProgressPromise,
+          gamePromise,
+        ]);
+
+        if (existingGameInProgress != null) {
+          throw new Error('Cannot create game as one is already in progress');
+        }
+
         const initialPoint = await this.createPoint(0, 0, game);
         await prisma.game.update({
           where: {
