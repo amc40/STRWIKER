@@ -1,14 +1,14 @@
 import React from 'react';
-import { NumberOfGoalsScoredTable } from '../../components/game/NumberOfGoalsScoredTable';
+import { NumberOfGoalsScoredTable } from '../../../components/game/NumberOfGoalsScoredTable';
 import { notFound } from 'next/navigation';
-import { doesGameIdExist } from '../../repository/gameRepository';
-import { StatsSwiper } from '../../components/stats-swiper/StatsSwiper';
-import { StatsEngineFwoar } from '../../services/statsEngine';
-import { NumberOfOwnGoalsTable } from '../../components/game/NumberOfOwnGoalsTable';
-import { PlayerRankingTable } from '../../components/game/PlayerRankingTable';
-import { getPlayersOrderedByDescendingElos } from '../../repository/playerRepository';
-import { LongestPointsTable } from '../../components/game/LongestPointsTable';
-import { GameLogicService } from '../../services/gameLogicService';
+import { doesGameIdExist } from '../../../repository/gameRepository';
+import { StatsSwiper } from '../../../components/stats-swiper/StatsSwiper';
+import { StatsEngineFwoar } from '../../../services/statsEngine';
+import { NumberOfOwnGoalsTable } from '../../../components/game/NumberOfOwnGoalsTable';
+import { PlayerRankingTable } from '../../../components/game/PlayerRankingTable';
+import { getPlayersOrderedByDescendingElos } from '../../../repository/playerRepository';
+import { LongestPointsTable } from '../../../components/game/LongestPointsTable';
+import { GameLogicService } from '../../../services/gameLogicService';
 
 interface GameServerParams {
   gameId: string;
