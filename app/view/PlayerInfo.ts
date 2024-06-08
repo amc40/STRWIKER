@@ -1,4 +1,5 @@
 import { Player, PlayerPoint, Team } from '@prisma/client';
+import { GoalsScored } from '../services/statsEngine';
 
 interface PlayerPointWithPlayer extends PlayerPoint {
   player: Player;
@@ -9,16 +10,18 @@ export interface PlayerInfo {
   name: string;
   team: Team;
   position: number;
+  goalsScored: number;
+  ownGoalsScored: number;
 }
 
-export const playerPointWithPlayerToPlayerInfo = ({
-  playerId,
-  team,
-  position,
-  player,
-}: PlayerPointWithPlayer): PlayerInfo => ({
+export const playerPointWithPlayerAndGoalsScoredToPlayerInfo = (
+  { playerId, team, position, player }: PlayerPointWithPlayer,
+  { goalsScored, ownGoalsScored }: GoalsScored,
+): PlayerInfo => ({
   id: playerId,
   name: player.name,
   team: team,
   position,
+  goalsScored,
+  ownGoalsScored,
 });

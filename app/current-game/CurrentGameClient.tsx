@@ -10,15 +10,14 @@ import {
 } from '../../lib/Game.actions';
 import SettingsButton from '../components/SettingsButton';
 import { SettingsModal } from '../components/settings-modal/SettingsModal';
-import { NoGameInProgress } from './NoGameInProgress';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
 import { PlayerInfo } from '../view/PlayerInfo';
-import { fetchCurrentGameInfo } from '../network/fetchCurrentGameInfo';
-
-const MS_BETWEEN_REFRESHES = 1000;
+import { supabaseClient } from '../utils/supabase';
+import { GameInfo } from '../view/CurrentGameInfo';
+import { useRouter } from 'next/navigation';
 
 const MOBILE_SCREEN_BREAK_POINT = 768;
 
@@ -81,7 +80,6 @@ export const CurrentGameClient: FC<{
   serverBlueRotatyStrategy,
   serverPlayers,
 }) => {
-  const [gameInProgress, setGameInProgress] = useState(true);
   const [players, setPlayers] = useState(serverPlayers);
   const [redScore, setRedScore] = useState(serverRedScore);
   const [blueScore, setBlueScore] = useState(serverBlueScore);
@@ -100,31 +98,37 @@ export const CurrentGameClient: FC<{
     awaitingPlayersResponseRef.current = awaitingPlayersResponse;
   }, [awaitingPlayersResponse]);
 
-  // on initial render setup a function to refresh the current game info every MS_BETWEEN_REFRESHES
+  const router = useRouter();
+
   useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      const updateCurrentGameInfo = async () => {
-        const currentGameInfo = await fetchCurrentGameInfo();
-        if (currentGameInfo != null) {
-          if (awaitingPlayersResponseRef.current) return;
-          setPlayers(currentGameInfo.players);
-          setRedScore(currentGameInfo.teamInfo.Red.score);
-          setBlueScore(currentGameInfo.teamInfo.Blue.score);
-          setRedRotatyStrategy(currentGameInfo.teamInfo.Red.rotatyStrategy);
-          setBlueRotatyStrategy(currentGameInfo.teamInfo.Blue.rotatyStrategy);
-        } else {
-          setGameInProgress(false);
-        }
-      };
-      updateCurrentGameInfo().catch((e) => {
-        console.error('Error updating current game info:', e);
-      });
-    }, MS_BETWEEN_REFRESHES);
+    const gameEndListener = supabaseClient
+      .channel('current-game-end')
+      .on('broadcast', { event: 'game-end' }, () => {
+        router.replace('/no-game-in-progress');
+      })
+      .subscribe();
+
+    const gameStateListener = supabaseClient
+      .channel('current-game-state')
+      .on('broadcast', { event: 'game-state' }, ({ payload }) => {
+        const currentGameInfo = payload as GameInfo;
+        setPlayers(currentGameInfo.players);
+        setRedScore(currentGameInfo.teamInfo.Red.score);
+        setBlueScore(currentGameInfo.teamInfo.Blue.score);
+        setRedRotatyStrategy(currentGameInfo.teamInfo.Red.rotatyStrategy);
+        setBlueRotatyStrategy(currentGameInfo.teamInfo.Blue.rotatyStrategy);
+      })
+      .subscribe();
+
     return () => {
-      clearInterval(refreshInterval);
+      void gameStateListener.unsubscribe();
+      void gameEndListener.unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
+
+  useEffect(() => {
+    awaitingPlayersResponseRef.current = awaitingPlayersResponse;
+  }, [awaitingPlayersResponse]);
 
   const addPlayer = (
     playerId: number,
@@ -139,6 +143,8 @@ export const CurrentGameClient: FC<{
         name: playerName,
         team,
         position: Math.max(...state.map((player) => player.position)) + 1,
+        goalsScored: 0,
+        ownGoalsScored: 0,
       },
     ]);
     const action = async () => {
@@ -231,7 +237,7 @@ export const CurrentGameClient: FC<{
     }
   };
 
-  return gameInProgress ? (
+  return (
     <main className="flex flex-1 flex-col">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
         <SettingsButton
@@ -337,7 +343,5 @@ export const CurrentGameClient: FC<{
         )}
       </div>
     </main>
-  ) : (
-    <NoGameInProgress />
   );
 };

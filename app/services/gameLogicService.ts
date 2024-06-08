@@ -17,6 +17,11 @@ import {
 } from '../repository/pointRepository';
 import { StatsEngineFwoar } from './statsEngine';
 
+export enum IsGameEnd {
+  GAME_CONTINUES,
+  GAME_ENDS,
+}
+
 export class GameLogicService {
   NUMBER_OF_POINTS_TO_WIN = 10;
 
@@ -24,21 +29,26 @@ export class GameLogicService {
   statsEngine = new StatsEngineFwoar();
 
   async startGame() {
-    await prisma.$transaction(async () => {
-      // TODO: set rotaty dependant on number of players
-      const game = await prisma.game.create({
-        data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' },
-      });
-      const initialPoint = await this.createPoint(0, 0, game);
-      await prisma.game.update({
-        where: {
-          id: game.id,
-        },
-        data: {
-          currentPointId: initialPoint.id,
-        },
-      });
-    });
+    await prisma.$transaction(
+      async () => {
+        // TODO: set rotaty dependant on number of players
+        const game = await prisma.game.create({
+          data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' },
+        });
+        const initialPoint = await this.createPoint(0, 0, game);
+        await prisma.game.update({
+          where: {
+            id: game.id,
+          },
+          data: {
+            currentPointId: initialPoint.id,
+          },
+        });
+      },
+      {
+        timeout: 10000,
+      },
+    );
   }
 
   private async createPoint(
@@ -96,7 +106,10 @@ export class GameLogicService {
     });
   }
 
-  async scoreGoalInCurrentGame(playerId: number, ownGoal: boolean) {
+  async scoreGoalInCurrentGame(
+    playerId: number,
+    ownGoal: boolean,
+  ): Promise<IsGameEnd> {
     const gameLogicService = new GameLogicService();
 
     const currentGame = await getCurrentGameOrThrow();
@@ -108,7 +121,7 @@ export class GameLogicService {
       currentPoint.id,
     );
 
-    await gameLogicService.scoreGoal(
+    return await gameLogicService.scoreGoal(
       playerPoint,
       ownGoal,
       currentPoint,
@@ -121,8 +134,8 @@ export class GameLogicService {
     ownGoal: boolean,
     finishedPoint: Point,
     game: Game,
-  ) {
-    await prisma.$transaction(async () => {
+  ): Promise<IsGameEnd> {
+    return await prisma.$transaction(async () => {
       const updatePlayerScored = prisma.playerPoint.update({
         where: {
           id: scorerPlayerPoint.id,
@@ -156,8 +169,10 @@ export class GameLogicService {
       const newRedScore =
         finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0);
 
+      let isGameEnd: IsGameEnd;
       if (this.isGameOver(newBlueScore, newRedScore)) {
         await this.endGame(game, newBlueScore, newRedScore);
+        isGameEnd = IsGameEnd.GAME_ENDS;
       } else {
         await this.setupNextPoint(
           finishedPoint,
@@ -166,6 +181,7 @@ export class GameLogicService {
           newBlueScore,
           newRedScore,
         );
+        isGameEnd = IsGameEnd.GAME_CONTINUES;
       }
 
       await Promise.all([
@@ -173,6 +189,7 @@ export class GameLogicService {
         updatePointEndTime,
         updatePlayerElos,
       ]);
+      return isGameEnd;
     });
   }
 

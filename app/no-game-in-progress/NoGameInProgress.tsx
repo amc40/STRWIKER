@@ -1,6 +1,5 @@
 import React from 'react';
 import { StartGameButton } from '../components/StartGameButton';
-import { RefreshWhenGameStarts } from '../components/RefreshWhenGameStarts';
 
 export const NoGameInProgress: React.FC = () => {
   return (
@@ -11,8 +10,6 @@ export const NoGameInProgress: React.FC = () => {
         </h1>
         <StartGameButton />
       </div>
-      {/* This must be its own component as it must be a client component */}
-      <RefreshWhenGameStarts />
     </main>
   );
 };

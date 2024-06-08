@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  getNumberOfGoalsScoredByPlayerInCurrentGame,
-  recordGoalScored,
-} from '../../../lib/Game.actions';
+import { recordGoalScored } from '../../../lib/Game.actions';
 import { CircleRemove } from './CircleRemove';
 import { PlayerCardStat } from './PlayerCardStat';
 import { PlayerCardGoalButton } from './PlayerCardGoalButton';
@@ -14,35 +11,25 @@ interface PlayerCardProps {
 }
 
 const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
-  const { name: playerName, id: playerId } = player;
+  const {
+    name: playerName,
+    goalsScored: goalsScoredProp,
+    ownGoalsScored: ownGoalsScoredProp,
+  } = player;
 
-  const [goals, setGoals] = useState<number | null>(null);
-  const [ownGoals, setOwnGoals] = useState<number | null>(null);
+  const [goals, setGoals] = useState<number>(goalsScoredProp);
+  const [ownGoals, setOwnGoals] = useState<number>(ownGoalsScoredProp);
+
+  useEffect(() => {
+    setGoals(goalsScoredProp);
+  }, [goalsScoredProp]);
+
+  useEffect(() => {
+    setOwnGoals(ownGoalsScoredProp);
+  }, [ownGoalsScoredProp]);
 
   const [recordingGoal, setRecordingGoal] = useState(false);
   const [recordingOwnGoal, setRecordingOwnGoal] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const fetchNumberOfGoalsScored = async () => {
-        const numberOfGoalsScoredByPlayer =
-          await getNumberOfGoalsScoredByPlayerInCurrentGame(playerId);
-        if (numberOfGoalsScoredByPlayer != null) {
-          setGoals(numberOfGoalsScoredByPlayer.goalScored);
-          setOwnGoals(numberOfGoalsScoredByPlayer.ownGoalsScored);
-        }
-      };
-      fetchNumberOfGoalsScored().catch((e) => {
-        console.error(
-          `Error fetching number of goals scored by player id ${playerId}:`,
-          e,
-        );
-      });
-    }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [playerId]);
 
   const handleGoalClick = () => {
     setRecordingGoal(true);
@@ -77,8 +64,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
       </span>
       <h3 className="my-1 text-lg font-bold">{playerName}</h3>
 
-      <PlayerCardStat text={`Goals: ${goals ?? '-'}`} />
-      <PlayerCardStat text={`Own Goals: ${ownGoals ?? '-'}`} />
+      <PlayerCardStat text={`Goals: ${goals}`} />
+      <PlayerCardStat text={`Own Goals: ${ownGoals}`} />
       <div className="flex place-content-around">
         <PlayerCardGoalButton
           text="Goal"

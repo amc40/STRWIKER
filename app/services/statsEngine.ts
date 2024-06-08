@@ -1,7 +1,6 @@
 import { Player, PlayerPoint } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
-  getAllPlayerPointsForPlayerInCurrentGame,
   getCountOfGoalsScoredByEachPlayerInGame as getCountOfGoalsScoredByEachPlayerIdInGame,
   getCountOfOwnGoalsScoredByEachPlayerInGame as getCountOfOwnGoalsScoredByEachPlayerIdInGame,
 } from '../repository/playerPointRepository';
@@ -14,6 +13,11 @@ interface PlayerPointStats {
   scoredGoal: boolean;
   ownGoal: boolean;
   rattled: boolean;
+}
+
+export interface GoalsScored {
+  goalsScored: number;
+  ownGoalsScored: number;
 }
 
 export type WithRanking<T> = T & { ranking: number };
@@ -106,12 +110,9 @@ export class StatsEngineFwoar {
     return this.playerService.joinWithPlayers(ownGoalsByEachPlayerId);
   }
 
-  async getNumberOfGoalsScoredByPlayerInCurrentGame(playerId: number) {
-    const playerPointsForPlayer =
-      await getAllPlayerPointsForPlayerInCurrentGame(playerId);
-
-    if (playerPointsForPlayer == null) return null;
-
+  getNumberOfGoalsScoredInPlayerPoints(
+    playerPointsForPlayer: PlayerPoint[],
+  ): GoalsScored {
     const intensionalGoals = this.getTotalIntentionalGoals(
       playerPointsForPlayer,
     );
@@ -119,7 +120,7 @@ export class StatsEngineFwoar {
     const ownGoals = this.getTotalOwnGoals(playerPointsForPlayer);
 
     return {
-      goalScored: intensionalGoals,
+      goalsScored: intensionalGoals,
       ownGoalsScored: ownGoals,
     };
   }
