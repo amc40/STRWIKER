@@ -7,18 +7,6 @@
   "[terraform]": {
     "editor.defaultFormatter": "hashicorp.terraform"
   },
-  "sqltools.connections": [
-    {
-      "previewLimit": 50,
-      "server": "localhost",
-      "port": 5432,
-      "driver": "PostgreSQL",
-      "name": "local",
-      "database": "strwiker",
-      "username": "dev_username",
-      "password": "dev_password"
-    }
-  ],
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },

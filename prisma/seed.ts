@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function populatePlayers() {
-  [
+  const playerNames = [
     'Alan',
     'Ted',
     'Joey',
@@ -13,14 +13,12 @@ async function populatePlayers() {
     'John',
     'Mike',
     'Henry',
-  ].map(
-    async (name) =>
-      await prisma.player.create({
-        data: {
-          name,
-        },
-      }),
-  );
+  ];
+  await prisma.player.createMany({
+    data: playerNames.map((playerName) => ({
+      name: playerName,
+    })),
+  });
 }
 
 async function populateGames() {
