@@ -42,6 +42,8 @@ jobs:
   run-terraform-linter:
     name: Run terraform linter
     runs-on: ubuntu-latest
+    # TODO: re-enable. there was an issue with the image used by this step
+    if: ${{ false }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
