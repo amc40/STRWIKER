@@ -1,10 +1,9 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
-    NEXTAUTH_URL: string;
-    NEXTAUTH_SECRET: string;
-    AZURE_AD_CLIENT_SECRET: string;
-    AZURE_AD_CLIENT_ID: string;
-    AZURE_AD_TENANT_ID: string;
-    DATABASE_URL: string;
+    POSTGRES_PRISMA_URL: string?;
+    POSTGRES_URL_NON_POOLING: string?;
+
+    NEXT_PUBLIC_SUPABASE_URL: string?;
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: string?;
   }
 }

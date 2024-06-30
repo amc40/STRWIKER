@@ -20,7 +20,7 @@ jobs:
       - name: Push DB Schema changes with prisma
         run: npx prisma db push
         env:
-          DATABASE_URL: ${{secrets.DATABASE_URL}}
-          DIRECT_URL: ${{secrets.DIRECT_URL}}
+          POSTGRES_PRISMA_URL: ${{secrets.DATABASE_URL}}
+          POSTGRES_URL_NON_POOLING: ${{secrets.DIRECT_URL}}
 
         
