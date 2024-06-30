@@ -9,13 +9,17 @@ import {
   getPlayerPointByPlayerAndPointOrThrow,
 } from '../repository/playerPointRepository';
 import { PlayerPointPositionService } from './playerPointPositionService';
-import { getCurrentGameOrThrow } from '../repository/gameRepository';
+import {
+  getCurrentGameOrThrow,
+  markGameAsCompleted,
+} from '../repository/gameRepository';
 import {
   getPointAndPlayersFromPointIdOrThrow,
   getCurrentPointFromGameOrThrow,
   getCurrentPointOrThrow,
 } from '../repository/pointRepository';
 import { StatsEngineFwoar } from './statsEngine';
+import { getPlayersWhoParticipatedInGame } from '../repository/playerRepository';
 
 export enum IsGameEnd {
   GAME_CONTINUES,
@@ -148,62 +152,72 @@ export class GameLogicService {
     finishedPoint: Point,
     game: Game,
   ): Promise<IsGameEnd> {
-    return await prisma.$transaction(async () => {
-      const updatePlayerScored = prisma.playerPoint.update({
-        where: {
-          id: scorerPlayerPoint.id,
-        },
-        data: {
-          scoredGoal: !ownGoal,
-          ownGoal: ownGoal,
-        },
-      });
+    return await prisma.$transaction(
+      async () => {
+        const updatePlayerScored = prisma.playerPoint.update({
+          where: {
+            id: scorerPlayerPoint.id,
+          },
+          data: {
+            scoredGoal: !ownGoal,
+            ownGoal: ownGoal,
+          },
+        });
 
-      const updatePointEndTime = prisma.point.update({
-        where: {
-          id: finishedPoint.id,
-        },
-        data: {
-          endTime: new Date(),
-        },
-      });
+        const updatePointEndTime = prisma.point.update({
+          where: {
+            id: finishedPoint.id,
+          },
+          data: {
+            endTime: new Date(),
+          },
+        });
 
-      const scoringTeam = ownGoal
-        ? this.opposingTeam(scorerPlayerPoint.team)
-        : scorerPlayerPoint.team;
+        const scoringTeam = ownGoal
+          ? this.opposingTeam(scorerPlayerPoint.team)
+          : scorerPlayerPoint.team;
 
-      const updatePlayerElos = this.updateElosForPlayersInPoint(
-        scoringTeam,
-        finishedPoint,
-      );
-
-      const newBlueScore =
-        finishedPoint.currentBlueScore + (scoringTeam === Team.Blue ? 1 : 0);
-      const newRedScore =
-        finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0);
-
-      let isGameEnd: IsGameEnd;
-      if (this.isGameOver(newBlueScore, newRedScore)) {
-        await this.endGame(game, newBlueScore, newRedScore);
-        isGameEnd = IsGameEnd.GAME_ENDS;
-      } else {
-        await this.setupNextPoint(
-          finishedPoint,
+        const updatePlayerElos = this.updateElosForPlayersInPoint(
           scoringTeam,
-          game,
-          newBlueScore,
-          newRedScore,
+          finishedPoint,
         );
-        isGameEnd = IsGameEnd.GAME_CONTINUES;
-      }
 
-      await Promise.all([
-        updatePlayerScored,
-        updatePointEndTime,
-        updatePlayerElos,
-      ]);
-      return isGameEnd;
-    });
+        const newBlueScore =
+          finishedPoint.currentBlueScore + (scoringTeam === Team.Blue ? 1 : 0);
+        const newRedScore =
+          finishedPoint.currentRedScore + (scoringTeam === Team.Red ? 1 : 0);
+
+        let isGameEnd: IsGameEnd;
+        if (this.isGameOver(newBlueScore, newRedScore)) {
+          // we need to read the updated player elos when updating the game stats
+          await Promise.all([updatePlayerElos]);
+          await this.endGame(game, newBlueScore, newRedScore);
+          isGameEnd = IsGameEnd.GAME_ENDS;
+        } else {
+          await this.setupNextPoint(
+            finishedPoint,
+            scoringTeam,
+            game,
+            newBlueScore,
+            newRedScore,
+          );
+          isGameEnd = IsGameEnd.GAME_CONTINUES;
+        }
+
+        await Promise.all([
+          updatePlayerScored,
+          updatePointEndTime,
+          updatePlayerElos,
+        ]);
+        return isGameEnd;
+      },
+      {
+        // Although this is the default behaviour, I've made it explicit here as
+        // ReadUncommitted would cause errors in saving the historical transaction stats
+        // (as we write the update player elos and then go on to read them in order to populate the update player stats)
+        isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+      },
+    );
   }
 
   private isGameOver(newBlueScore: number, newRedScore: number) {
@@ -272,16 +286,28 @@ export class GameLogicService {
   }
 
   async endGame(game: Game, finalScoreBlue: number, finalScoreRed: number) {
-    await prisma.game.update({
-      where: {
-        id: game.id,
-      },
-      data: {
-        completed: true,
-        finalScoreBlue,
-        finalScoreRed,
-      },
-    });
+    const markGameAsCompletedPromise = markGameAsCompleted(
+      game,
+      finalScoreBlue,
+      finalScoreRed,
+    );
+
+    // we could potentially do this without blocking the response using waitUntil() if we run into performance issues with endGame()
+    const updateplayerStatsAtGameEndPromise =
+      this.updatePlayerStatsAtGameEnd(game);
+
+    await Promise.all([
+      markGameAsCompletedPromise,
+      updateplayerStatsAtGameEndPromise,
+    ]);
+  }
+
+  private async updatePlayerStatsAtGameEnd(game: Game) {
+    const allParticipantsInGame = await getPlayersWhoParticipatedInGame(game);
+    await this.statsEngine.updatePlayerStatsAtEndOfGame(
+      allParticipantsInGame,
+      game,
+    );
   }
 
   async abandonCurrentGame() {

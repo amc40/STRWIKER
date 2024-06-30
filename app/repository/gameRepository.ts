@@ -58,3 +58,20 @@ export const getAllNotInProgressGameIds = async () => {
   });
   return wrappedGameIds.map(({ id }) => id);
 };
+
+export const markGameAsCompleted = async (
+  game: Game,
+  finalScoreBlue: number,
+  finalScoreRed: number,
+) => {
+  await prisma.game.update({
+    where: {
+      id: game.id,
+    },
+    data: {
+      completed: true,
+      finalScoreBlue,
+      finalScoreRed,
+    },
+  });
+};
