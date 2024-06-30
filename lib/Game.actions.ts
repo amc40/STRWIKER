@@ -4,7 +4,7 @@ import { $Enums, RotatyStrategy, Team } from '@prisma/client';
 import { GameLogicService, IsGameEnd } from '../app/services/gameLogicService';
 import { PlayerPointPositionService } from '../app/services/playerPointPositionService';
 import { PlayerInfo } from '../app/view/PlayerInfo';
-import { supabaseClient } from '../app/utils/supabase';
+import { createServerSupabase } from '../app/utils/supabase/server';
 import { GameInfoService } from '../app/services/gameInfoService';
 
 const gameInfoService = new GameInfoService();
@@ -67,7 +67,8 @@ export const updateRotatyStrategyAction = async (
 };
 
 const registerUpdatedGameState = async () => {
-  const channel = supabaseClient.channel('current-game-state');
+  const supabase = createServerSupabase();
+  const channel = supabase.channel('current-game-state');
   const currentGame = await gameInfoService.getCurrentGameInfo();
   await channel.send({
     type: 'broadcast',
@@ -75,27 +76,29 @@ const registerUpdatedGameState = async () => {
     payload: currentGame,
   });
 
-  await supabaseClient.removeChannel(channel);
+  await supabase.removeChannel(channel);
 };
 
 const registerGameStart = async () => {
-  const channel = supabaseClient.channel('current-game-start');
+  const supabase = createServerSupabase();
+  const channel = supabase.channel('current-game-start');
   await channel.send({
     type: 'broadcast',
     event: 'game-start',
     payload: {},
   });
 
-  await supabaseClient.removeChannel(channel);
+  await supabase.removeChannel(channel);
 };
 
 const registerGameEnd = async () => {
-  const channel = supabaseClient.channel('current-game-end');
+  const supabase = createServerSupabase();
+  const channel = supabase.channel('current-game-end');
   await channel.send({
     type: 'broadcast',
     event: 'game-end',
     payload: {},
   });
 
-  await supabaseClient.removeChannel(channel);
+  await supabase.removeChannel(channel);
 };

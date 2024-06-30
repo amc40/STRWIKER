@@ -1,13 +1,14 @@
 'use client';
 import React, { useEffect } from 'react';
-import { supabaseClient } from '../utils/supabase';
+import { createClientSupabase } from '../utils/supabase/client';
 import { useRouter } from 'next/navigation';
 
 export const RedirectToCurrentGameWhenGameStarts: React.FC = () => {
   const router = useRouter();
+  const supabase = createClientSupabase();
 
   useEffect(() => {
-    const taskListener = supabaseClient
+    const taskListener = supabase
       .channel('current-game-start')
       .on('broadcast', { event: 'game-start' }, () => {
         router.replace('/current-game');
@@ -15,7 +16,7 @@ export const RedirectToCurrentGameWhenGameStarts: React.FC = () => {
       .subscribe();
 
     return () => void taskListener.unsubscribe();
-  }, [router]);
+  }, [router, supabase]);
 
   return <></>;
 };

@@ -15,7 +15,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
 import { PlayerInfo } from '../view/PlayerInfo';
-import { supabaseClient } from '../utils/supabase';
+import { createClientSupabase } from '../utils/supabase/client';
 import { GameInfo } from '../view/CurrentGameInfo';
 import { useRouter } from 'next/navigation';
 
@@ -101,16 +101,17 @@ export const CurrentGameClient: FC<{
   }, [awaitingPlayersResponse]);
 
   const router = useRouter();
+  const supabase = createClientSupabase();
 
   useEffect(() => {
-    const gameEndListener = supabaseClient
+    const gameEndListener = supabase
       .channel('current-game-end')
       .on('broadcast', { event: 'game-end' }, () => {
         router.replace(`/game/${serverGameId}/stats`);
       })
       .subscribe();
 
-    const gameStateListener = supabaseClient
+    const gameStateListener = supabase
       .channel('current-game-state')
       .on('broadcast', { event: 'game-state' }, ({ payload }) => {
         const currentGameInfo = payload as GameInfo;
@@ -126,7 +127,7 @@ export const CurrentGameClient: FC<{
       void gameStateListener.unsubscribe();
       void gameEndListener.unsubscribe();
     };
-  }, [router, serverGameId]);
+  }, [router, serverGameId, supabase]);
 
   useEffect(() => {
     awaitingPlayersResponseRef.current = awaitingPlayersResponse;
