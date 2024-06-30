@@ -9,8 +9,6 @@ export const dynamic = 'force-dynamic';
 export default async function Page() {
   const currentGameInfo = await gameInfoService.getCurrentGameInfo();
 
-  console.log('currentGameInfo', currentGameInfo);
-
   if (currentGameInfo == null) {
     redirect('/no-game-in-progress');
   }
