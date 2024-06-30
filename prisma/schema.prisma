@@ -11,29 +11,29 @@ datasource db {
 }
 
 model Player {
-  id           Int           @id @default(autoincrement())
-  name         String        @unique
-  playerPoints PlayerPoint[]
-  gameId       Int?
+  id                             Int                     @id @default(autoincrement())
+  name                           String                  @unique
+  playerPoints                   PlayerPoint[]
   // Stats !!!
-  elo          Int           @default(1200)
-  gamesPlayed  Int           @default(0)
-
-  @@index([gameId])
+  // If you think there is a chance players may want to view a history of the stat value then add a field to the HistoricalPlayerStats table
+  elo                            Int                     @default(1200)
+  gamesPlayed                    Int                     @default(0)
+  historicalPlayerStatsForPlayer HistoricalPlayerStats[]
 }
 
 model Game {
-  id             Int            @id @default(autoincrement())
-  startTime      DateTime       @default(now())
-  currentPoint   Point?         @relation(name: "currentPoint", fields: [currentPointId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  currentPointId Int?           @unique
-  completed      Boolean        @default(false)
-  abandoned      Boolean        @default(false)
-  finalScoreRed  Int?
-  finalScoreBlue Int?
-  points         Point[]        @relation(name: "pointGame")
-  rotatyRed      RotatyStrategy
-  rotatyBlue     RotatyStrategy
+  id                            Int                     @id @default(autoincrement())
+  startTime                     DateTime                @default(now())
+  currentPoint                  Point?                  @relation(name: "currentPoint", fields: [currentPointId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  currentPointId                Int?                    @unique
+  completed                     Boolean                 @default(false)
+  abandoned                     Boolean                 @default(false)
+  finalScoreRed                 Int?
+  finalScoreBlue                Int?
+  points                        Point[]                 @relation(name: "pointGame")
+  rotatyRed                     RotatyStrategy
+  rotatyBlue                    RotatyStrategy
+  historicalPlayerStatsFromGame HistoricalPlayerStats[]
 
   @@index([startTime])
   @@index([completed, abandoned])
@@ -83,4 +83,18 @@ model PlayerPoint {
   @@unique([playerId, pointId])
   @@index([playerId])
   @@index([pointId])
+}
+
+model HistoricalPlayerStats {
+  id          Int @id @default(autoincrement())
+  gamesPlayed Int
+  elo         Int
+
+  game   Game @relation(fields: [gameId], references: [id])
+  gameId Int
+
+  player   Player @relation(fields: [playerId], references: [id])
+  playerId Int
+
+  @@index([playerId])
 }

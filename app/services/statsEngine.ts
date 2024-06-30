@@ -1,4 +1,4 @@
-import { Player, PlayerPoint } from '@prisma/client';
+import { Game, Player, PlayerPoint, Prisma } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   getCountOfGoalsScoredByEachPlayerInGame as getCountOfGoalsScoredByEachPlayerIdInGame,
@@ -230,5 +230,52 @@ export class StatsEngineFwoar {
     const newLoserElo = loserElo + K * (0 - expectedScoreLoser);
 
     return [newWinnerElo, newLoserElo];
+  }
+
+  async updatePlayerStatsAtEndOfGame(
+    participatingPlayers: Player[],
+    game: Game,
+  ) {
+    await this.incrementNumberOfGamesPlayed(participatingPlayers);
+    await this.saveSnapshotOfStatsToHistoricalPlayerStats(
+      participatingPlayers,
+      game,
+    );
+  }
+
+  private async incrementNumberOfGamesPlayed(participatingPlayers: Player[]) {
+    participatingPlayers.forEach(
+      (participatingPlayer) => participatingPlayer.gamesPlayed++,
+    );
+    await prisma.player.updateMany({
+      data: {
+        gamesPlayed: {
+          increment: 1,
+        },
+      },
+      where: {
+        id: {
+          in: participatingPlayers.map(({ id }) => id),
+        },
+      },
+    });
+  }
+
+  private async saveSnapshotOfStatsToHistoricalPlayerStats(
+    // NOTE: this should include players that aren't in the game during the final point
+    allGameParticipants: Player[],
+    game: Game,
+  ) {
+    const historicalStatsForParticipatingPlayers: Prisma.HistoricalPlayerStatsCreateManyInput[] =
+      allGameParticipants.map((participatingPlayer) => ({
+        playerId: participatingPlayer.id,
+        gameId: game.id,
+        gamesPlayed: participatingPlayer.gamesPlayed,
+        elo: participatingPlayer.elo,
+      }));
+
+    await prisma.historicalPlayerStats.createMany({
+      data: historicalStatsForParticipatingPlayers,
+    });
   }
 }

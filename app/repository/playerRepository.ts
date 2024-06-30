@@ -1,3 +1,4 @@
+import { Game, Player } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 
 export const createPlayer = async (name: string) => {
@@ -35,6 +36,22 @@ export const getPlayersOrderedByDescendingElos = async () => {
   return await prisma.player.findMany({
     orderBy: {
       elo: 'desc',
+    },
+  });
+};
+
+export const getPlayersWhoParticipatedInGame = async (
+  game: Game,
+): Promise<Player[]> => {
+  return await prisma.player.findMany({
+    where: {
+      playerPoints: {
+        some: {
+          point: {
+            gameId: game.id,
+          },
+        },
+      },
     },
   });
 };
