@@ -5,41 +5,21 @@ import { redirect } from 'next/navigation';
 import { createServerSupabase } from '../utils/supabase/server';
 
 export async function login(formData: FormData) {
+  const email = formData.get('email');
+  if (email == null || typeof email !== 'string') {
+    throw new Error('Email missing');
+  }
   const supabase = createServerSupabase();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  };
-
-  const { error } = await supabase.auth.signInWithPassword(data);
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: true,
+      emailRedirectTo: 'http://localhost:3000/game/1/stats',
+    },
+  });
 
   if (error) {
     redirect('/error');
   }
-
-  revalidatePath('/', 'layout');
-  redirect('/');
-}
-
-export async function signup(formData: FormData) {
-  const supabase = createServerSupabase();
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  };
-
-  const { error } = await supabase.auth.signUp(data);
-
-  if (error) {
-    redirect('/error');
-  }
-
-  revalidatePath('/', 'layout');
-  redirect('/');
 }

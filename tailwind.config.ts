@@ -16,6 +16,7 @@ export default {
           blue: '#004f98',
         },
         primary: '#4CAF50',
+        primaryhover: '#15803D',
         secondary: '#F9DC5C',
       },
     },

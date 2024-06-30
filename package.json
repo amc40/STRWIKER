@@ -13,7 +13,7 @@
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.15",
+    "@headlessui/react": "^2.1.1",
     "@hello-pangea/dnd": "^16.5.0",
     "@heroicons/react": "^2.0.18",
     "@prisma/client": "^5.2.0",
@@ -42,6 +42,7 @@
     "trailingComma": "all"
   },
   "devDependencies": {
+    "@headlessui/tailwindcss": "^0.2.1",
     "@types/moment-duration-format": "^2.2.6",
     "@types/node": "^20.11.19",
     "@types/react": "^18.2.56",

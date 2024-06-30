@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
       type,
       token_hash,
     });
+
     if (!error) {
+      console.log('LOGGED IN');
       redirectTo.searchParams.delete('next');
       return NextResponse.redirect(redirectTo);
     }
