@@ -32,7 +32,7 @@ export class GameLogicService {
   playerPointPositionService = new PlayerPointPositionService();
   statsEngine = new StatsEngineFwoar();
 
-  async startGame() {
+  async startFreshGame() {
     await prisma.$transaction(
       async () => {
         const existingGameInProgress = await prisma.game.findFirst({

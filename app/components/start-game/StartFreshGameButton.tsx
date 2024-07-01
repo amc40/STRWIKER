@@ -1,12 +1,12 @@
 'use client';
 import React from 'react';
-import { startGame } from '../../../lib/Game.actions';
+import { startFreshGame } from '../../../lib/Game.actions';
 import { PrimaryButton } from '../PrimaryButton';
 
 export const StartGameButton: React.FC = () => {
   const onClick = async () => {
     try {
-      await startGame();
+      await startFreshGame();
     } catch {
       window.location.reload();
     }
