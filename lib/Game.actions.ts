@@ -9,8 +9,13 @@ import { GameInfoService } from '../app/services/gameInfoService';
 
 const gameInfoService = new GameInfoService();
 
-export const startGame = async () => {
-  await new GameLogicService().startGame();
+export const startFreshGame = async () => {
+  await new GameLogicService().startFreshGame();
+  await registerGameStart();
+};
+
+export const startGameWithPreviousPlayers = async () => {
+  await new GameLogicService().startGameFromPreviousGame();
   await registerGameStart();
 };
 

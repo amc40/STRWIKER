@@ -1,4 +1,12 @@
-import { Game, Player, PlayerPoint, Point, Prisma, Team } from '@prisma/client';
+import {
+  Game,
+  Player,
+  PlayerPoint,
+  Point,
+  Prisma,
+  RotatyStrategy,
+  Team,
+} from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   decrementPlayerPointPositionsInPointAfter,
@@ -11,6 +19,7 @@ import {
 import { PlayerPointPositionService } from './playerPointPositionService';
 import {
   getCurrentGameOrThrow,
+  getMostRecentFinishedGameWithLastPointAndParticipatingPlayers,
   markGameAsCompleted,
 } from '../repository/gameRepository';
 import {
@@ -32,40 +41,165 @@ export class GameLogicService {
   playerPointPositionService = new PlayerPointPositionService();
   statsEngine = new StatsEngineFwoar();
 
-  async startGame() {
+  async startFreshGame() {
     await prisma.$transaction(
       async () => {
-        const existingGameInProgress = await prisma.game.findFirst({
-          where: {
-            completed: false,
-            abandoned: false,
-          },
-        });
-
-        if (existingGameInProgress != null) {
-          throw new Error('Cannot create game as one is already in progress');
-        }
-
-        // TODO: set rotaty dependant on number of players
-        const game = await prisma.game.create({
-          data: { completed: false, rotatyBlue: 'Always', rotatyRed: 'Always' },
-        });
-
-        const initialPoint = await this.createPoint(0, 0, game);
-        await prisma.game.update({
-          where: {
-            id: game.id,
-          },
-          data: {
-            currentPointId: initialPoint.id,
-          },
-        });
+        await this.startGameWithNoPlayerPointsAndGetInitialPoint();
       },
       {
         timeout: 10000,
         isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
       },
     );
+  }
+
+  // Should be called within a Serializable transaction
+  private async startGameWithNoPlayerPointsAndGetInitialPoint(
+    rotatyStrategyPerTeam?: Record<Team, RotatyStrategy>,
+  ): Promise<Point> {
+    const existingGameInProgress = await prisma.game.findFirst({
+      where: {
+        completed: false,
+        abandoned: false,
+      },
+    });
+
+    if (existingGameInProgress != null) {
+      throw new Error('Cannot create game as one is already in progress');
+    }
+
+    // TODO: set rotaty dependant on number of players
+    const game = await prisma.game.create({
+      data: {
+        completed: false,
+        rotatyBlue: rotatyStrategyPerTeam?.Blue ?? 'Always',
+        rotatyRed: rotatyStrategyPerTeam?.Red ?? 'Always',
+      },
+    });
+
+    const initialPoint = await this.createPoint(0, 0, game);
+    await prisma.game.update({
+      where: {
+        id: game.id,
+      },
+      data: {
+        currentPointId: initialPoint.id,
+      },
+    });
+    return initialPoint;
+  }
+
+  async startGameFromPreviousGame() {
+    await prisma.$transaction(
+      async () => {
+        const previousGame =
+          await getMostRecentFinishedGameWithLastPointAndParticipatingPlayers();
+
+        const playerPointsFromLastPointOfPreviousGame =
+          previousGame.currentPoint?.playerPoints;
+
+        if (playerPointsFromLastPointOfPreviousGame == null) {
+          throw new Error(
+            `The most recent finished game doesn't have a current point: ${JSON.stringify(
+              playerPointsFromLastPointOfPreviousGame,
+            )}`,
+          );
+        }
+
+        const rotatyStrategyPerTeam =
+          this.getRotatyStrategyPerTeam(previousGame);
+
+        if (previousGame.abandoned) {
+          await this.startGameFromPreviousAbandonedGame(
+            playerPointsFromLastPointOfPreviousGame,
+            rotatyStrategyPerTeam,
+          );
+        } else if (previousGame.completed) {
+          await this.startGameFromPreviousCompletedGame(
+            playerPointsFromLastPointOfPreviousGame,
+            rotatyStrategyPerTeam,
+          );
+        }
+        throw new Error(
+          `The most recent finished game is neither abandoned or completed: ${JSON.stringify(
+            previousGame,
+          )}`,
+        );
+      },
+      {
+        timeout: 10000,
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      },
+    );
+  }
+
+  private async startGameFromPreviousAbandonedGame(
+    playerPointsFromLastPointOfPreviousGame: PlayerPoint[],
+    rotatyStrategy: Record<Team, RotatyStrategy>,
+  ) {
+    const initialPoint =
+      await this.startGameWithNoPlayerPointsAndGetInitialPoint(rotatyStrategy);
+
+    const newPlayerPointsCreateInput: Prisma.PlayerPointCreateManyInput[] =
+      playerPointsFromLastPointOfPreviousGame.map(
+        ({ team, playerId, position: previousPosition }) => ({
+          team,
+          playerId,
+          position: previousPosition,
+          pointId: initialPoint.id,
+        }),
+      );
+
+    await prisma.playerPoint.createMany({
+      data: newPlayerPointsCreateInput,
+    });
+  }
+
+  private async startGameFromPreviousCompletedGame(
+    playerPointsFromLastPointOfPreviousGame: PlayerPoint[],
+    rotatyStrategy: Record<Team, RotatyStrategy>,
+  ) {
+    const initialPoint =
+      await this.startGameWithNoPlayerPointsAndGetInitialPoint(rotatyStrategy);
+
+    const numberOfPlayersPerTeam = this.getNumberOfPlayersPerTeam(
+      playerPointsFromLastPointOfPreviousGame,
+    );
+
+    const playerPointWhoScoredLastPoint =
+      playerPointsFromLastPointOfPreviousGame.find(
+        ({ scoredGoal, ownGoal }) => scoredGoal || ownGoal,
+      );
+
+    if (playerPointWhoScoredLastPoint == null) {
+      throw new Error('Should have a player who scored the last point');
+    }
+
+    const teamWhoWonLastPointOfPreviousGame = this.getScoringTeam(
+      playerPointWhoScoredLastPoint.team,
+      playerPointWhoScoredLastPoint.ownGoal,
+    );
+
+    const newPlayerPointsCreateInput: Prisma.PlayerPointCreateManyInput[] =
+      playerPointsFromLastPointOfPreviousGame.map(
+        ({ team, playerId, position: previousPosition }) => ({
+          team,
+          playerId,
+          position:
+            this.playerPointPositionService.getNextPlayerPositionForTeamWithRotatyStrategy(
+              previousPosition,
+              team,
+              numberOfPlayersPerTeam,
+              teamWhoWonLastPointOfPreviousGame,
+              rotatyStrategy[team],
+            ),
+          pointId: initialPoint.id,
+        }),
+      );
+
+    await prisma.playerPoint.createMany({
+      data: newPlayerPointsCreateInput,
+    });
   }
 
   private async createPoint(
@@ -91,10 +225,7 @@ export class GameLogicService {
       );
     await prisma.playerPoint.create({
       data: {
-        ownGoal: false,
         position,
-        rattled: false,
-        scoredGoal: false,
         team,
         playerId,
         pointId: point.id,
@@ -173,9 +304,10 @@ export class GameLogicService {
           },
         });
 
-        const scoringTeam = ownGoal
-          ? this.opposingTeam(scorerPlayerPoint.team)
-          : scorerPlayerPoint.team;
+        const scoringTeam = this.getScoringTeam(
+          scorerPlayerPoint.team,
+          ownGoal,
+        );
 
         const updatePlayerElos = this.updateElosForPlayersInPoint(
           scoringTeam,
@@ -243,17 +375,8 @@ export class GameLogicService {
     });
     const oldPlayerPoints = await getAllPlayerPointsByPoint(finishedPoint);
 
-    const redPlayerPoints = oldPlayerPoints.filter(
-      (playerPoint) => playerPoint.team === Team.Red,
-    );
-    const bluePlayerPoints = oldPlayerPoints.filter(
-      (playerPoint) => playerPoint.team === Team.Blue,
-    );
-
-    const numberOfPlayersPerTeam: Record<Team, number> = {
-      Red: redPlayerPoints.length,
-      Blue: bluePlayerPoints.length,
-    };
+    const numberOfPlayersPerTeam =
+      this.getNumberOfPlayersPerTeam(oldPlayerPoints);
 
     const newPlayerPointsToCreate = oldPlayerPoints.map((oldPlayerPoint) => ({
       playerId: oldPlayerPoint.playerId,
@@ -262,13 +385,14 @@ export class GameLogicService {
       scoredGoal: false,
       rattled: false,
       team: oldPlayerPoint.team,
-      position: this.playerPointPositionService.getNextPlayerPositionForTeam(
-        oldPlayerPoint.position,
-        oldPlayerPoint.team,
-        numberOfPlayersPerTeam,
-        scoringTeam,
-        game,
-      ),
+      position:
+        this.playerPointPositionService.getNextPlayerPositionForTeamInGame(
+          oldPlayerPoint.position,
+          oldPlayerPoint.team,
+          numberOfPlayersPerTeam,
+          scoringTeam,
+          game,
+        ),
     }));
 
     await prisma.playerPoint.createMany({
@@ -335,6 +459,7 @@ export class GameLogicService {
         abandoned: true,
         finalScoreBlue,
         finalScoreRed,
+        endTime: new Date(),
       },
     });
   }
@@ -399,5 +524,32 @@ export class GameLogicService {
 
   private opposingTeam(team: Team) {
     return team === Team.Red ? Team.Blue : Team.Red;
+  }
+
+  private getNumberOfPlayersPerTeam(
+    playerPoints: { team: Team }[],
+  ): Record<Team, number> {
+    const redPlayerPoints = playerPoints.filter(
+      (playerPoint) => playerPoint.team === Team.Red,
+    );
+    const bluePlayerPoints = playerPoints.filter(
+      (playerPoint) => playerPoint.team === Team.Blue,
+    );
+
+    return {
+      Red: redPlayerPoints.length,
+      Blue: bluePlayerPoints.length,
+    };
+  }
+
+  private getScoringTeam(scorerTeam: Team, ownGoal: boolean) {
+    return ownGoal ? this.opposingTeam(scorerTeam) : scorerTeam;
+  }
+
+  private getRotatyStrategyPerTeam(game: Game): Record<Team, RotatyStrategy> {
+    return {
+      Red: game.rotatyRed,
+      Blue: game.rotatyBlue,
+    };
   }
 }
