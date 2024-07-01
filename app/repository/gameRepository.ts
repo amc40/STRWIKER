@@ -72,6 +72,53 @@ export const markGameAsCompleted = async (
       completed: true,
       finalScoreBlue,
       finalScoreRed,
+      endTime: new Date(),
     },
   });
 };
+
+export const getMostRecentFinishedGame = async () => {
+  return await prisma.game.findFirst({
+    where: {
+      NOT: {
+        completed: false,
+        abandoned: false,
+      },
+      endTime: {
+        not: null,
+      },
+    },
+    orderBy: {
+      endTime: 'desc',
+    },
+  });
+};
+
+export const getMostRecentFinishedGameWithLastPointAndParticipatingPlayers =
+  async () => {
+    return await prisma.game.findFirstOrThrow({
+      where: {
+        NOT: {
+          completed: false,
+          abandoned: false,
+        },
+        endTime: {
+          not: null,
+        },
+      },
+      orderBy: {
+        endTime: 'desc',
+      },
+      include: {
+        currentPoint: {
+          include: {
+            playerPoints: {
+              include: {
+                player: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  };

@@ -14,6 +14,11 @@ export const startFreshGame = async () => {
   await registerGameStart();
 };
 
+export const startGameWithPreviousPlayers = async () => {
+  await new GameLogicService().startGameFromPreviousGame();
+  await registerGameStart();
+};
+
 export const abandonCurrentGame = async () => {
   await new GameLogicService().abandonCurrentGame();
   await registerGameEnd();

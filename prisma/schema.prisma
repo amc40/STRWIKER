@@ -24,6 +24,7 @@ model Player {
 model Game {
   id                            Int                     @id @default(autoincrement())
   startTime                     DateTime                @default(now())
+  endTime                       DateTime?
   currentPoint                  Point?                  @relation(name: "currentPoint", fields: [currentPointId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   currentPointId                Int?                    @unique
   completed                     Boolean                 @default(false)
@@ -73,9 +74,9 @@ model PlayerPoint {
   // Red || Blue
   team     Team
 
-  scoredGoal Boolean
-  ownGoal    Boolean
-  rattled    Boolean
+  scoredGoal Boolean @default(false)
+  ownGoal    Boolean @default(false)
+  rattled    Boolean @default(false)
 
   playerId Int
   pointId  Int
