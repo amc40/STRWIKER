@@ -40,7 +40,7 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
         score={score}
         openSettingsModal={openSettingsModal}
       />
-      <div className="inline-block overflow-y-auto">
+      <div className="h-full overflow-y-auto player-scrollbar">
         <DragDropContext
           onDragEnd={(onDragEndResponder) => {
             const destinationIndex = onDragEndResponder.destination?.index;
