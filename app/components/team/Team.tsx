@@ -29,7 +29,7 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
 }) => {
   return (
     <div
-      className={`flex-1 p-3 border border-slate-300 md:p-5 text-white ${
+      className={`flex flex-col flex-1 p-3 border border-slate-300 md:p-5 text-white ${
         hideOnSmallScreen ? 'hidden md:block' : ''
       } 
       ${team === $Enums.Team.Red ? 'bg-team-red' : 'bg-team-blue'}`}
@@ -40,7 +40,7 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
         score={score}
         openSettingsModal={openSettingsModal}
       />
-      <div className="inline-block">
+      <div className="inline-block overflow-y-auto">
         <DragDropContext
           onDragEnd={(onDragEndResponder) => {
             const destinationIndex = onDragEndResponder.destination?.index;

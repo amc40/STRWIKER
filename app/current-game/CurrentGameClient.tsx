@@ -240,7 +240,7 @@ export const CurrentGameClient: FC<{
   };
 
   return (
-    <main className="flex flex-1 flex-col">
+    <main className="flex-grow overflow-y-hidden">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
         <SettingsButton
           onClick={() => {
@@ -257,7 +257,7 @@ export const CurrentGameClient: FC<{
         blueRotatyStrategy={blueRotatyStrategy}
         setRotatyStrategy={setRotatyStrategy}
       />
-      <div className="flex flex-1">
+      <div className="h-full flex flex-1">
         {isMobile ? (
           <Swiper>
             <SwiperSlide>

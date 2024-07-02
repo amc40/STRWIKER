@@ -43,21 +43,19 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
 
   return (
     <>
-      <div>
-        <button
-          className={
-            'flex items-center justify-center w-full p-3 bg-yellow-100 text-black rounded-md active:bg-yellow-200'
-          }
-          type="button"
-          onClick={() => {
-            setShowModal(true);
-          }}
-          disabled={isPending}
-        >
-          <Plus />
-          Add Player
-        </button>
-      </div>
+      <button
+        className={
+          'flex items-center justify-center w-full p-3 bg-yellow-100 text-black rounded-md active:bg-yellow-200'
+        }
+        type="button"
+        onClick={() => {
+          setShowModal(true);
+        }}
+        disabled={isPending}
+      >
+        <Plus />
+        Add Player
+      </button>
       <Modal
         title={
           <>
