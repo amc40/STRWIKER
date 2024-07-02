@@ -45,7 +45,8 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
     <>
       <button
         className={
-          'flex items-center justify-center w-full p-3 bg-yellow-100 text-black rounded-md active:bg-yellow-200'
+          // TODO: This width is hard-coded to match the width of the player card currently which is absolute garbage, but I've got fed up of fiddling with css
+          'flex items-center justify-center w-[200px] p-3 bg-yellow-100 text-black rounded-md active:bg-yellow-200'
         }
         type="button"
         onClick={() => {
