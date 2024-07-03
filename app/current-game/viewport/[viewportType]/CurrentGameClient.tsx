@@ -17,7 +17,7 @@ import 'swiper/css';
 import { PlayerInfo } from '../../../view/PlayerInfo';
 import { supabaseClient } from '../../../utils/supabase';
 import { GameInfo } from '../../../view/CurrentGameInfo';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
@@ -72,6 +72,7 @@ export const CurrentGameClient: FC<{
   serverBlueRotatyStrategy: RotatyStrategy;
   serverRedRotatyStrategy: RotatyStrategy;
   serverPlayers: PlayerInfo[];
+  isMobile: boolean;
 }> = ({
   serverGameId,
   serverRedScore,
@@ -79,6 +80,7 @@ export const CurrentGameClient: FC<{
   serverRedRotatyStrategy,
   serverBlueRotatyStrategy,
   serverPlayers,
+  isMobile,
 }) => {
   const [players, setPlayers] = useState(serverPlayers);
   const [redScore, setRedScore] = useState(serverRedScore);
@@ -89,13 +91,6 @@ export const CurrentGameClient: FC<{
   const [blueRotatyStrategy, setBlueRotatyStrategy] = useState(
     serverBlueRotatyStrategy,
   );
-
-  const searchParams = useSearchParams();
-
-  const viewport = searchParams.get('viewport');
-  console.error('VIEWPORT', viewport);
-
-  const isMobile = viewport === 'mobile';
 
   const [awaitingPlayersResponse, setAwaitingPlayersResponse] = useState(false);
   // this prevents the value of awaitingPlayersResponse being captured by the closure in the refresh useEffect
@@ -322,8 +317,6 @@ export const CurrentGameClient: FC<{
               removePlayer={removePlayer}
               reorderPlayer={reorderPlayer}
               openSettingsModal={openSettingsModal}
-              // The initial render wil be for the desktop site, but we don't want to show the Red on the small screens
-              hideOnSmallScreen={true}
             >
               <AddPlayerToTeam
                 team={$Enums.Team.Red}

@@ -13,7 +13,6 @@ interface TeamProps {
   removePlayer: (player: PlayerInfo) => void;
   reorderPlayer: (player: PlayerInfo, destinationIndex: number) => void;
   openSettingsModal: () => void;
-  hideOnSmallScreen?: boolean;
 }
 
 export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
@@ -25,13 +24,10 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
   reorderPlayer,
   openSettingsModal,
   children,
-  hideOnSmallScreen = false,
 }) => {
   return (
     <div
-      className={`flex flex-col flex-1 p-3 border border-slate-300 md:p-5 text-white ${
-        hideOnSmallScreen ? 'hidden md:block' : ''
-      } 
+      className={`flex flex-col flex-1 p-3 border border-slate-300 md:p-5 text-white 
       ${team === $Enums.Team.Red ? 'bg-team-red' : 'bg-team-blue'}`}
     >
       <TeamHeader
