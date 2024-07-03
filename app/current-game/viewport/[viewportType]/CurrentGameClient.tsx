@@ -1,25 +1,23 @@
 'use client';
 import { $Enums, RotatyStrategy } from '@prisma/client';
 import { FC, useEffect, useRef, useState } from 'react';
-import { Team } from '../components/team/Team';
-import AddPlayerToTeam from '../components/AddPlayerToTeam';
+import { Team } from '../../../components/team/Team';
+import AddPlayerToTeam from '../../../components/AddPlayerToTeam';
 import {
   addPlayerToCurrentGame,
   removePlayerFromCurrentGame,
   reorderPlayer as reorderPlayerAction,
-} from '../../lib/Game.actions';
-import SettingsButton from '../components/SettingsButton';
-import { SettingsModal } from '../components/settings-modal/SettingsModal';
+} from '../../../../lib/Game.actions';
+import SettingsButton from '../../../components/SettingsButton';
+import { SettingsModal } from '../../../components/settings-modal/SettingsModal';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
-import { PlayerInfo } from '../view/PlayerInfo';
-import { supabaseClient } from '../utils/supabase';
-import { GameInfo } from '../view/CurrentGameInfo';
-import { useRouter } from 'next/navigation';
-
-const MOBILE_SCREEN_BREAK_POINT = 768;
+import { PlayerInfo } from '../../../view/PlayerInfo';
+import { supabaseClient } from '../../../utils/supabase';
+import { GameInfo } from '../../../view/CurrentGameInfo';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
@@ -91,6 +89,13 @@ export const CurrentGameClient: FC<{
   const [blueRotatyStrategy, setBlueRotatyStrategy] = useState(
     serverBlueRotatyStrategy,
   );
+
+  const searchParams = useSearchParams();
+
+  const viewport = searchParams.get('viewport');
+  console.error('VIEWPORT', viewport);
+
+  const isMobile = viewport === 'mobile';
 
   const [awaitingPlayersResponse, setAwaitingPlayersResponse] = useState(false);
   // this prevents the value of awaitingPlayersResponse being captured by the closure in the refresh useEffect
@@ -208,21 +213,6 @@ export const CurrentGameClient: FC<{
   };
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < MOBILE_SCREEN_BREAK_POINT);
-    };
-
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-
-    return () => {
-      window.removeEventListener('resize', checkScreenSize);
-    };
-  }, []);
 
   const openSettingsModal = () => {
     setShowSettingsModal(true);

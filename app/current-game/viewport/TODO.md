@@ -1,0 +1,1 @@
+This folder probably shouldn't be routable except in middleware as suggested by [the docs on routing based on user agent](https://vercel.com/guides/rendering-content-based-on-device). However, I was getting 404s and I couldn't really be bothered to debug. If it annoys you enough please feel free to fix
