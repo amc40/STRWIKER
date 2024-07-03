@@ -5,6 +5,8 @@ import Nav from './nav';
 import { Suspense } from 'react';
 import Script from 'next/script';
 import React from 'react';
+import { MessageProvider } from './context/MessageContext';
+import { Messages } from './components/message/Messages';
 
 export const metadata = {
   title: 'STRWIKER',
@@ -19,7 +21,10 @@ const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         <Suspense>
           <Nav />
         </Suspense>
-        {children}
+        <MessageProvider>
+          <Messages />
+          {children}
+        </MessageProvider>
         <Analytics />
         <Script type="module" src="vanilla-tilt.js" strategy="lazyOnload" />
       </body>
