@@ -43,21 +43,20 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
 
   return (
     <>
-      <div>
-        <button
-          className={
-            'flex items-center justify-center w-full p-3 bg-yellow-100 text-black rounded-md active:bg-yellow-200'
-          }
-          type="button"
-          onClick={() => {
-            setShowModal(true);
-          }}
-          disabled={isPending}
-        >
-          <Plus />
-          Add Player
-        </button>
-      </div>
+      <button
+        className={
+          // TODO: This width is hard-coded to match the width of the player card currently which is absolute garbage, but I've got fed up of fiddling with css
+          'flex items-center justify-center w-[200px] p-3 bg-yellow-100 text-black rounded-md active:bg-yellow-200'
+        }
+        type="button"
+        onClick={() => {
+          setShowModal(true);
+        }}
+        disabled={isPending}
+      >
+        <Plus />
+        Add Player
+      </button>
       <Modal
         title={
           <>

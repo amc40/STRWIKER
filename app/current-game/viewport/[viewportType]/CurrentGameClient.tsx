@@ -1,25 +1,22 @@
 'use client';
 import { $Enums, RotatyStrategy } from '@prisma/client';
 import { FC, useEffect, useRef, useState } from 'react';
-import { Team } from '../components/team/Team';
-import AddPlayerToTeam from '../components/AddPlayerToTeam';
+import { Team } from '../../../components/team/Team';
+import AddPlayerToTeam from '../../../components/AddPlayerToTeam';
 import {
   addPlayerToCurrentGame,
   removePlayerFromCurrentGame,
   reorderPlayer as reorderPlayerAction,
-} from '../../lib/Game.actions';
-import SettingsButton from '../components/SettingsButton';
-import { SettingsModal } from '../components/settings-modal/SettingsModal';
-
-import { Swiper, SwiperSlide } from 'swiper/react';
+} from '../../../../lib/Game.actions';
+import SettingsButton from '../../../components/SettingsButton';
+import { SettingsModal } from '../../../components/settings-modal/SettingsModal';
+import { WrapChildrenInSwiperIfMobile } from './WrapChildrenInSwiperIfMobile';
 
 import 'swiper/css';
-import { PlayerInfo } from '../view/PlayerInfo';
-import { supabaseClient } from '../utils/supabase';
-import { GameInfo } from '../view/CurrentGameInfo';
+import { PlayerInfo } from '../../../view/PlayerInfo';
+import { supabaseClient } from '../../../utils/supabase';
+import { GameInfo } from '../../../view/CurrentGameInfo';
 import { useRouter } from 'next/navigation';
-
-const MOBILE_SCREEN_BREAK_POINT = 768;
 
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
@@ -74,6 +71,7 @@ export const CurrentGameClient: FC<{
   serverBlueRotatyStrategy: RotatyStrategy;
   serverRedRotatyStrategy: RotatyStrategy;
   serverPlayers: PlayerInfo[];
+  isMobile: boolean;
 }> = ({
   serverGameId,
   serverRedScore,
@@ -81,6 +79,7 @@ export const CurrentGameClient: FC<{
   serverRedRotatyStrategy,
   serverBlueRotatyStrategy,
   serverPlayers,
+  isMobile,
 }) => {
   const [players, setPlayers] = useState(serverPlayers);
   const [redScore, setRedScore] = useState(serverRedScore);
@@ -209,21 +208,6 @@ export const CurrentGameClient: FC<{
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < MOBILE_SCREEN_BREAK_POINT);
-    };
-
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-
-    return () => {
-      window.removeEventListener('resize', checkScreenSize);
-    };
-  }, []);
-
   const openSettingsModal = () => {
     setShowSettingsModal(true);
   };
@@ -240,7 +224,7 @@ export const CurrentGameClient: FC<{
   };
 
   return (
-    <main className="flex flex-1 flex-col">
+    <main className="flex-grow overflow-y-hidden">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
         <SettingsButton
           onClick={() => {
@@ -257,92 +241,43 @@ export const CurrentGameClient: FC<{
         blueRotatyStrategy={blueRotatyStrategy}
         setRotatyStrategy={setRotatyStrategy}
       />
-      <div className="flex flex-1">
-        {isMobile ? (
-          <Swiper>
-            <SwiperSlide>
-              <div className="h-full flex">
-                <Team
-                  team={$Enums.Team.Blue}
-                  members={players
-                    .filter((player) => player.team === 'Blue')
-                    .sort((a, b) => a.position - b.position)}
-                  score={blueScore}
-                  rotatyStrategy={blueRotatyStrategy}
-                  removePlayer={removePlayer}
-                  reorderPlayer={reorderPlayer}
-                  openSettingsModal={openSettingsModal}
-                >
-                  <AddPlayerToTeam
-                    team={$Enums.Team.Blue}
-                    addPlayer={addPlayer}
-                    existingPlayers={players}
-                  />
-                </Team>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <div className="h-full flex">
-                <Team
-                  team={$Enums.Team.Red}
-                  members={players
-                    .filter((player) => player.team === 'Red')
-                    .sort((a, b) => a.position - b.position)}
-                  score={redScore}
-                  rotatyStrategy={redRotatyStrategy}
-                  removePlayer={removePlayer}
-                  reorderPlayer={reorderPlayer}
-                  openSettingsModal={openSettingsModal}
-                >
-                  <AddPlayerToTeam
-                    team={$Enums.Team.Red}
-                    addPlayer={addPlayer}
-                    existingPlayers={players}
-                  />
-                </Team>
-              </div>
-            </SwiperSlide>
-          </Swiper>
-        ) : (
-          <>
-            <Team
+      <div className="h-full flex flex-1">
+        <WrapChildrenInSwiperIfMobile isMobile={isMobile}>
+          <Team
+            team={$Enums.Team.Blue}
+            members={players
+              .filter((player) => player.team === 'Blue')
+              .sort((a, b) => a.position - b.position)}
+            score={blueScore}
+            rotatyStrategy={blueRotatyStrategy}
+            removePlayer={removePlayer}
+            reorderPlayer={reorderPlayer}
+            openSettingsModal={openSettingsModal}
+          >
+            <AddPlayerToTeam
               team={$Enums.Team.Blue}
-              members={players
-                .filter((player) => player.team === 'Blue')
-                .sort((a, b) => a.position - b.position)}
-              score={blueScore}
-              rotatyStrategy={blueRotatyStrategy}
-              removePlayer={removePlayer}
-              reorderPlayer={reorderPlayer}
-              openSettingsModal={openSettingsModal}
-            >
-              <AddPlayerToTeam
-                team={$Enums.Team.Blue}
-                addPlayer={addPlayer}
-                existingPlayers={players}
-              />
-            </Team>
-            <Team
+              addPlayer={addPlayer}
+              existingPlayers={players}
+            />
+          </Team>
+          <Team
+            team={$Enums.Team.Red}
+            members={players
+              .filter((player) => player.team === 'Red')
+              .sort((a, b) => a.position - b.position)}
+            score={redScore}
+            rotatyStrategy={redRotatyStrategy}
+            removePlayer={removePlayer}
+            reorderPlayer={reorderPlayer}
+            openSettingsModal={openSettingsModal}
+          >
+            <AddPlayerToTeam
               team={$Enums.Team.Red}
-              members={players
-                .filter((player) => player.team === 'Red')
-                .sort((a, b) => a.position - b.position)}
-              score={redScore}
-              rotatyStrategy={redRotatyStrategy}
-              removePlayer={removePlayer}
-              reorderPlayer={reorderPlayer}
-              openSettingsModal={openSettingsModal}
-              // The initial render wil be for the desktop site, but we don't want to show the Red on the small screens
-              hideOnSmallScreen={true}
-            >
-              <AddPlayerToTeam
-                team={$Enums.Team.Red}
-                addPlayer={addPlayer}
-                existingPlayers={players}
-              />
-            </Team>
-          </>
-        )}
+              addPlayer={addPlayer}
+              existingPlayers={players}
+            />
+          </Team>
+        </WrapChildrenInSwiperIfMobile>
       </div>
     </main>
   );
