@@ -31,10 +31,8 @@ export const MessageProvider: React.FC<React.PropsWithChildren> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const messageIdRef = useRef(0);
 
-  console.log('MessageContext messages', messages);
-
   const addErrorMessage = (errorMessage: string) => {
-    console.log('adding error message', errorMessage);
+    console.error(errorMessage);
     const id = messageIdRef.current++;
     setMessages((prevMessages) => [
       ...prevMessages,

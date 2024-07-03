@@ -6,8 +6,6 @@ import { ErrorIcon } from '../icons/ErrorIcon';
 export const Messages: React.FC = () => {
   const { messages } = useMessage();
 
-  console.log('Messages messages', messages);
-
   return (
     <div className="flex justify-center">
       <div className="justify-center fixed bottom-5 w-4/5 flex flex-col items-center space-y-2 z-50 transition-opacity duration-500">
