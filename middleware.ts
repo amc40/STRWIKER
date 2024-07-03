@@ -2,7 +2,6 @@ import { NextResponse, userAgent } from 'next/server';
 import { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  console.log('running middleware');
   return rewriteDeviceSpecificPathname(request);
 }
 
@@ -11,7 +10,6 @@ const DEVICE_SPECIFIC_PATH_ENDS = ['current-game'];
 
 const rewriteDeviceSpecificPathname = (request: NextRequest) => {
   const pathname = request.nextUrl.pathname;
-  console.log('pathname', pathname);
   if (
     !DEVICE_SPECIFIC_PATH_ENDS.some((deviceSpecificPath) =>
       pathname.endsWith(deviceSpecificPath),
@@ -27,7 +25,6 @@ const rewriteDeviceSpecificPathname = (request: NextRequest) => {
   // Update the expected url
   request.nextUrl.pathname += `/viewport/${viewport}`;
 
-  console.log('rewriting path to', request.nextUrl);
   return NextResponse.rewrite(request.nextUrl);
 };
 

@@ -10,8 +10,7 @@ import {
 } from '../../../../lib/Game.actions';
 import SettingsButton from '../../../components/SettingsButton';
 import { SettingsModal } from '../../../components/settings-modal/SettingsModal';
-
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { WrapChildrenInSwiperIfMobile } from './WrapChildrenInSwiperIfMobile';
 
 import 'swiper/css';
 import { PlayerInfo } from '../../../view/PlayerInfo';
@@ -243,89 +242,42 @@ export const CurrentGameClient: FC<{
         setRotatyStrategy={setRotatyStrategy}
       />
       <div className="h-full flex flex-1">
-        {isMobile ? (
-          <Swiper>
-            <SwiperSlide>
-              <div className="h-full flex">
-                <Team
-                  team={$Enums.Team.Blue}
-                  members={players
-                    .filter((player) => player.team === 'Blue')
-                    .sort((a, b) => a.position - b.position)}
-                  score={blueScore}
-                  rotatyStrategy={blueRotatyStrategy}
-                  removePlayer={removePlayer}
-                  reorderPlayer={reorderPlayer}
-                  openSettingsModal={openSettingsModal}
-                >
-                  <AddPlayerToTeam
-                    team={$Enums.Team.Blue}
-                    addPlayer={addPlayer}
-                    existingPlayers={players}
-                  />
-                </Team>
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <div className="h-full flex">
-                <Team
-                  team={$Enums.Team.Red}
-                  members={players
-                    .filter((player) => player.team === 'Red')
-                    .sort((a, b) => a.position - b.position)}
-                  score={redScore}
-                  rotatyStrategy={redRotatyStrategy}
-                  removePlayer={removePlayer}
-                  reorderPlayer={reorderPlayer}
-                  openSettingsModal={openSettingsModal}
-                >
-                  <AddPlayerToTeam
-                    team={$Enums.Team.Red}
-                    addPlayer={addPlayer}
-                    existingPlayers={players}
-                  />
-                </Team>
-              </div>
-            </SwiperSlide>
-          </Swiper>
-        ) : (
-          <>
-            <Team
+        <WrapChildrenInSwiperIfMobile isMobile={isMobile}>
+          <Team
+            team={$Enums.Team.Blue}
+            members={players
+              .filter((player) => player.team === 'Blue')
+              .sort((a, b) => a.position - b.position)}
+            score={blueScore}
+            rotatyStrategy={blueRotatyStrategy}
+            removePlayer={removePlayer}
+            reorderPlayer={reorderPlayer}
+            openSettingsModal={openSettingsModal}
+          >
+            <AddPlayerToTeam
               team={$Enums.Team.Blue}
-              members={players
-                .filter((player) => player.team === 'Blue')
-                .sort((a, b) => a.position - b.position)}
-              score={blueScore}
-              rotatyStrategy={blueRotatyStrategy}
-              removePlayer={removePlayer}
-              reorderPlayer={reorderPlayer}
-              openSettingsModal={openSettingsModal}
-            >
-              <AddPlayerToTeam
-                team={$Enums.Team.Blue}
-                addPlayer={addPlayer}
-                existingPlayers={players}
-              />
-            </Team>
-            <Team
+              addPlayer={addPlayer}
+              existingPlayers={players}
+            />
+          </Team>
+          <Team
+            team={$Enums.Team.Red}
+            members={players
+              .filter((player) => player.team === 'Red')
+              .sort((a, b) => a.position - b.position)}
+            score={redScore}
+            rotatyStrategy={redRotatyStrategy}
+            removePlayer={removePlayer}
+            reorderPlayer={reorderPlayer}
+            openSettingsModal={openSettingsModal}
+          >
+            <AddPlayerToTeam
               team={$Enums.Team.Red}
-              members={players
-                .filter((player) => player.team === 'Red')
-                .sort((a, b) => a.position - b.position)}
-              score={redScore}
-              rotatyStrategy={redRotatyStrategy}
-              removePlayer={removePlayer}
-              reorderPlayer={reorderPlayer}
-              openSettingsModal={openSettingsModal}
-            >
-              <AddPlayerToTeam
-                team={$Enums.Team.Red}
-                addPlayer={addPlayer}
-                existingPlayers={players}
-              />
-            </Team>
-          </>
-        )}
+              addPlayer={addPlayer}
+              existingPlayers={players}
+            />
+          </Team>
+        </WrapChildrenInSwiperIfMobile>
       </div>
     </main>
   );
