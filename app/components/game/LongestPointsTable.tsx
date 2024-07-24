@@ -30,10 +30,11 @@ export const LongestPointsTable: React.FC<LongestPointsTableProps> = ({
     <StatsTable>
       <StatsTHead>
         <StatsHeadTR>
-          <StatsTH>🔵 Blue Players</StatsTH>
-          <StatsTH>🔵 Blue Score</StatsTH>
-          <StatsTH>🔴 Red Score</StatsTH>
-          <StatsTH>🔴 Red Players</StatsTH>
+          <StatsTH>Blue Players</StatsTH>
+          <StatsTH>Score</StatsTH>
+          <StatsTH className="py-3 px-2 md:px-6 text-right">
+            Red Players
+          </StatsTH>
           <StatsTH>⏱️ Length</StatsTH>
         </StatsHeadTR>
       </StatsTHead>
@@ -49,16 +50,27 @@ export const LongestPointsTable: React.FC<LongestPointsTableProps> = ({
           }) => (
             <StatsTR key={id}>
               <StatsTD>
-                {blueActivePlayers
-                  .map((activePlayer) => activePlayer.name)
-                  .join(', ')}
+                <span className="flex items-center gap-2 md:gap-3">
+                  <span>🔵</span>
+                  <span>
+                    {blueActivePlayers
+                      .map((activePlayer) => activePlayer.name)
+                      .join(', ')}
+                  </span>
+                </span>
               </StatsTD>
-              <StatsTD>{blueScore}</StatsTD>
-              <StatsTD>{redScore}</StatsTD>
               <StatsTD>
-                {redActivePlayers
-                  .map((activePlayer) => activePlayer.name)
-                  .join(', ')}
+                <span className="whitespace-nowrap">{`${blueScore} - ${redScore}`}</span>
+              </StatsTD>
+              <StatsTD>
+                <span className="flex justify-end items-center gap-2 md:gap-3">
+                  <span className="text-right">
+                    {redActivePlayers
+                      .map((activePlayer) => activePlayer.name)
+                      .join(', ')}
+                  </span>
+                  <span>🔴</span>
+                </span>
               </StatsTD>
               <StatsTD>
                 {moment

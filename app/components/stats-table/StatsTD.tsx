@@ -5,7 +5,7 @@ export const StatsTD: React.FC<
 > = (props) => {
   const { children, className } = props;
   return (
-    <td {...props} className={className ?? 'py-4 px-6'}>
+    <td {...props} className={className ?? 'py-4 px-2 md:px-6'}>
       {children}
     </td>
   );
