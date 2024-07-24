@@ -26,9 +26,10 @@ export default function Navbar() {
             <div className="flex h-16 justify-between">
               <div className="flex">
                 <div className="flex flex-shrink-0 items-center">
-                  <Link href="/">
+                  {/* TODO: ideally we should be using a <Link> component, but it isn't behaving correctly for force-dynamic and so is using a cached version - see https://github.com/vercel/next.js/issues/49300 */}
+                  <a href="/">
                     <Logo />
-                  </Link>
+                  </a>
                 </div>
                 <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
                   {navigation.map((item) => (
