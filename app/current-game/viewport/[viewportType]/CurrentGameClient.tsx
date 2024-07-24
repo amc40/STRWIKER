@@ -17,6 +17,7 @@ import { PlayerInfo } from '../../../view/PlayerInfo';
 import { supabaseClient } from '../../../utils/supabase';
 import { GameInfo } from '../../../view/CurrentGameInfo';
 import { useRouter } from 'next/navigation';
+import { useMessage } from '../../../context/MessageContext';
 
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
@@ -131,6 +132,8 @@ export const CurrentGameClient: FC<{
     awaitingPlayersResponseRef.current = awaitingPlayersResponse;
   }, [awaitingPlayersResponse]);
 
+  const { addErrorMessage } = useMessage();
+
   const addPlayer = (
     playerId: number,
     playerName: string,
@@ -156,7 +159,7 @@ export const CurrentGameClient: FC<{
       }
     };
     action().catch((e) => {
-      console.error(`Error adding player id ${playerId}:`, e);
+      addErrorMessage(`Error adding player id ${playerId}: ${e}`);
     });
   };
 
@@ -173,7 +176,7 @@ export const CurrentGameClient: FC<{
       }
     };
     action().catch((e) => {
-      console.error(`Error removing player id ${player.id}:`, e);
+      addErrorMessage(`Error removing player id ${player.id}: ${e}`);
     });
   };
 
@@ -199,9 +202,8 @@ export const CurrentGameClient: FC<{
       }
     };
     action().catch((e) => {
-      console.error(
-        `Error reordering player id ${player.id} to position ${destinationIndex}:`,
-        e,
+      addErrorMessage(
+        `Error reordering player id ${player.id} to position ${destinationIndex}: ${e}`,
       );
     });
   };

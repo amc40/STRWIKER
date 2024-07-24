@@ -2,6 +2,7 @@
 import React from 'react';
 import { startFreshGame } from '../../../lib/Game.actions';
 import { PrimaryButton } from '../PrimaryButton';
+import { useMessage } from '../../context/MessageContext';
 
 export const StartFreshGameButton: React.FC = () => {
   const onClick = async () => {
@@ -12,13 +13,15 @@ export const StartFreshGameButton: React.FC = () => {
     }
   };
 
+  const { addErrorMessage } = useMessage();
+
   return (
     <PrimaryButton
       text="Start Fresh Game"
       className="mt-8 text-md md:text-2xl font-bold"
       onClick={() => {
         onClick().catch((e) => {
-          console.error('Error starting fresh game:', e);
+          addErrorMessage(`Error starting fresh game: ${e}`);
         });
       }}
     />

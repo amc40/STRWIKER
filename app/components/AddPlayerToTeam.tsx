@@ -6,6 +6,7 @@ import Modal from './Modal';
 import { getPlayers } from '../../lib/Player.actions';
 import { PlayerInfo } from '../view/PlayerInfo';
 import { Plus } from './icons/Plus';
+import { useMessage } from '../context/MessageContext';
 
 interface AddPlayerToTeamProps {
   team: $Enums.Team;
@@ -27,15 +28,17 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
     setShowModal(false);
   };
 
+  const { addErrorMessage } = useMessage();
+
   useEffect(() => {
     const loadData = async () => {
       const data = await getPlayers();
       setPlayers(data);
     };
     loadData().catch((e) => {
-      console.error('Failed to fetch players', e);
+      addErrorMessage(`Failed to fetch players: ${e}`);
     });
-  }, []);
+  }, [addErrorMessage]);
 
   const filteredPlayers = players.filter((player) =>
     player.name.toLowerCase().includes(playerFilter.toLowerCase()),

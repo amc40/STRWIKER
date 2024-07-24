@@ -3,10 +3,13 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { getPlayers } from '../../lib/Player.actions';
 import { Player } from '@prisma/client';
+import { useMessage } from '../context/MessageContext';
 
 const Stats: React.FC = () => {
   // TODO: pass in initial data from server
   const [players, setPlayers] = useState<Player[]>([]);
+
+  const { addErrorMessage } = useMessage();
 
   useEffect(() => {
     const populatePlayers = async () => {
@@ -14,9 +17,9 @@ const Stats: React.FC = () => {
       setPlayers(players);
     };
     populatePlayers().catch((e) => {
-      console.error('Error populating players:', e);
+      addErrorMessage(`Error populating players: ${e}`);
     });
-  }, []);
+  }, [addErrorMessage]);
 
   return (
     <>

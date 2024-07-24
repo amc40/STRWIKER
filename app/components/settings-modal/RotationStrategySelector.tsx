@@ -2,6 +2,7 @@ import { RotatyStrategy, Team } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
 import { updateRotatyStrategyAction } from '../../../lib/Game.actions';
 import { Select, SelectOption } from '../Select';
+import { useMessage } from '../../context/MessageContext';
 
 interface RotationStrategySelectorProps {
   team: Team;
@@ -27,6 +28,8 @@ export const RotatyStrategySelector: React.FC<
     setSelectedRotatyStrategy(rotatyStrategy);
   }, [rotatyStrategy]);
 
+  const { addErrorMessage } = useMessage();
+
   const updateRotatyStrategy = (rotatyStrategy: RotatyStrategy) => {
     setLoading(true);
     const updateRotatyStrategyPromise = async () => {
@@ -40,7 +43,7 @@ export const RotatyStrategySelector: React.FC<
       }
     };
     updateRotatyStrategyPromise().catch((e) => {
-      console.error('Error updating rotaty strategy:', e);
+      addErrorMessage(`Error updating rotaty strategy: ${e}`);
     });
   };
 
