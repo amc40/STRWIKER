@@ -30,10 +30,7 @@ export const LongestPointsTable: React.FC<LongestPointsTableProps> = ({
     <StatsTable>
       <StatsTHead>
         <StatsHeadTR>
-          <StatsTH>🔵 Blue Players</StatsTH>
-          <StatsTH>🔵 Blue Score</StatsTH>
-          <StatsTH>🔴 Red Score</StatsTH>
-          <StatsTH>🔴 Red Players</StatsTH>
+          <StatsTH>Point and Players</StatsTH>
           <StatsTH>⏱️ Length</StatsTH>
         </StatsHeadTR>
       </StatsTHead>
@@ -49,16 +46,26 @@ export const LongestPointsTable: React.FC<LongestPointsTableProps> = ({
           }) => (
             <StatsTR key={id}>
               <StatsTD>
-                {blueActivePlayers
-                  .map((activePlayer) => activePlayer.name)
-                  .join(', ')}
-              </StatsTD>
-              <StatsTD>{blueScore}</StatsTD>
-              <StatsTD>{redScore}</StatsTD>
-              <StatsTD>
-                {redActivePlayers
-                  .map((activePlayer) => activePlayer.name)
-                  .join(', ')}
+                <span className="flex justify-between gap-1">
+                  <span className="flex gap-1 md:gap-2">
+                    <span>🔵</span>
+                    <span>
+                      {blueActivePlayers
+                        .map((activePlayer) => activePlayer.name)
+                        .join(', ')}
+                    </span>
+                  </span>
+                  <span className="whitespace-nowrap">{`${blueScore} - ${redScore}`}</span>
+                  <span className="flex gap-1 md:gap-2">
+                    <span className="text-right">
+                      {redActivePlayers
+                        .map((activePlayer) => activePlayer.name)
+                        .join(', ')}
+                    </span>
+
+                    <span>🔴</span>
+                  </span>
+                </span>
               </StatsTD>
               <StatsTD>
                 {moment
