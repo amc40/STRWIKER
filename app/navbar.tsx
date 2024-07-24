@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation';
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Logo } from './components/icons/Logo';
-import Link from 'next/link';
 
 const navigation = [
   { name: 'Current Game', href: '/current-game' },
