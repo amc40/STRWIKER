@@ -119,12 +119,14 @@ export class GameLogicService {
             playerPointsFromLastPointOfPreviousGame,
             rotatyStrategyPerTeam,
           );
+        } else {
+          // TODO: why was this not causing the transaction to rollback when it was outside the else
+          throw new Error(
+            `The most recent finished game is neither abandoned or completed: ${JSON.stringify(
+              previousGame,
+            )}`,
+          );
         }
-        throw new Error(
-          `The most recent finished game is neither abandoned or completed: ${JSON.stringify(
-            previousGame,
-          )}`,
-        );
       },
       {
         timeout: 10000,
