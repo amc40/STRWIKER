@@ -4,6 +4,7 @@ import { Player } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
 import { addPlayer, getPlayers } from '../../lib/Player.actions';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { useMessage } from '../context/MessageContext';
 
 interface PlayersClientProps {
   serverPlayers: Player[];
@@ -19,16 +20,18 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
     setPlayers(players);
   };
 
+  const { addErrorMessage } = useMessage();
+
   useEffect(() => {
     const interval = setInterval(() => {
       populatePlayers().catch((e) => {
-        console.error('Error populating players:', e);
+        addErrorMessage(`Error populating players: ${e}`);
       });
     }, 1000);
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [addErrorMessage]);
 
   const [newPlayerName, setNewPlayerName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,7 +83,7 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
             text="Add Player"
             onClick={() => {
               handleAddPlayer().catch((e) => {
-                console.error('Error adding new player:', e);
+                addErrorMessage(`Error adding new player: ${e}`);
               });
             }}
           />

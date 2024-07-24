@@ -4,6 +4,7 @@ import { CircleRemove } from './CircleRemove';
 import { PlayerCardStat } from './PlayerCardStat';
 import { PlayerCardGoalButton } from './PlayerCardGoalButton';
 import { PlayerInfo } from '../../view/PlayerInfo';
+import { useMessage } from '../../context/MessageContext';
 
 interface PlayerCardProps {
   player: PlayerInfo;
@@ -31,11 +32,13 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
   const [recordingGoal, setRecordingGoal] = useState(false);
   const [recordingOwnGoal, setRecordingOwnGoal] = useState(false);
 
+  const { addErrorMessage } = useMessage();
+
   const handleGoalClick = () => {
     setRecordingGoal(true);
     recordGoalScored(player, false)
       .catch((e) => {
-        console.error('Error recording goal:', e);
+        addErrorMessage(`Error recording goal: ${e}`);
       })
       .finally(() => {
         setRecordingGoal(false);
@@ -46,7 +49,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
     setRecordingOwnGoal(true);
     recordGoalScored(player, true)
       .catch((e) => {
-        console.error('Error recording own goal:', e);
+        addErrorMessage(`Error recording goal: ${e}`);
       })
       .finally(() => {
         setRecordingOwnGoal(false);
