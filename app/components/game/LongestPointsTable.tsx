@@ -30,7 +30,11 @@ export const LongestPointsTable: React.FC<LongestPointsTableProps> = ({
     <StatsTable>
       <StatsTHead>
         <StatsHeadTR>
-          <StatsTH>Point and Players</StatsTH>
+          <StatsTH>Blue Players</StatsTH>
+          <StatsTH>Score</StatsTH>
+          <StatsTH className="py-3 px-2 md:px-6 text-right">
+            Red Players
+          </StatsTH>
           <StatsTH>⏱️ Length</StatsTH>
         </StatsHeadTR>
       </StatsTHead>
@@ -46,25 +50,26 @@ export const LongestPointsTable: React.FC<LongestPointsTableProps> = ({
           }) => (
             <StatsTR key={id}>
               <StatsTD>
-                <span className="flex justify-between gap-1">
-                  <span className="flex gap-1 md:gap-2">
-                    <span>🔵</span>
-                    <span>
-                      {blueActivePlayers
-                        .map((activePlayer) => activePlayer.name)
-                        .join(', ')}
-                    </span>
+                <span className="flex items-center gap-2 md:gap-3">
+                  <span>🔵</span>
+                  <span>
+                    {blueActivePlayers
+                      .map((activePlayer) => activePlayer.name)
+                      .join(', ')}
                   </span>
-                  <span className="whitespace-nowrap">{`${blueScore} - ${redScore}`}</span>
-                  <span className="flex gap-1 md:gap-2">
-                    <span className="text-right">
-                      {redActivePlayers
-                        .map((activePlayer) => activePlayer.name)
-                        .join(', ')}
-                    </span>
-
-                    <span>🔴</span>
+                </span>
+              </StatsTD>
+              <StatsTD>
+                <span className="whitespace-nowrap">{`${blueScore} - ${redScore}`}</span>
+              </StatsTD>
+              <StatsTD>
+                <span className="flex justify-end items-center gap-2 md:gap-3">
+                  <span className="text-right">
+                    {redActivePlayers
+                      .map((activePlayer) => activePlayer.name)
+                      .join(', ')}
                   </span>
+                  <span>🔴</span>
                 </span>
               </StatsTD>
               <StatsTD>
