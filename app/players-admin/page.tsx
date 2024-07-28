@@ -1,6 +1,6 @@
 import React from 'react';
 import { getPlayers } from '../../lib/Player.actions';
-import { PlayersClient } from './PlayersClient';
+import { PlayersClient } from './PlayersAdminClient';
 
 const Players: React.FC = async () => {
   const players = await getPlayers();

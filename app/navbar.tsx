@@ -7,7 +7,7 @@ import { Logo } from './components/icons/Logo';
 
 const navigation = [
   { name: 'Current Game', href: '/current-game' },
-  { name: 'Players', href: '/players' },
+  { name: 'Players Admin', href: '/players-admin' },
 ];
 
 function classNames(...classes: string[]) {
