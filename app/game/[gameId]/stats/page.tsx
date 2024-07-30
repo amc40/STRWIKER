@@ -6,7 +6,6 @@ import { StatsSwiper } from '../../../components/stats-swiper/StatsSwiper';
 import { StatsEngineFwoar } from '../../../services/statsEngine';
 import { NumberOfOwnGoalsTable } from '../../../components/game/NumberOfOwnGoalsTable';
 import { PlayerRankingTable } from '../../../components/game/PlayerRankingTable';
-import { getPlayersOrderedByDescendingElos } from '../../../repository/playerRepository';
 import { LongestPointsTable } from '../../../components/game/LongestPointsTable';
 import { GameLogicService } from '../../../services/gameLogicService';
 
@@ -59,11 +58,12 @@ const GameServer: React.FC<GameServerProps> = async ({ params }) => {
     ),
   );
 
-  const playersOrderedByDescendingElos =
-    await getPlayersOrderedByDescendingElos();
+  const playersOrderedByDescendingElosWithChange =
+    await statsEngine.getPlayersOrderedByEloWithChangeSinceLastGame(gameId);
+
   const playersOrderedByDescendingElosWithRanking =
     statsEngine.fromOrderedByStatAddRanking(
-      playersOrderedByDescendingElos,
+      playersOrderedByDescendingElosWithChange,
       ({ elo }) => elo,
     );
 

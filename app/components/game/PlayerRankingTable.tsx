@@ -9,14 +9,20 @@ import { StatsTH } from '../stats-table/StatsTH';
 import { StatsTHead } from '../stats-table/StatsTHead';
 import { EmojiMedalsTD } from '../stats-table/RankingTD';
 import { WithRanking } from '../../services/statsEngine';
+import { ChangeInValue } from '../ChangeInValue';
+
+type PlayerMaybeWithChangeInElo = Player & {
+  changeInElo?: number | null;
+};
 
 interface PlayerRankingTableProps {
-  playersOrderedByDescendingElosWithRanking: WithRanking<Player>[];
+  playersOrderedByDescendingElosWithRanking: WithRanking<PlayerMaybeWithChangeInElo>[];
 }
 
 export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
   playersOrderedByDescendingElosWithRanking: playersOrderedByDescendingElos,
 }) => {
+  // console.log(playersOrderedByDescendingElos);
   return (
     <StatsTable>
       <StatsTHead>
@@ -27,13 +33,22 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
-        {playersOrderedByDescendingElos.map(({ id, name, elo, ranking }) => (
-          <StatsTR key={id}>
-            <EmojiMedalsTD ranking={ranking} />
-            <StatsTD>{name}</StatsTD>
-            <StatsTD>{elo}</StatsTD>
-          </StatsTR>
-        ))}
+        {playersOrderedByDescendingElos.map(
+          ({ id, name, elo, changeInElo, ranking }) => {
+            return (
+              <StatsTR key={id}>
+                <EmojiMedalsTD ranking={ranking} />
+                <StatsTD>{name}</StatsTD>
+                <StatsTD>
+                  <span>{elo}</span>
+                  {changeInElo != null ? (
+                    <ChangeInValue changeInValue={changeInElo} />
+                  ) : null}
+                </StatsTD>
+              </StatsTR>
+            );
+          },
+        )}
       </StatsTBody>
     </StatsTable>
   );

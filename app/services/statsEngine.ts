@@ -7,6 +7,8 @@ import {
 import { PlayerService } from './playerService';
 import { getAllPointsInGame } from '../repository/pointRepository';
 import moment from 'moment';
+import { getMostRecentHistoricalPlayerStatsBeforeThreshold } from '../repository/historicalPlayerStats';
+import { getPlayersOrderedByDescendingElos } from '../repository/playerRepository';
 
 interface PlayerPointStats {
   team: string;
@@ -123,6 +125,33 @@ export class StatsEngineFwoar {
       goalsScored: intensionalGoals,
       ownGoalsScored: ownGoals,
     };
+  }
+
+  async getPlayersOrderedByEloWithChangeSinceLastGame(currentGameId: number) {
+    const currentGame = await prisma.game.findUniqueOrThrow({
+      where: {
+        id: currentGameId,
+      },
+    });
+
+    // TODO: these are static and aren't fetched based on the current game being viewed
+    const playersOrderedByDescendingElos =
+      await getPlayersOrderedByDescendingElos();
+
+    const lastGameStatsForEachPlayer =
+      await getMostRecentHistoricalPlayerStatsBeforeThreshold(
+        currentGame.startTime,
+      );
+
+    return playersOrderedByDescendingElos.map((player) => {
+      const previousElo = lastGameStatsForEachPlayer.find(
+        ({ id }) => player.id === id,
+      )?.previousElo;
+      return {
+        ...player,
+        changeInElo: previousElo != null ? player.elo - previousElo : null,
+      };
+    });
   }
 
   // Note: rankings start from 1
