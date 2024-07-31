@@ -1,4 +1,3 @@
-import { Player } from '@prisma/client';
 import React from 'react';
 import { StatsTable } from '../stats-table/StatsTable';
 import { StatsTR } from '../stats-table/StatsBodyTR';
@@ -10,8 +9,10 @@ import { StatsTHead } from '../stats-table/StatsTHead';
 import { EmojiMedalsTD } from '../stats-table/RankingTD';
 import { WithRanking } from '../../services/statsEngine';
 import { ChangeInValue } from '../ChangeInValue';
+import { PlayerWithoutStatValues } from '../../repository/playerRepository';
 
-type PlayerMaybeWithChangeInElo = Player & {
+type PlayerMaybeWithChangeInElo = PlayerWithoutStatValues & {
+  elo: number;
   changeInElo?: number | null;
 };
 

@@ -1,10 +1,22 @@
-import { Player, Prisma } from '@prisma/client';
+import { HistoricalPlayerStats, Player, Prisma } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 
-type MostRecentHistoricalPlayerStatsBeforeThresholdReturn = (Player & {
-  previousElo: number | null;
-  previousGamesPlayer: number | null;
-})[];
+export type HistoricalPlayerStatValues = Omit<
+  HistoricalPlayerStats,
+  'id' | 'playerId' | 'gameId'
+>;
+
+type MostRecentHistoricalPlayerStatsBeforeThresholdReturn = (Player &
+  // these are delibarately separated as the value should be null on all of the non-nullable fields only if there isn't a HistoricalPlayerStat before the threshold for the player
+  (| {
+        previousElo: number;
+        previousGamesPlayed: number;
+      }
+    | {
+        previousElo: null;
+        previousGamesPlayed: null;
+      }
+  ))[];
 
 export const getMostRecentHistoricalPlayerStatsBeforeThreshold = async (
   upperThresholdTime: Date,
@@ -35,4 +47,12 @@ export const getMostRecentHistoricalPlayerStatsBeforeThreshold = async (
       ) AS "MostRecentHistoricalPlayerStatsBeforeThreshold" ON true;
     `,
   )) as MostRecentHistoricalPlayerStatsBeforeThresholdReturn;
+};
+
+export const getHistoricalPlayerStatsInGameId = async (gameId: number) => {
+  return await prisma.historicalPlayerStats.findMany({
+    where: {
+      gameId,
+    },
+  });
 };

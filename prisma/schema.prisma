@@ -89,6 +89,7 @@ model PlayerPoint {
 
 model HistoricalPlayerStats {
   id          Int @id @default(autoincrement())
+  // each of the stats should be non-nullable or it will cause a problem in historicalPlayerStatsRepository.getMostRecentHistoricalPlayerStatsBeforeThreshold()
   gamesPlayed Int
   elo         Int
 
