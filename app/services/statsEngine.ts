@@ -7,7 +7,7 @@ import {
 import { PlayerService } from './playerService';
 import { getAllPointsInGame } from '../repository/pointRepository';
 import moment from 'moment';
-import { getMostRecentHistoricalPlayerStatsBeforeThreshold } from '../repository/historicalPlayerStats';
+import { getMostRecentHistoricalPlayerStatsBeforeThreshold } from '../repository/historicalPlayerStatsRepository';
 import { getPlayersOrderedByDescendingElos } from '../repository/playerRepository';
 
 interface PlayerPointStats {
