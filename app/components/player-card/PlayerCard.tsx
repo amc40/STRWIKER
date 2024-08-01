@@ -38,7 +38,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
     setRecordingGoal(true);
     recordGoalScored(player, false)
       .catch((e) => {
-        addErrorMessage(`Error recording goal: ${e}`);
+        addErrorMessage('Error recording goal', e);
       })
       .finally(() => {
         setRecordingGoal(false);
@@ -49,7 +49,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
     setRecordingOwnGoal(true);
     recordGoalScored(player, true)
       .catch((e) => {
-        addErrorMessage(`Error recording goal: ${e}`);
+        addErrorMessage('Error recording goal', e);
       })
       .finally(() => {
         setRecordingOwnGoal(false);

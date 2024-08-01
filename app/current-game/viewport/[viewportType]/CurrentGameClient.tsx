@@ -159,7 +159,7 @@ export const CurrentGameClient: FC<{
       }
     };
     action().catch((e) => {
-      addErrorMessage(`Error adding player id ${playerId}: ${e}`);
+      addErrorMessage(`Error adding player id ${playerId}`, e);
     });
   };
 
@@ -176,7 +176,7 @@ export const CurrentGameClient: FC<{
       }
     };
     action().catch((e) => {
-      addErrorMessage(`Error removing player id ${player.id}: ${e}`);
+      addErrorMessage(`Error removing player id ${player.id}`, e);
     });
   };
 
@@ -203,7 +203,8 @@ export const CurrentGameClient: FC<{
     };
     action().catch((e) => {
       addErrorMessage(
-        `Error reordering player id ${player.id} to position ${destinationIndex}: ${e}`,
+        `Error reordering player id ${player.id} to position ${destinationIndex}`,
+        e,
       );
     });
   };

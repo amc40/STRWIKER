@@ -2,12 +2,12 @@
 import React, { createContext, useState, useContext, useRef } from 'react';
 
 const CLEAR_MESSAGE_AFTER_MS: Record<MessageType, number> = {
-  error: 30000,
+  error: 3000,
 };
 
 interface MessageContext {
   readonly messages: Message[];
-  readonly addErrorMessage: (errorMessage: string) => void;
+  readonly addErrorMessage: (errorMessage: string, error: unknown) => void;
 }
 
 export const MessageContext = createContext<MessageContext>({
@@ -31,8 +31,8 @@ export const MessageProvider: React.FC<React.PropsWithChildren> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const messageIdRef = useRef(0);
 
-  const addErrorMessage = (errorMessage: string) => {
-    console.error(errorMessage);
+  const addErrorMessage = (errorMessage: string, error: unknown) => {
+    console.error(errorMessage, error);
     const id = messageIdRef.current++;
     setMessages((prevMessages) => [
       ...prevMessages,

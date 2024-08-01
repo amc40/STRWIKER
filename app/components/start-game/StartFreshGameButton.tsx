@@ -21,7 +21,7 @@ export const StartFreshGameButton: React.FC = () => {
       className="mt-8 text-md md:text-2xl font-bold"
       onClick={() => {
         onClick().catch((e) => {
-          addErrorMessage(`Error starting fresh game: ${e}`);
+          addErrorMessage('Error starting fresh game', e);
         });
       }}
     />
