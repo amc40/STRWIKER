@@ -18,6 +18,7 @@ import { supabaseClient } from '../../../utils/supabase';
 import { GameInfo } from '../../../view/CurrentGameInfo';
 import { useRouter } from 'next/navigation';
 import { useMessage } from '../../../context/MessageContext';
+import { sortArrayByPropertyAsc } from '../../../utils/arrayUtils';
 
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
@@ -248,9 +249,10 @@ export const CurrentGameClient: FC<{
         <WrapChildrenInSwiperIfMobile isMobile={isMobile}>
           <Team
             team={$Enums.Team.Blue}
-            members={players
-              .filter((player) => player.team === 'Blue')
-              .sort((a, b) => a.position - b.position)}
+            members={sortArrayByPropertyAsc(
+              players.filter((player) => player.team === 'Blue'),
+              ({ position }) => position,
+            )}
             score={blueScore}
             rotatyStrategy={blueRotatyStrategy}
             removePlayer={removePlayer}
@@ -265,9 +267,10 @@ export const CurrentGameClient: FC<{
           </Team>
           <Team
             team={$Enums.Team.Red}
-            members={players
-              .filter((player) => player.team === 'Red')
-              .sort((a, b) => a.position - b.position)}
+            members={sortArrayByPropertyAsc(
+              players.filter((player) => player.team === 'Red'),
+              ({ position }) => position,
+            )}
             score={redScore}
             rotatyStrategy={redRotatyStrategy}
             removePlayer={removePlayer}

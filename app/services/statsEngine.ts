@@ -19,6 +19,10 @@ import {
   getMostRecentHistoricalPlayerStatsBeforeThreshold,
 } from '../repository/historicalPlayerStatsRepository';
 import { PlayerWithoutStatValues } from '../repository/playerRepository';
+import {
+  sortArrayByNullablePropertyDescNullsLast,
+  sortArrayByPropertyDesc,
+} from '../utils/arrayUtils';
 
 interface PlayerPointStats {
   team: string;
@@ -33,6 +37,7 @@ export interface GoalsScored {
 }
 
 export type WithRanking<T> = T & { ranking: number };
+export type WithNullableRanking<T> = T & { ranking: number | null };
 
 type HistoricalPlayerStatValuesForPlayerBeforeAndAfterGameWithChange =
   PlayerWithoutStatValues & {
@@ -44,8 +49,9 @@ type HistoricalPlayerStatValuesForPlayerBeforeAndAfterGameWithChange =
     changeInGameStatValues: HistoricalPlayerStatValues | null;
   };
 
-export type PlayerEloAfterGameAndChange = PlayerWithoutStatValues & {
+export type PlayerEloBeforeAndAfterGameWithChange = PlayerWithoutStatValues & {
   elo: number;
+  previousElo: number | null;
   changeInElo: number | null;
 };
 
@@ -154,46 +160,89 @@ export class StatsEngineFwoar {
 
   async getPlayersOrderedByEloWithChangeSinceLastGame(
     currentGameId: number,
-  ): Promise<WithRanking<PlayerEloAfterGameAndChange>[]> {
+  ): Promise<WithRanking<PlayerEloBeforeAndAfterGameWithChange>[]> {
     const historicalPlayerStatValuesForEachPlayerBeforeAndAfterGameWithChange =
       await this.getHistoricalPlayerStatValuesForEachPlayerBeforeAndAfterGameWithChange(
         currentGameId,
       );
 
-    const playerElosWithChangeSinceLastGame =
+    const playerElosBeforeAndAfterGameWithChange =
       historicalPlayerStatValuesForEachPlayerBeforeAndAfterGameWithChange.reduce<
-        PlayerEloAfterGameAndChange[]
+        PlayerEloBeforeAndAfterGameWithChange[]
       >(
         (
           accumulatingArray,
           historicalPlayerStatsBeforeAndAfterGameWithChange,
         ) => {
-          const { id, name, afterGameStatValues, changeInGameStatValues } =
-            historicalPlayerStatsBeforeAndAfterGameWithChange;
+          const {
+            id,
+            name,
+            afterGameStatValues,
+            beforeGameStatValues,
+            changeInGameStatValues,
+          } = historicalPlayerStatsBeforeAndAfterGameWithChange;
 
           if (afterGameStatValues == null) {
             return accumulatingArray;
           }
-          return [
-            ...accumulatingArray,
-            {
-              id,
-              name,
-              elo: afterGameStatValues.elo,
-              changeInElo: changeInGameStatValues?.elo ?? null,
-            },
-          ];
+
+          accumulatingArray.push({
+            id,
+            name,
+            elo: afterGameStatValues.elo,
+            previousElo: beforeGameStatValues?.elo ?? null,
+            changeInElo: changeInGameStatValues?.elo ?? null,
+          });
+
+          return accumulatingArray;
         },
         [],
       );
 
-    playerElosWithChangeSinceLastGame.sort(
-      ({ elo: eloA }, { elo: eloB }) => eloB - eloA,
+    sortArrayByNullablePropertyDescNullsLast(
+      playerElosBeforeAndAfterGameWithChange,
+      ({ previousElo }) => previousElo,
     );
 
-    return this.fromOrderedByStatAddRanking(
-      playerElosWithChangeSinceLastGame,
+    const playerElosBeforeAndAfterGameWithChangeAndPreviousRanking =
+      this.fromOrderedByNullableStatAddRanking(
+        playerElosBeforeAndAfterGameWithChange,
+        ({ previousElo }) => previousElo,
+      ).map((playerElosBeforeAndAfterGameWithChangeAndRanking) => {
+        const { ranking } = playerElosBeforeAndAfterGameWithChangeAndRanking;
+
+        const resultWithOriginalRanking = {
+          ...playerElosBeforeAndAfterGameWithChangeAndRanking,
+          previousRanking: ranking,
+        };
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { ranking: discardedRanking, ...result } =
+          resultWithOriginalRanking;
+        return result;
+      });
+
+    sortArrayByPropertyDesc(
+      playerElosBeforeAndAfterGameWithChangeAndPreviousRanking,
       ({ elo }) => elo,
+    );
+
+    const playerElosAndRankingsBeforeAndAfterGameWithChange =
+      this.fromOrderedByStatAddRanking(
+        playerElosBeforeAndAfterGameWithChangeAndPreviousRanking,
+        ({ elo }) => elo,
+      );
+
+    return playerElosAndRankingsBeforeAndAfterGameWithChange.map(
+      (playerEloAndRankingBeforeAndAfterGameWithChange) => {
+        const { ranking, previousRanking } =
+          playerEloAndRankingBeforeAndAfterGameWithChange;
+        return {
+          ...playerEloAndRankingBeforeAndAfterGameWithChange,
+          changeInRanking:
+            previousRanking != null ? ranking - previousRanking : null,
+        };
+      },
     );
   }
 
@@ -335,6 +384,34 @@ export class StatsEngineFwoar {
 
     return orderedByBestStatFirst.map((element) => {
       const currentStat = getStatFromElement(element);
+
+      if (prevStat === null || currentStat !== prevStat) {
+        currentRanking += 1;
+      }
+
+      prevStat = currentStat;
+
+      return { ...element, ranking: currentRanking };
+    });
+  }
+
+  // Note: rankings start from 1. Null values will be assigned a null ranking
+  fromOrderedByNullableStatAddRanking<T>(
+    orderedByBestStatFirst: T[],
+    getStatFromElement: (element: T) => number | null,
+  ): WithNullableRanking<T>[] {
+    let prevStat: number | null = null;
+    let currentRanking = 0;
+
+    return orderedByBestStatFirst.map((element) => {
+      const currentStat = getStatFromElement(element);
+
+      if (currentStat == null) {
+        return {
+          ...element,
+          ranking: null,
+        };
+      }
 
       if (prevStat === null || currentStat !== prevStat) {
         currentRanking += 1;

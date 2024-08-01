@@ -16,14 +16,19 @@ type PlayerMaybeWithChangeInElo = PlayerWithoutStatValues & {
   changeInElo?: number | null;
 };
 
+type MaybeWithChangeInRanking<T> = T & {
+  changeInRanking?: number | null;
+};
+
 interface PlayerRankingTableProps {
-  playersOrderedByDescendingElosWithRanking: WithRanking<PlayerMaybeWithChangeInElo>[];
+  playersOrderedByDescendingElosWithRanking: MaybeWithChangeInRanking<
+    WithRanking<PlayerMaybeWithChangeInElo>
+  >[];
 }
 
 export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
   playersOrderedByDescendingElosWithRanking: playersOrderedByDescendingElos,
 }) => {
-  // console.log(playersOrderedByDescendingElos);
   return (
     <StatsTable>
       <StatsTHead>
@@ -35,10 +40,13 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
       </StatsTHead>
       <StatsTBody>
         {playersOrderedByDescendingElos.map(
-          ({ id, name, elo, changeInElo, ranking }) => {
+          ({ id, name, elo, changeInElo, ranking, changeInRanking }) => {
             return (
               <StatsTR key={id}>
-                <EmojiMedalsTD ranking={ranking} />
+                <EmojiMedalsTD
+                  ranking={ranking}
+                  changeInRanking={changeInRanking}
+                />
                 <StatsTD>{name}</StatsTD>
                 <StatsTD>
                   <span>{elo}</span>
