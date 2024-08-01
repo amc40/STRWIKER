@@ -11,13 +11,13 @@ export const ChangeInRanking: React.FC<ChangeInRankingProps> = ({
     return null;
   }
 
-  const isIncrease = changeInRanking > 0;
+  const isHigherRanking = changeInRanking < 0;
   const changeText = `(${Math.abs(changeInRanking)}${
-    isIncrease ? '⬆️' : '⬇️'
+    isHigherRanking ? '⬆️' : '⬇️'
   })`;
 
   return (
-    <span className={` ${isIncrease ? 'text-green-500' : 'text-red-500'}`}>
+    <span className={` ${isHigherRanking ? 'text-green-500' : 'text-red-500'}`}>
       {changeText}
     </span>
   );
