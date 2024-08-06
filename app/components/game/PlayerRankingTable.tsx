@@ -127,10 +127,12 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
               />
               <StatsTD>{name}</StatsTD>
               <StatsTD>
-                <span>{elo}</span>
-                {changeInElo != null ? (
-                  <ChangeInValue changeInValue={changeInElo} />
-                ) : null}
+                <div className="flex gap-1">
+                  <span>{elo}</span>
+                  {changeInElo != null ? (
+                    <ChangeInValue changeInValue={changeInElo} />
+                  ) : null}
+                </div>
               </StatsTD>
             </StatsTR>
           );
