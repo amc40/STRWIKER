@@ -379,17 +379,22 @@ export class StatsEngineFwoar {
     orderedByBestStatFirst: T[],
     getStatFromElement: (element: T) => number,
   ): WithRanking<T>[] {
-    let prevStat: number | null = null;
-    let currentRanking = 0;
+    let prevStatAndRanking: {
+      stat: number;
+      ranking: number;
+    } | null = null;
 
-    return orderedByBestStatFirst.map((element) => {
+    return orderedByBestStatFirst.map((element, index) => {
       const currentStat = getStatFromElement(element);
+      const currentRanking =
+        prevStatAndRanking === null || currentStat != prevStatAndRanking.stat
+          ? index + 1
+          : prevStatAndRanking.ranking;
 
-      if (prevStat === null || currentStat !== prevStat) {
-        currentRanking += 1;
-      }
-
-      prevStat = currentStat;
+      prevStatAndRanking = {
+        stat: currentStat,
+        ranking: currentRanking,
+      };
 
       return { ...element, ranking: currentRanking };
     });
@@ -400,10 +405,12 @@ export class StatsEngineFwoar {
     orderedByBestStatFirst: T[],
     getStatFromElement: (element: T) => number | null,
   ): WithNullableRanking<T>[] {
-    let prevStat: number | null = null;
-    let currentRanking = 0;
+    let prevStatAndRanking: {
+      stat: number;
+      ranking: number;
+    } | null = null;
 
-    return orderedByBestStatFirst.map((element) => {
+    return orderedByBestStatFirst.map((element, index) => {
       const currentStat = getStatFromElement(element);
 
       if (currentStat == null) {
@@ -413,11 +420,15 @@ export class StatsEngineFwoar {
         };
       }
 
-      if (prevStat === null || currentStat !== prevStat) {
-        currentRanking += 1;
-      }
+      const currentRanking =
+        prevStatAndRanking === null || currentStat != prevStatAndRanking.stat
+          ? index + 1
+          : prevStatAndRanking.ranking;
 
-      prevStat = currentStat;
+      prevStatAndRanking = {
+        stat: currentStat,
+        ranking: currentRanking,
+      };
 
       return { ...element, ranking: currentRanking };
     });
