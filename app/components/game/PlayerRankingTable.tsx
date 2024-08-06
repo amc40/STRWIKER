@@ -14,6 +14,7 @@ import { PlayerWithoutStatValues } from '../../repository/playerRepository';
 type PlayerMaybeWithChangeInElo = PlayerWithoutStatValues & {
   elo: number;
   changeInElo?: number | null;
+  previousElo?: number | null;
 };
 
 type MaybeWithChangeInRanking<T> = T & {
@@ -24,11 +25,22 @@ interface PlayerRankingTableProps {
   playersOrderedByDescendingElosWithRanking: MaybeWithChangeInRanking<
     WithRanking<PlayerMaybeWithChangeInElo>
   >[];
+  onlyShowChanges?: boolean;
 }
 
 export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
   playersOrderedByDescendingElosWithRanking: playersOrderedByDescendingElos,
+  onlyShowChanges = false,
 }) => {
+  const hasEloOrRankingChanged = (
+    changeInElo?: number | null,
+    changeInRanking?: number | null,
+  ) => {
+    return [changeInElo, changeInRanking].some(
+      (change) => change != null && change !== 0,
+    );
+  };
+
   return (
     <StatsTable>
       <StatsTHead>
@@ -40,7 +52,23 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
       </StatsTHead>
       <StatsTBody>
         {playersOrderedByDescendingElos.map(
-          ({ id, name, elo, changeInElo, ranking, changeInRanking }) => {
+          ({
+            id,
+            name,
+            elo,
+            previousElo,
+            changeInElo,
+            ranking,
+            changeInRanking,
+          }) => {
+            if (
+              onlyShowChanges &&
+              !hasEloOrRankingChanged(changeInElo, changeInRanking) &&
+              // workaround for players who don't have an elo
+              previousElo != null
+            ) {
+              return null;
+            }
             return (
               <StatsTR key={id}>
                 <EmojiMedalsTD

@@ -85,6 +85,7 @@ const GameServer: React.FC<GameServerProps> = async ({ params }) => {
           playersOrderedByDescendingElosWithRanking={
             playersOrderedByDescendingElosWithRanking
           }
+          onlyShowChanges
         />
       </StatsSwiper>
     </div>
