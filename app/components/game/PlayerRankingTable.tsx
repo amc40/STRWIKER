@@ -21,15 +21,26 @@ type MaybeWithChangeInRanking<T> = T & {
   changeInRanking?: number | null;
 };
 
+type PlayerRankingInfo = MaybeWithChangeInRanking<
+  WithRanking<PlayerMaybeWithChangeInElo>
+>;
+
 interface PlayerRankingTableProps {
-  playersOrderedByDescendingElosWithRanking: MaybeWithChangeInRanking<
-    WithRanking<PlayerMaybeWithChangeInElo>
-  >[];
+  playersOrderedByDescendingElosWithRanking: PlayerRankingInfo[];
   onlyShowChanges?: boolean;
 }
 
+type RowToDisplay =
+  | {
+      type: 'truncation';
+    }
+  | {
+      type: 'playerRanking';
+      playerRankingInfo: PlayerRankingInfo;
+    };
+
 export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
-  playersOrderedByDescendingElosWithRanking: playersOrderedByDescendingElos,
+  playersOrderedByDescendingElosWithRanking,
   onlyShowChanges = false,
 }) => {
   const hasEloOrRankingChanged = (
@@ -41,6 +52,47 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
     );
   };
 
+  const playerRankingInfoToRowToDisplay = (
+    playerRankingInfo: PlayerRankingInfo,
+  ): RowToDisplay => ({
+    type: 'playerRanking',
+    playerRankingInfo,
+  });
+
+  const rowsToDisplay: RowToDisplay[] = onlyShowChanges
+    ? playersOrderedByDescendingElosWithRanking.reduce<RowToDisplay[]>(
+        (accumulatingArray, playerRankingInfo) => {
+          const { changeInElo, previousElo, changeInRanking } =
+            playerRankingInfo;
+          const shouldShowPlayer =
+            hasEloOrRankingChanged(changeInElo, changeInRanking) ||
+            // workaround for players who don't have an elo
+            previousElo == null;
+          console.log('should show player', shouldShowPlayer);
+          if (shouldShowPlayer) {
+            accumulatingArray.push(
+              playerRankingInfoToRowToDisplay(playerRankingInfo),
+            );
+            return accumulatingArray;
+          }
+          const previousRowIsTruncation =
+            accumulatingArray.length > 0 &&
+            accumulatingArray[accumulatingArray.length - 1].type ===
+              'truncation';
+          if (previousRowIsTruncation) {
+            return accumulatingArray;
+          }
+          accumulatingArray.push({
+            type: 'truncation',
+          });
+          return accumulatingArray;
+        },
+        [],
+      )
+    : playersOrderedByDescendingElosWithRanking.map(
+        playerRankingInfoToRowToDisplay,
+      );
+
   return (
     <StatsTable>
       <StatsTHead>
@@ -51,41 +103,38 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
-        {playersOrderedByDescendingElos.map(
-          ({
-            id,
-            name,
-            elo,
-            previousElo,
-            changeInElo,
-            ranking,
-            changeInRanking,
-          }) => {
-            if (
-              onlyShowChanges &&
-              !hasEloOrRankingChanged(changeInElo, changeInRanking) &&
-              // workaround for players who don't have an elo
-              previousElo != null
-            ) {
-              return null;
-            }
+        {rowsToDisplay.map((rowToDisplay, index) => {
+          const { type } = rowToDisplay;
+          if (type === 'truncation') {
             return (
-              <StatsTR key={id}>
-                <EmojiMedalsTD
-                  ranking={ranking}
-                  changeInRanking={changeInRanking}
-                />
-                <StatsTD>{name}</StatsTD>
-                <StatsTD>
-                  <span>{elo}</span>
-                  {changeInElo != null ? (
-                    <ChangeInValue changeInValue={changeInElo} />
-                  ) : null}
+              <StatsTR key={`truncation-${index}`}>
+                <StatsTD
+                  className="text-center text-lg font-semibold"
+                  colSpan={3}
+                >
+                  ...
                 </StatsTD>
               </StatsTR>
             );
-          },
-        )}
+          }
+          const { id, ranking, changeInRanking, name, elo, changeInElo } =
+            rowToDisplay.playerRankingInfo;
+          return (
+            <StatsTR key={id}>
+              <EmojiMedalsTD
+                ranking={ranking}
+                changeInRanking={changeInRanking}
+              />
+              <StatsTD>{name}</StatsTD>
+              <StatsTD>
+                <span>{elo}</span>
+                {changeInElo != null ? (
+                  <ChangeInValue changeInValue={changeInElo} />
+                ) : null}
+              </StatsTD>
+            </StatsTR>
+          );
+        })}
       </StatsTBody>
     </StatsTable>
   );
