@@ -43,7 +43,7 @@ export const RotatyStrategySelector: React.FC<
       }
     };
     updateRotatyStrategyPromise().catch((e) => {
-      addErrorMessage(`Error updating rotaty strategy: ${e}`);
+      addErrorMessage('Error updating rotaty strategy', e);
     });
   };
 

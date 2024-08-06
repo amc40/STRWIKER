@@ -8,7 +8,7 @@ export const AbandonGameButton: React.FC = () => {
     <button
       onClick={() => {
         abandonCurrentGame().catch((error) => {
-          addErrorMessage(`Error abandoning game: ${error}`);
+          addErrorMessage('Error abandoning game', error);
         });
       }}
       className="p-1 rounded border border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:outline-none"

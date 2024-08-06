@@ -1,6 +1,11 @@
 import { Game, Player } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 
+export interface PlayerWithoutStatValues {
+  id: number;
+  name: string;
+}
+
 export const createPlayer = async (name: string) => {
   await prisma.player.create({
     data: {

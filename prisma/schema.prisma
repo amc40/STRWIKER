@@ -3,6 +3,7 @@ generator client {
 }
 
 datasource db {
+  // NOTE: we use raw queries which rely on postgres sql syntax. Those will have to be refactored if we change provider
   provider  = "postgresql"
   // NOTE: if you are getting slow responses it may be worth upping the conection limit to see if it has some effect
   // (e.g. adding &connection_limit=5 to the POSTGRES_PRISMA_URL)
@@ -88,6 +89,7 @@ model PlayerPoint {
 
 model HistoricalPlayerStats {
   id          Int @id @default(autoincrement())
+  // each of the stats should be non-nullable or it will cause a problem in historicalPlayerStatsRepository.getMostRecentHistoricalPlayerStatsBeforeThreshold()
   gamesPlayed Int
   elo         Int
 

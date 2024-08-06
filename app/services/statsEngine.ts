@@ -1,4 +1,10 @@
-import { Game, Player, PlayerPoint, Prisma } from '@prisma/client';
+import {
+  Game,
+  HistoricalPlayerStats,
+  Player,
+  PlayerPoint,
+  Prisma,
+} from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
   getCountOfGoalsScoredByEachPlayerInGame as getCountOfGoalsScoredByEachPlayerIdInGame,
@@ -7,6 +13,16 @@ import {
 import { PlayerService } from './playerService';
 import { getAllPointsInGame } from '../repository/pointRepository';
 import moment from 'moment';
+import {
+  HistoricalPlayerStatValues,
+  getHistoricalPlayerStatsInGameId,
+  getMostRecentHistoricalPlayerStatsBeforeThreshold,
+} from '../repository/historicalPlayerStatsRepository';
+import { PlayerWithoutStatValues } from '../repository/playerRepository';
+import {
+  sortArrayByNullablePropertyDescNullsLast,
+  sortArrayByPropertyDesc,
+} from '../utils/arrayUtils';
 
 interface PlayerPointStats {
   team: string;
@@ -21,6 +37,23 @@ export interface GoalsScored {
 }
 
 export type WithRanking<T> = T & { ranking: number };
+export type WithNullableRanking<T> = T & { ranking: number | null };
+
+type HistoricalPlayerStatValuesForPlayerBeforeAndAfterGameWithChange =
+  PlayerWithoutStatValues & {
+    // may be null if the player hasn't participated in a game previous to the current one
+    beforeGameStatValues: HistoricalPlayerStatValues | null;
+    // may be null if the player hasn't participated in any game
+    afterGameStatValues: HistoricalPlayerStatValues | null;
+    // if either of the before or after values are null then the change will be null
+    changeInGameStatValues: HistoricalPlayerStatValues | null;
+  };
+
+export type PlayerEloBeforeAndAfterGameWithChange = PlayerWithoutStatValues & {
+  elo: number;
+  previousElo: number | null;
+  changeInElo: number | null;
+};
 
 export class StatsEngineFwoar {
   playerService = new PlayerService();
@@ -125,22 +158,277 @@ export class StatsEngineFwoar {
     };
   }
 
+  async getPlayersOrderedByEloWithChangeSinceLastGame(
+    currentGameId: number,
+  ): Promise<WithRanking<PlayerEloBeforeAndAfterGameWithChange>[]> {
+    const historicalPlayerStatValuesForEachPlayerBeforeAndAfterGameWithChange =
+      await this.getHistoricalPlayerStatValuesForEachPlayerBeforeAndAfterGameWithChange(
+        currentGameId,
+      );
+
+    const playerElosBeforeAndAfterGameWithChange =
+      historicalPlayerStatValuesForEachPlayerBeforeAndAfterGameWithChange.reduce<
+        PlayerEloBeforeAndAfterGameWithChange[]
+      >(
+        (
+          accumulatingArray,
+          historicalPlayerStatsBeforeAndAfterGameWithChange,
+        ) => {
+          const {
+            id,
+            name,
+            afterGameStatValues,
+            beforeGameStatValues,
+            changeInGameStatValues,
+          } = historicalPlayerStatsBeforeAndAfterGameWithChange;
+
+          if (afterGameStatValues == null) {
+            return accumulatingArray;
+          }
+
+          accumulatingArray.push({
+            id,
+            name,
+            elo: afterGameStatValues.elo,
+            previousElo: beforeGameStatValues?.elo ?? null,
+            changeInElo: changeInGameStatValues?.elo ?? null,
+          });
+
+          return accumulatingArray;
+        },
+        [],
+      );
+
+    sortArrayByNullablePropertyDescNullsLast(
+      playerElosBeforeAndAfterGameWithChange,
+      ({ previousElo }) => previousElo,
+    );
+
+    const playerElosBeforeAndAfterGameWithChangeAndPreviousRanking =
+      this.fromOrderedByNullableStatAddRanking(
+        playerElosBeforeAndAfterGameWithChange,
+        ({ previousElo }) => previousElo,
+      ).map((playerElosBeforeAndAfterGameWithChangeAndRanking) => {
+        const { ranking } = playerElosBeforeAndAfterGameWithChangeAndRanking;
+
+        const resultWithOriginalRanking = {
+          ...playerElosBeforeAndAfterGameWithChangeAndRanking,
+          previousRanking: ranking,
+        };
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { ranking: discardedRanking, ...result } =
+          resultWithOriginalRanking;
+        return result;
+      });
+
+    sortArrayByPropertyDesc(
+      playerElosBeforeAndAfterGameWithChangeAndPreviousRanking,
+      ({ elo }) => elo,
+    );
+
+    const playerElosAndRankingsBeforeAndAfterGameWithChange =
+      this.fromOrderedByStatAddRanking(
+        playerElosBeforeAndAfterGameWithChangeAndPreviousRanking,
+        ({ elo }) => elo,
+      );
+
+    return playerElosAndRankingsBeforeAndAfterGameWithChange.map(
+      (playerEloAndRankingBeforeAndAfterGameWithChange) => {
+        const { ranking, previousRanking } =
+          playerEloAndRankingBeforeAndAfterGameWithChange;
+        return {
+          ...playerEloAndRankingBeforeAndAfterGameWithChange,
+          changeInRanking:
+            previousRanking != null ? ranking - previousRanking : null,
+        };
+      },
+    );
+  }
+
+  private async getHistoricalPlayerStatValuesForEachPlayerBeforeAndAfterGameWithChange(
+    gameId: number,
+  ): Promise<
+    HistoricalPlayerStatValuesForPlayerBeforeAndAfterGameWithChange[]
+  > {
+    const currentGame = await prisma.game.findUniqueOrThrow({
+      where: {
+        id: gameId,
+      },
+    });
+
+    const historicalPlayerStatValuesForEachPlayerBeforeGame =
+      await this.getHistoricalPlayerStatValuesForEachPlayerBeforeGame(
+        currentGame,
+      );
+
+    const historicalPlayerStatValuesForEachPlayerBeforeAndAfterGame =
+      await this.getHistoricalPlayerStatValuesForEachPlayerBeforeAndAfterGame(
+        gameId,
+        historicalPlayerStatValuesForEachPlayerBeforeGame,
+      );
+
+    return historicalPlayerStatValuesForEachPlayerBeforeAndAfterGame.map(
+      (historicalStatValuesForPlayerBeforeAndAfterGame) => ({
+        ...historicalStatValuesForPlayerBeforeAndAfterGame,
+        changeInGameStatValues:
+          this.getChangeInHistoricalStatsBeforeAndAfterGame(
+            historicalStatValuesForPlayerBeforeAndAfterGame.beforeGameStatValues,
+            historicalStatValuesForPlayerBeforeAndAfterGame.afterGameStatValues,
+          ),
+      }),
+    );
+  }
+
+  private getChangeInHistoricalStatsBeforeAndAfterGame(
+    beforeGameStatValues: HistoricalPlayerStatValues | null,
+    afterGameStatValues: HistoricalPlayerStatValues | null,
+  ): HistoricalPlayerStatValues | null {
+    if (beforeGameStatValues == null || afterGameStatValues == null) {
+      return null;
+    }
+
+    return {
+      elo: afterGameStatValues.elo - beforeGameStatValues.elo,
+      gamesPlayed:
+        afterGameStatValues.gamesPlayed - beforeGameStatValues.gamesPlayed,
+    };
+  }
+
+  private async getHistoricalPlayerStatValuesForEachPlayerBeforeGame(
+    game: Game,
+  ): Promise<
+    Omit<
+      HistoricalPlayerStatValuesForPlayerBeforeAndAfterGameWithChange,
+      'afterGameStatValues' | 'changeInGameStatValues'
+    >[]
+  > {
+    const lastGameStatsForEachPlayer =
+      await getMostRecentHistoricalPlayerStatsBeforeThreshold(game.startTime);
+
+    return lastGameStatsForEachPlayer.map(
+      ({ id, name, previousElo, previousGamesPlayed }) => {
+        return {
+          id,
+          name,
+          beforeGameStatValues:
+            previousElo != null
+              ? {
+                  elo: previousElo,
+                  gamesPlayed: previousGamesPlayed,
+                }
+              : null,
+        };
+      },
+    );
+  }
+
+  private async getHistoricalPlayerStatValuesForEachPlayerBeforeAndAfterGame(
+    gameId: number,
+    historicalPlayerStatValuesForEachPlayerBeforeGame: Omit<
+      HistoricalPlayerStatValuesForPlayerBeforeAndAfterGameWithChange,
+      'afterGameStatValues' | 'changeInGameStatValues'
+    >[],
+  ): Promise<
+    Omit<
+      HistoricalPlayerStatValuesForPlayerBeforeAndAfterGameWithChange,
+      'changeInGameStatValues'
+    >[]
+  > {
+    const historicalPlayerStatsForGameParticipants =
+      await getHistoricalPlayerStatsInGameId(gameId);
+
+    return historicalPlayerStatValuesForEachPlayerBeforeGame.map(
+      (historicalStatValuesForPlayerBeforeGame) => ({
+        ...historicalStatValuesForPlayerBeforeGame,
+        afterGameStatValues: this.getHistoricalStatValuesForPlayerIdAfterGame(
+          historicalStatValuesForPlayerBeforeGame.id,
+          historicalPlayerStatsForGameParticipants,
+          historicalStatValuesForPlayerBeforeGame.beforeGameStatValues,
+        ),
+      }),
+    );
+  }
+
+  private getHistoricalStatValuesForPlayerIdAfterGame(
+    playerId: number,
+    historicalPlayerStatsForGameParticipants: HistoricalPlayerStats[],
+    lastGameStatsForPlayer: HistoricalPlayerStatValues | null,
+  ): HistoricalPlayerStatValues | null {
+    const historicalPlayerStatForGameIfParticipant =
+      historicalPlayerStatsForGameParticipants.find(
+        ({ playerId: participantPlayerId }) => participantPlayerId === playerId,
+      );
+
+    if (historicalPlayerStatForGameIfParticipant != null) {
+      return {
+        elo: historicalPlayerStatForGameIfParticipant.elo,
+        gamesPlayed: historicalPlayerStatForGameIfParticipant.gamesPlayed,
+      };
+    }
+
+    if (lastGameStatsForPlayer != null) {
+      return { ...lastGameStatsForPlayer };
+    }
+
+    return null;
+  }
+
   // Note: rankings start from 1
   fromOrderedByStatAddRanking<T>(
     orderedByBestStatFirst: T[],
     getStatFromElement: (element: T) => number,
   ): WithRanking<T>[] {
-    let prevStat: number | null = null;
-    let currentRanking = 0;
+    let prevStatAndRanking: {
+      stat: number;
+      ranking: number;
+    } | null = null;
 
-    return orderedByBestStatFirst.map((element) => {
+    return orderedByBestStatFirst.map((element, index) => {
+      const currentStat = getStatFromElement(element);
+      const currentRanking =
+        prevStatAndRanking === null || currentStat != prevStatAndRanking.stat
+          ? index + 1
+          : prevStatAndRanking.ranking;
+
+      prevStatAndRanking = {
+        stat: currentStat,
+        ranking: currentRanking,
+      };
+
+      return { ...element, ranking: currentRanking };
+    });
+  }
+
+  // Note: rankings start from 1. Null values will be assigned a null ranking
+  fromOrderedByNullableStatAddRanking<T>(
+    orderedByBestStatFirst: T[],
+    getStatFromElement: (element: T) => number | null,
+  ): WithNullableRanking<T>[] {
+    let prevStatAndRanking: {
+      stat: number;
+      ranking: number;
+    } | null = null;
+
+    return orderedByBestStatFirst.map((element, index) => {
       const currentStat = getStatFromElement(element);
 
-      if (prevStat === null || currentStat !== prevStat) {
-        currentRanking += 1;
+      if (currentStat == null) {
+        return {
+          ...element,
+          ranking: null,
+        };
       }
 
-      prevStat = currentStat;
+      const currentRanking =
+        prevStatAndRanking === null || currentStat != prevStatAndRanking.stat
+          ? index + 1
+          : prevStatAndRanking.ranking;
+
+      prevStatAndRanking = {
+        stat: currentStat,
+        ranking: currentRanking,
+      };
 
       return { ...element, ranking: currentRanking };
     });

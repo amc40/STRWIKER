@@ -5,9 +5,10 @@ import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Logo } from './components/icons/Logo';
 
-const navigation = [
+const navigation: { name: string; href: string }[] = [
   { name: 'Current Game', href: '/current-game' },
-  { name: 'Players', href: '/players' },
+  { name: 'Player Ranking', href: '/player-ranking' },
+  { name: 'Players Admin', href: '/players-admin' },
 ];
 
 function classNames(...classes: string[]) {

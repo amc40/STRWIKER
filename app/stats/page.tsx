@@ -17,7 +17,7 @@ const Stats: React.FC = () => {
       setPlayers(players);
     };
     populatePlayers().catch((e) => {
-      addErrorMessage(`Error populating players: ${e}`);
+      addErrorMessage('Error populating players', e);
     });
   }, [addErrorMessage]);
 
