@@ -77,7 +77,7 @@ export class GameLogicService {
       },
     });
 
-    const initialPoint = await this.createPoint(0, 0, game);
+    const initialPoint = await this.createInitialPoint(game);
     await prisma.game.update({
       where: {
         id: game.id,
@@ -204,13 +204,15 @@ export class GameLogicService {
     });
   }
 
-  private async createPoint(
-    currentRedScore: number,
-    currentBlueScore: number,
-    game: Game,
-  ) {
+  private async createInitialPoint(game: Game) {
     return await prisma.point.create({
-      data: { currentRedScore, currentBlueScore, gameId: game.id },
+      data: {
+        currentRedScore: 0,
+        currentBlueScore: 0,
+        gameId: game.id,
+        // initial point must be explicitly started to avoid setup time being counted towards playing time
+        startTime: null,
+      },
     });
   }
 
