@@ -5,6 +5,7 @@ interface PlayerCardGoalButtonProps {
   text: string;
   onClick: () => void;
   loading: boolean;
+  disabled: boolean;
 }
 
 export const PlayerCardGoalButton: React.FC<PlayerCardGoalButtonProps> = (

@@ -234,6 +234,8 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     }
   };
 
+  const scoringGoalsDisabled = !pointStarted;
+
   return (
     <main className="flex-grow overflow-y-hidden">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
@@ -263,6 +265,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
               )}
               score={blueScore}
               rotatyStrategy={blueRotatyStrategy}
+              scoringGoalsDisabled={scoringGoalsDisabled}
               removePlayer={removePlayer}
               reorderPlayer={reorderPlayer}
               openSettingsModal={openSettingsModal}
@@ -281,6 +284,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
               )}
               score={redScore}
               rotatyStrategy={redRotatyStrategy}
+              scoringGoalsDisabled={scoringGoalsDisabled}
               removePlayer={removePlayer}
               reorderPlayer={reorderPlayer}
               openSettingsModal={openSettingsModal}

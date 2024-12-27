@@ -10,6 +10,7 @@ interface TeamProps {
   members: PlayerInfo[];
   rotatyStrategy: RotatyStrategy;
   score: number;
+  scoringGoalsDisabled: boolean;
   removePlayer: (player: PlayerInfo) => void;
   reorderPlayer: (player: PlayerInfo, destinationIndex: number) => void;
   openSettingsModal: () => void;
@@ -20,6 +21,7 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
   members,
   rotatyStrategy,
   score,
+  scoringGoalsDisabled,
   removePlayer,
   reorderPlayer,
   openSettingsModal,
@@ -70,6 +72,7 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
                         <PlayerCard
                           player={member}
                           removePlayer={removePlayer}
+                          scoringGoalsDisabled={scoringGoalsDisabled}
                         />
                       </li>
                     )}
