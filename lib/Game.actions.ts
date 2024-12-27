@@ -32,6 +32,11 @@ export const addPlayerToCurrentGame = async (
   await registerUpdatedGameState();
 };
 
+export const startCurrentPoint = async () => {
+  await new GameLogicService().startCurrentPoint();
+  await registerUpdatedGameState();
+};
+
 export const recordGoalScored = async (
   scorerInfo: PlayerInfo,
   ownGoal: boolean,

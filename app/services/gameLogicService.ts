@@ -26,6 +26,7 @@ import {
   getPointAndPlayersFromPointIdOrThrow,
   getCurrentPointFromGameOrThrow,
   getCurrentPointOrThrow,
+  setPointStartTime,
 } from '../repository/pointRepository';
 import { StatsEngineFwoar } from './statsEngine';
 import { getPlayersWhoParticipatedInGame } from '../repository/playerRepository';
@@ -256,6 +257,12 @@ export class GameLogicService {
         decrementPlayerPointPositionssAfterRemovedPlayerPromise,
       ]);
     });
+  }
+
+  async startCurrentPoint() {
+    const currentPoint = await getCurrentPointOrThrow();
+    const startTime = new Date();
+    await setPointStartTime(currentPoint.id, startTime);
   }
 
   async scoreGoalInCurrentGame(

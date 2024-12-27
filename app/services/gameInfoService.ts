@@ -55,6 +55,7 @@ export class GameInfoService {
           rotatyStrategy: currentGame.rotatyBlue,
         },
       },
+      pointStarted: currentPointAndPlayers.startTime != null,
     };
   }
 

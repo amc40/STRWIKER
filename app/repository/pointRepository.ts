@@ -1,6 +1,7 @@
 import { Game, PlayerPoint, Point } from '@prisma/client';
 import { getCurrentGameOrThrow } from './gameRepository';
 import prisma from '../../lib/planetscale';
+import { PrimaryButton } from '../components/PrimaryButton';
 
 export const getCurrentPointOrThrow = async (): Promise<Point> => {
   const currentGame = await getCurrentGameOrThrow();
@@ -52,6 +53,17 @@ export async function getAllPointsInGame(gameId: number) {
   return await prisma.point.findMany({
     where: {
       gameId,
+    },
+  });
+}
+
+export async function setPointStartTime(pointId: number, startTime: Date) {
+  return await prisma.point.update({
+    data: {
+      startTime,
+    },
+    where: {
+      id: pointId,
     },
   });
 }

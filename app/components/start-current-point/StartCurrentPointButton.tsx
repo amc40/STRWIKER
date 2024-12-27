@@ -1,10 +1,11 @@
 import React from 'react';
 import { PrimaryButton } from '../PrimaryButton';
 import { useMessage } from '../../context/MessageContext';
+import { startCurrentPoint } from '../../../lib/Game.actions';
 
 export const StartCurrentPointButton: React.FC = () => {
   const onClick = async () => {
-    // TODO: add action
+    await startCurrentPoint();
   };
 
   const { addErrorMessage } = useMessage();
