@@ -1,11 +1,11 @@
-name: Push DB Schema changes
+name: Apply db migrations
 on:
   push:
     branches:
       - main
 
 jobs:
-  push_db_schema_changes:
+  apply_db_migrations:
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -17,8 +17,8 @@ jobs:
         with:
           node-version: latest
       
-      - name: Push DB Schema changes with prisma
-        run: npx prisma db push
+      - name: Apply db migrations 
+        run: npx prisma migrate deploy
         env:
           POSTGRES_PRISMA_URL: ${{secrets.DATABASE_URL}}
           POSTGRES_URL_NON_POOLING: ${{secrets.DIRECT_URL}}
