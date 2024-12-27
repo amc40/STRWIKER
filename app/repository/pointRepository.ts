@@ -1,7 +1,6 @@
 import { Game, PlayerPoint, Point } from '@prisma/client';
 import { getCurrentGameOrThrow } from './gameRepository';
 import prisma from '../../lib/planetscale';
-import { PrimaryButton } from '../components/PrimaryButton';
 
 export const getCurrentPointOrThrow = async (): Promise<Point> => {
   const currentGame = await getCurrentGameOrThrow();
