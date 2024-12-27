@@ -167,47 +167,44 @@ export class StatsEngineFwoar {
       );
 
     const playerElosBeforeAndAfterGameWithChange =
-      historicalPlayerStatValuesForEachPlayerBeforeAndAfterGameWithChange.reduce<
-        PlayerEloBeforeAndAfterGameWithChange[]
-      >(
-        (
-          accumulatingArray,
-          historicalPlayerStatsBeforeAndAfterGameWithChange,
-        ) => {
-          const {
-            id,
-            name,
-            afterGameStatValues,
-            beforeGameStatValues,
-            changeInGameStatValues,
-          } = historicalPlayerStatsBeforeAndAfterGameWithChange;
+      historicalPlayerStatValuesForEachPlayerBeforeAndAfterGameWithChange
+        .map<PlayerEloBeforeAndAfterGameWithChange | null>(
+          (historicalPlayerStatsBeforeAndAfterGameWithChange) => {
+            const {
+              id,
+              name,
+              afterGameStatValues,
+              beforeGameStatValues,
+              changeInGameStatValues,
+            } = historicalPlayerStatsBeforeAndAfterGameWithChange;
 
-          if (afterGameStatValues == null) {
-            return accumulatingArray;
-          }
+            if (afterGameStatValues == null) {
+              return null;
+            }
 
-          accumulatingArray.push({
-            id,
-            name,
-            elo: afterGameStatValues.elo,
-            previousElo: beforeGameStatValues?.elo ?? null,
-            changeInElo: changeInGameStatValues?.elo ?? null,
-          });
-
-          return accumulatingArray;
-        },
-        [],
-      );
+            return {
+              id,
+              name,
+              elo: afterGameStatValues.elo,
+              previousElo: beforeGameStatValues?.elo ?? null,
+              changeInElo: changeInGameStatValues?.elo ?? null,
+            };
+          },
+        )
+        .filter(
+          (nullablePlayerElosBeforeAndAfterGameWithChange) =>
+            nullablePlayerElosBeforeAndAfterGameWithChange != null,
+        );
 
     sortArrayByNullablePropertyDescNullsLast(
       playerElosBeforeAndAfterGameWithChange,
-      ({ previousElo }) => previousElo,
+      ({ previousElo }: PlayerEloBeforeAndAfterGameWithChange) => previousElo,
     );
 
     const playerElosBeforeAndAfterGameWithChangeAndPreviousRanking =
       this.fromOrderedByNullableStatAddRanking(
         playerElosBeforeAndAfterGameWithChange,
-        ({ previousElo }) => previousElo,
+        ({ previousElo }: PlayerEloBeforeAndAfterGameWithChange) => previousElo,
       ).map((playerElosBeforeAndAfterGameWithChangeAndRanking) => {
         const { ranking } = playerElosBeforeAndAfterGameWithChangeAndRanking;
 
