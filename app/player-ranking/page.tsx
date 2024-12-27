@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlayerRankingTable } from '../components/game/PlayerRankingTable';
+import { PlayerRankingTable } from '../components/game-stats/PlayerRankingTable';
 import { getPlayersOrderedByDescendingElos } from '../repository/playerRepository';
 import { StatsEngineFwoar } from '../services/statsEngine';
 
