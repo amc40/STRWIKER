@@ -68,7 +68,6 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
             hasEloOrRankingChanged(changeInElo, changeInRanking) ||
             // workaround for players who don't have an elo
             previousElo == null;
-          console.log('should show player', shouldShowPlayer);
           if (shouldShowPlayer) {
             accumulatingArray.push(
               playerRankingInfoToRowToDisplay(playerRankingInfo),
