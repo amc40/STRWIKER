@@ -31,4 +31,3 @@ Tech:
 - [ ] Provision supabase using terraform
 - [ ] Fix player ranking table taking up full height for only one row
 - [ ] Fix issue where if player is added / removed the change will unapply briefly
-- [ ] Fix issue where player list on the player admin page is initially just the first player
