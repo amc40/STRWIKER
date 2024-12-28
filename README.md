@@ -29,5 +29,4 @@ Tech:
 - [ ] Add magic link auth / login
 - [ ] Add easy flow for joining game as blue or red team using QR / NFC
 - [ ] Provision supabase using terraform
-- [ ] Fix player ranking table taking up full height for only one row
 - [ ] Fix issue where if player is added / removed the change will unapply briefly

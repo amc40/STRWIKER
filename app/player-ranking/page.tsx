@@ -16,11 +16,13 @@ const Page: React.FC = async () => {
 
   return (
     <div className="w-screen flex flex-1 container mx-auto p-4">
-      <PlayerRankingTable
-        playersOrderedByDescendingElosWithRanking={
-          playersOrderedByDescendingElosWithRanking
-        }
-      />
+      <div className="w-full">
+        <PlayerRankingTable
+          playersOrderedByDescendingElosWithRanking={[
+            playersOrderedByDescendingElosWithRanking[0],
+          ]}
+        />
+      </div>
     </div>
   );
 };
