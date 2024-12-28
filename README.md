@@ -22,15 +22,13 @@ Tech:
 
 ## TODO
 
-- [ ] Use terraform to create github repo with sensible configuration
 - [ ] Add e2e testing (using playwright?)
 - [ ] Fix drag-drop offset from cursor on mobile due to drag and drop inside
 - [ ] Add skip turn button for players not on the table
-- [ ] Add an easy way to start a game with the same players
-- [ ] Fix formatting of end of game tables on mobile
-- [ ] Show changes in player rankings based on ELO at end of the game
 - [ ] Add stat for how much you increase a partner's performance
 - [ ] Add magic link auth / login
 - [ ] Add easy flow for joining game as blue or red team using QR / NFC
-- [ ] Improve error handling by showing a message to the user, rather than just logging to the console
 - [ ] Provision supabase using terraform
+- [ ] Fix player ranking table taking up full height for only one row
+- [ ] Fix issue where if player is added / removed the change will unapply briefly
+- [ ] Fix issue where player list on the player admin page is initially just the first player
