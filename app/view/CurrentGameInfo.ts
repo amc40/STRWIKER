@@ -10,4 +10,5 @@ export interface GameInfo {
   gameId: number;
   players: PlayerInfo[];
   teamInfo: Record<Team, TeamInfo>;
+  pointStarted: boolean;
 }

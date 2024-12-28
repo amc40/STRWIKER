@@ -1,6 +1,6 @@
 'use client';
 import { $Enums, RotatyStrategy } from '@prisma/client';
-import { FC, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Team } from '../../../components/team/Team';
 import AddPlayerToTeam from '../../../components/AddPlayerToTeam';
 import {
@@ -19,6 +19,7 @@ import { GameInfo } from '../../../view/CurrentGameInfo';
 import { useRouter } from 'next/navigation';
 import { useMessage } from '../../../context/MessageContext';
 import { sortArrayByPropertyAsc } from '../../../utils/arrayUtils';
+import { StartCurrentPointOverlay } from '../../../components/start-current-point/StartCurrentPointOverlay';
 
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
@@ -66,21 +67,25 @@ const updatePlayerOrderAfterReorder = (
   };
 };
 
-export const CurrentGameClient: FC<{
+interface CurrentGameClientProps {
   serverGameId: number;
   serverRedScore: number;
   serverBlueScore: number;
   serverBlueRotatyStrategy: RotatyStrategy;
   serverRedRotatyStrategy: RotatyStrategy;
   serverPlayers: PlayerInfo[];
+  serverPointStarted: boolean;
   isMobile: boolean;
-}> = ({
+}
+
+export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
   serverGameId,
   serverRedScore,
   serverBlueScore,
   serverRedRotatyStrategy,
   serverBlueRotatyStrategy,
   serverPlayers,
+  serverPointStarted,
   isMobile,
 }) => {
   const [players, setPlayers] = useState(serverPlayers);
@@ -92,6 +97,7 @@ export const CurrentGameClient: FC<{
   const [blueRotatyStrategy, setBlueRotatyStrategy] = useState(
     serverBlueRotatyStrategy,
   );
+  const [pointStarted, setPointStarted] = useState(serverPointStarted);
 
   const [awaitingPlayersResponse, setAwaitingPlayersResponse] = useState(false);
   // this prevents the value of awaitingPlayersResponse being captured by the closure in the refresh useEffect
@@ -120,6 +126,7 @@ export const CurrentGameClient: FC<{
         setBlueScore(currentGameInfo.teamInfo.Blue.score);
         setRedRotatyStrategy(currentGameInfo.teamInfo.Red.rotatyStrategy);
         setBlueRotatyStrategy(currentGameInfo.teamInfo.Blue.rotatyStrategy);
+        setPointStarted(currentGameInfo.pointStarted);
       })
       .subscribe();
 
@@ -227,6 +234,8 @@ export const CurrentGameClient: FC<{
     }
   };
 
+  const scoringGoalsDisabled = !pointStarted;
+
   return (
     <main className="flex-grow overflow-y-hidden">
       <span className="z-10 fixed right-10 md:right-20 bottom-10 inline-block">
@@ -245,45 +254,51 @@ export const CurrentGameClient: FC<{
         blueRotatyStrategy={blueRotatyStrategy}
         setRotatyStrategy={setRotatyStrategy}
       />
-      <div className="h-full flex flex-1">
-        <WrapChildrenInSwiperIfMobile isMobile={isMobile}>
-          <Team
-            team={$Enums.Team.Blue}
-            members={sortArrayByPropertyAsc(
-              players.filter((player) => player.team === 'Blue'),
-              ({ position }) => position,
-            )}
-            score={blueScore}
-            rotatyStrategy={blueRotatyStrategy}
-            removePlayer={removePlayer}
-            reorderPlayer={reorderPlayer}
-            openSettingsModal={openSettingsModal}
-          >
-            <AddPlayerToTeam
+      <div className="h-full flex flex-col">
+        <div className="flex flex-1 flex-row">
+          <WrapChildrenInSwiperIfMobile isMobile={isMobile}>
+            <Team
               team={$Enums.Team.Blue}
-              addPlayer={addPlayer}
-              existingPlayers={players}
-            />
-          </Team>
-          <Team
-            team={$Enums.Team.Red}
-            members={sortArrayByPropertyAsc(
-              players.filter((player) => player.team === 'Red'),
-              ({ position }) => position,
-            )}
-            score={redScore}
-            rotatyStrategy={redRotatyStrategy}
-            removePlayer={removePlayer}
-            reorderPlayer={reorderPlayer}
-            openSettingsModal={openSettingsModal}
-          >
-            <AddPlayerToTeam
+              members={sortArrayByPropertyAsc(
+                players.filter((player) => player.team === 'Blue'),
+                ({ position }) => position,
+              )}
+              score={blueScore}
+              rotatyStrategy={blueRotatyStrategy}
+              scoringGoalsDisabled={scoringGoalsDisabled}
+              removePlayer={removePlayer}
+              reorderPlayer={reorderPlayer}
+              openSettingsModal={openSettingsModal}
+            >
+              <AddPlayerToTeam
+                team={$Enums.Team.Blue}
+                addPlayer={addPlayer}
+                existingPlayers={players}
+              />
+            </Team>
+            <Team
               team={$Enums.Team.Red}
-              addPlayer={addPlayer}
-              existingPlayers={players}
-            />
-          </Team>
-        </WrapChildrenInSwiperIfMobile>
+              members={sortArrayByPropertyAsc(
+                players.filter((player) => player.team === 'Red'),
+                ({ position }) => position,
+              )}
+              score={redScore}
+              rotatyStrategy={redRotatyStrategy}
+              scoringGoalsDisabled={scoringGoalsDisabled}
+              removePlayer={removePlayer}
+              reorderPlayer={reorderPlayer}
+              openSettingsModal={openSettingsModal}
+            >
+              <AddPlayerToTeam
+                team={$Enums.Team.Red}
+                addPlayer={addPlayer}
+                existingPlayers={players}
+              />
+            </Team>
+          </WrapChildrenInSwiperIfMobile>
+        </div>
+
+        {!pointStarted && <StartCurrentPointOverlay />}
       </div>
     </main>
   );

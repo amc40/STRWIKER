@@ -53,7 +53,7 @@ model Point {
   playerPoints       PlayerPoint[]
   currentRedScore    Int           @default(0)
   currentBlueScore   Int           @default(0)
-  startTime          DateTime      @default(now())
+  startTime          DateTime?     @default(now())
   endTime            DateTime?
   gameId             Int
   gameIfCurrentPoint Game?         @relation("currentPoint")

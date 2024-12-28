@@ -26,6 +26,7 @@ import {
   getPointAndPlayersFromPointIdOrThrow,
   getCurrentPointFromGameOrThrow,
   getCurrentPointOrThrow,
+  setPointStartTime,
 } from '../repository/pointRepository';
 import { StatsEngineFwoar } from './statsEngine';
 import { getPlayersWhoParticipatedInGame } from '../repository/playerRepository';
@@ -77,7 +78,7 @@ export class GameLogicService {
       },
     });
 
-    const initialPoint = await this.createPoint(0, 0, game);
+    const initialPoint = await this.createInitialPoint(game);
     await prisma.game.update({
       where: {
         id: game.id,
@@ -204,13 +205,15 @@ export class GameLogicService {
     });
   }
 
-  private async createPoint(
-    currentRedScore: number,
-    currentBlueScore: number,
-    game: Game,
-  ) {
+  private async createInitialPoint(game: Game) {
     return await prisma.point.create({
-      data: { currentRedScore, currentBlueScore, gameId: game.id },
+      data: {
+        currentRedScore: 0,
+        currentBlueScore: 0,
+        gameId: game.id,
+        // initial point must be explicitly started to avoid setup time being counted towards playing time
+        startTime: null,
+      },
     });
   }
 
@@ -254,6 +257,12 @@ export class GameLogicService {
         decrementPlayerPointPositionssAfterRemovedPlayerPromise,
       ]);
     });
+  }
+
+  async startCurrentPoint() {
+    const currentPoint = await getCurrentPointOrThrow();
+    const startTime = new Date();
+    await setPointStartTime(currentPoint.id, startTime);
   }
 
   async scoreGoalInCurrentGame(

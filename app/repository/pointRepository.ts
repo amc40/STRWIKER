@@ -55,3 +55,14 @@ export async function getAllPointsInGame(gameId: number) {
     },
   });
 }
+
+export async function setPointStartTime(pointId: number, startTime: Date) {
+  return await prisma.point.update({
+    data: {
+      startTime,
+    },
+    where: {
+      id: pointId,
+    },
+  });
+}

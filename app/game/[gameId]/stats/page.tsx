@@ -1,12 +1,12 @@
 import React from 'react';
-import { NumberOfGoalsScoredTable } from '../../../components/game/NumberOfGoalsScoredTable';
+import { NumberOfGoalsScoredTable } from '../../../components/game-stats/NumberOfGoalsScoredTable';
 import { notFound } from 'next/navigation';
 import { doesGameIdExist } from '../../../repository/gameRepository';
 import { StatsSwiper } from '../../../components/stats-swiper/StatsSwiper';
 import { StatsEngineFwoar } from '../../../services/statsEngine';
-import { NumberOfOwnGoalsTable } from '../../../components/game/NumberOfOwnGoalsTable';
-import { PlayerRankingTable } from '../../../components/game/PlayerRankingTable';
-import { LongestPointsTable } from '../../../components/game/LongestPointsTable';
+import { NumberOfOwnGoalsTable } from '../../../components/game-stats/NumberOfOwnGoalsTable';
+import { PlayerRankingTable } from '../../../components/game-stats/PlayerRankingTable';
+import { LongestPointsTable } from '../../../components/game-stats/LongestPointsTable';
 import { GameLogicService } from '../../../services/gameLogicService';
 
 interface GameServerParams {

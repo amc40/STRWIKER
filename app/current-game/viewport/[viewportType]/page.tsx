@@ -27,6 +27,7 @@ export default async function Page({
       serverRedRotatyStrategy={currentGameInfo.teamInfo.Red.rotatyStrategy}
       serverBlueRotatyStrategy={currentGameInfo.teamInfo.Blue.rotatyStrategy}
       serverPlayers={currentGameInfo.players}
+      serverPointStarted={currentGameInfo.pointStarted}
       isMobile={isMobile}
     />
   );

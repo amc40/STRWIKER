@@ -9,9 +9,14 @@ import { useMessage } from '../../context/MessageContext';
 interface PlayerCardProps {
   player: PlayerInfo;
   removePlayer: (player: PlayerInfo) => void;
+  scoringGoalsDisabled: boolean;
 }
 
-const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({
+  player,
+  removePlayer,
+  scoringGoalsDisabled,
+}) => {
   const {
     name: playerName,
     goalsScored: goalsScoredProp,
@@ -74,11 +79,13 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, removePlayer }) => {
           text="Goal"
           onClick={handleGoalClick}
           loading={recordingGoal}
+          disabled={scoringGoalsDisabled}
         />
         <PlayerCardGoalButton
           text="Own Goal"
           onClick={handleOwnGoalClick}
           loading={recordingOwnGoal}
+          disabled={scoringGoalsDisabled}
         />
       </div>
     </div>
