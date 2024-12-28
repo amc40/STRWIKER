@@ -6,6 +6,7 @@ import { PlayerPointPositionService } from '../app/services/playerPointPositionS
 import { PlayerInfo } from '../app/view/PlayerInfo';
 import { supabaseClient } from '../app/utils/supabase';
 import { GameInfoService } from '../app/services/gameInfoService';
+import { revalidatePath } from 'next/cache';
 
 const gameInfoService = new GameInfoService();
 
@@ -108,4 +109,5 @@ const registerGameEnd = async () => {
   });
 
   await supabaseClient.removeChannel(channel);
+  revalidatePath('/player-ranking');
 };
