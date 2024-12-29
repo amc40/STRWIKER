@@ -78,6 +78,7 @@ model PlayerPoint {
   scoredGoal Boolean @default(false)
   ownGoal    Boolean @default(false)
   rattled    Boolean @default(false)
+  skipped    Boolean @default(false)
 
   playerId Int
   pointId  Int
