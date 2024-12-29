@@ -20,6 +20,18 @@ Tech:
 1. Run the application using `npm run dev`
 1. If you want to inspect the supabase project (e.g. DB table contents) you can do so at http://127.0.0.1:54323
 
+## DB Migrations
+
+We use prisma as an ORM and for managing DB migrations.
+To make a schema change you must:
+
+1. Make the change in [schema.prisma](./prisma/schema.prisma)
+1. Generate a migration using `npx prisma migrate dev --name <migration name>`
+   - This also applies the change locally and updates the `@primsa/client` package accordingly
+1. When pushed to main the migration will be applied
+
+> Note: When you push those changes to a development branch they won't be applied (as they currently share the prod DB - see below TODO). If the schema changes are breaking then this can cause app errors - check the runtime logs in Vercel to verify
+
 ## TODO
 
 - [ ] Add e2e testing (using playwright?)
@@ -30,3 +42,4 @@ Tech:
 - [ ] Add easy flow for joining game as blue or red team using QR / NFC
 - [ ] Provision supabase using terraform
 - [ ] Fix issue where if player is added / removed the change will unapply briefly
+- [ ] Add development branches
