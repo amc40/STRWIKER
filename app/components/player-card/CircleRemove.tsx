@@ -1,5 +1,6 @@
 import React from 'react';
 import { Cross } from '../icons/Cross';
+import { CircleButton } from './CircleButton';
 
 interface CircleRemoveProps {
   onRemove: () => void;
@@ -7,11 +8,11 @@ interface CircleRemoveProps {
 
 export const CircleRemove: React.FC<CircleRemoveProps> = ({ onRemove }) => {
   return (
-    <button
+    <CircleButton
       onClick={onRemove}
-      className="flex items-center justify-center w-8 h-8 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:outline-none"
+      className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
     >
       <Cross />
-    </button>
+    </CircleButton>
   );
 };
