@@ -213,3 +213,17 @@ export async function getPlayerPointByPlayerAndPointOrThrow(
     },
   });
 }
+
+export async function setPlayerPointSkipped(
+  playerPointId: number,
+  skipped: boolean,
+) {
+  await prisma.playerPoint.update({
+    data: {
+      skipped,
+    },
+    where: {
+      id: playerPointId,
+    },
+  });
+}

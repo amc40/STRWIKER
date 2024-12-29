@@ -15,6 +15,7 @@ import {
   getAllPlayerPointsByPoint,
   getCurrentPlayerPointForPlayerOrThrow,
   getPlayerPointByPlayerAndPointOrThrow,
+  setPlayerPointSkipped,
 } from '../repository/playerPointRepository';
 import { PlayerPointPositionService } from './playerPointPositionService';
 import {
@@ -263,6 +264,12 @@ export class GameLogicService {
     const currentPoint = await getCurrentPointOrThrow();
     const startTime = new Date();
     await setPointStartTime(currentPoint.id, startTime);
+  }
+
+  async setPlayerSkippedInCurrentPoint(playerId: number, skipped: boolean) {
+    const playerPointForPlayerInCurrentPoint =
+      await getCurrentPlayerPointForPlayerOrThrow(playerId);
+    await setPlayerPointSkipped(playerPointForPlayerInCurrentPoint.id, skipped);
   }
 
   async scoreGoalInCurrentGame(

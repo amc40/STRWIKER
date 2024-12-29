@@ -66,6 +66,17 @@ export const reorderPlayer = async (playerId: number, newPosition: number) => {
   await registerUpdatedGameState();
 };
 
+export const setPlayerSkippedInCurrentPoint = async (
+  playerId: number,
+  skipped: boolean,
+) => {
+  await new GameLogicService().setPlayerSkippedInCurrentPoint(
+    playerId,
+    skipped,
+  );
+  await registerUpdatedGameState();
+};
+
 export const updateRotatyStrategyAction = async (
   rotatyStrategy: RotatyStrategy,
   team: Team,

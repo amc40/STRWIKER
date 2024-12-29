@@ -7,6 +7,7 @@ import {
   addPlayerToCurrentGame,
   removePlayerFromCurrentGame,
   reorderPlayer as reorderPlayerAction,
+  setPlayerSkippedInCurrentPoint,
 } from '../../../../lib/Game.actions';
 import SettingsButton from '../../../components/SettingsButton';
 import { SettingsModal } from '../../../components/settings-modal/SettingsModal';
@@ -136,10 +137,6 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     };
   }, [router, serverGameId]);
 
-  useEffect(() => {
-    awaitingPlayersResponseRef.current = awaitingPlayersResponse;
-  }, [awaitingPlayersResponse]);
-
   const { addErrorMessage } = useMessage();
 
   const addPlayer = (
@@ -155,6 +152,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
         name: playerName,
         team,
         position: Math.max(...state.map((player) => player.position)) + 1,
+        skipped: false,
         goalsScored: 0,
         ownGoalsScored: 0,
       },
@@ -217,6 +215,34 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     });
   };
 
+  const setPlayerSkipped = (player: PlayerInfo, skipped: boolean) => {
+    setAwaitingPlayersResponse(true);
+
+    setPlayers((state) => {
+      const playerInfoToUpdate = state.find(
+        (playerInfo) => playerInfo.id === player.id,
+      );
+      if (playerInfoToUpdate != null) {
+        playerInfoToUpdate.skipped = skipped;
+      }
+      return state;
+    });
+
+    const action = async () => {
+      try {
+        await setPlayerSkippedInCurrentPoint(player.id, skipped);
+      } finally {
+        setAwaitingPlayersResponse(false);
+      }
+    };
+    action().catch((e) => {
+      addErrorMessage(
+        `Error setting player ${player.id} ${!skipped ? 'not ' : ''}skipped`,
+        e,
+      );
+    });
+  };
+
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const openSettingsModal = () => {
@@ -268,6 +294,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
               scoringGoalsDisabled={scoringGoalsDisabled}
               removePlayer={removePlayer}
               reorderPlayer={reorderPlayer}
+              setPlayerSkipped={setPlayerSkipped}
               openSettingsModal={openSettingsModal}
             >
               <AddPlayerToTeam
@@ -287,6 +314,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
               scoringGoalsDisabled={scoringGoalsDisabled}
               removePlayer={removePlayer}
               reorderPlayer={reorderPlayer}
+              setPlayerSkipped={setPlayerSkipped}
               openSettingsModal={openSettingsModal}
             >
               <AddPlayerToTeam
