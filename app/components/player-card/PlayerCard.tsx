@@ -18,7 +18,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   player,
   removePlayer,
   setPlayerSkipped,
-  scoringGoalsDisabled,
+  scoringGoalsDisabled: scoringGoalsDisabledProp,
 }) => {
   const {
     name: playerName,
@@ -64,6 +64,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         setRecordingOwnGoal(false);
       });
   };
+
+  const scoringGoalsDisabled = scoringGoalsDisabledProp || skipped;
 
   return (
     <div className="z-0 relative bg-white border-slate-300 rounded-lg p-3 mb-5 w-[200px] shadow-lg text-black flex flex-col gap-2">
