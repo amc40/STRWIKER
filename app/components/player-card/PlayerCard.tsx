@@ -25,6 +25,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     goalsScored: goalsScoredProp,
     ownGoalsScored: ownGoalsScoredProp,
     skipped,
+    participant,
   } = player;
 
   const [goals, setGoals] = useState<number>(goalsScoredProp);
@@ -65,7 +66,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       });
   };
 
-  const scoringGoalsDisabled = scoringGoalsDisabledProp || skipped;
+  const scoringGoalsDisabled =
+    scoringGoalsDisabledProp || skipped || !participant;
 
   return (
     <div className="z-0 relative bg-white border-slate-300 rounded-lg p-3 mb-5 w-[200px] shadow-lg text-black flex flex-col gap-2">

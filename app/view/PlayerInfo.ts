@@ -10,19 +10,22 @@ export interface PlayerInfo {
   name: string;
   team: Team;
   position: number;
+  participant: boolean;
   skipped: boolean;
   goalsScored: number;
   ownGoalsScored: number;
 }
 
-export const playerPointWithPlayerAndGoalsScoredToPlayerInfo = (
+export const createPlayerInfo = (
   { playerId, team, position, player, skipped }: PlayerPointWithPlayer,
   { goalsScored, ownGoalsScored }: GoalsScored,
+  participant: boolean,
 ): PlayerInfo => ({
   id: playerId,
   name: player.name,
   team: team,
   position,
+  participant,
   skipped,
   goalsScored,
   ownGoalsScored,

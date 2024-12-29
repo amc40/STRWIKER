@@ -24,13 +24,13 @@ import {
   markGameAsCompleted,
 } from '../repository/gameRepository';
 import {
-  getPointAndPlayersFromPointIdOrThrow,
   getCurrentPointFromGameOrThrow,
   getCurrentPointOrThrow,
   setPointStartTime,
 } from '../repository/pointRepository';
 import { StatsEngineFwoar } from './statsEngine';
 import { getPlayersWhoParticipatedInGame } from '../repository/playerRepository';
+import { PointParticipantService } from './pointParticipantService';
 
 export enum IsGameEnd {
   GAME_CONTINUES,
@@ -42,6 +42,7 @@ export class GameLogicService {
 
   playerPointPositionService = new PlayerPointPositionService();
   statsEngine = new StatsEngineFwoar();
+  pointParticipantService = new PointParticipantService();
 
   async startFreshGame() {
     await prisma.$transaction(
@@ -483,31 +484,17 @@ export class GameLogicService {
   }
 
   private async updateElosForPlayersInPoint(scoringTeam: Team, point: Point) {
-    const participatingPlayers = await this.getParticipatingPlayersInPoint(
-      point.id,
-    );
+    const participatingPlayersByTeam =
+      await this.pointParticipantService.getParticipatingPlayersInPointByTeam(
+        point.id,
+      );
 
-    const winningPlayers = participatingPlayers.filter(
-      (player) => player.team === scoringTeam,
-    );
-    const losingPlayers = participatingPlayers.filter(
-      (player) => player.team !== scoringTeam,
-    );
+    const losingTeam = scoringTeam === Team.Blue ? Team.Red : Team.Blue;
+
+    const winningPlayers = participatingPlayersByTeam[scoringTeam];
+    const losingPlayers = participatingPlayersByTeam[losingTeam];
 
     await this.statsEngine.updateElosOnGoal(winningPlayers, losingPlayers);
-  }
-
-  private async getParticipatingPlayersInPoint(pointId: number) {
-    const { playerPoints: allPlayersPointsAndPlayersInPoint } =
-      await getPointAndPlayersFromPointIdOrThrow(pointId);
-    const participatingPlayerPointsAndPlayersInPoint =
-      allPlayersPointsAndPlayersInPoint.filter(
-        (playerPoint) => playerPoint.position <= 1,
-      );
-    return participatingPlayerPointsAndPlayersInPoint.map((playerPoint) => ({
-      ...playerPoint.player,
-      team: playerPoint.team,
-    }));
   }
 
   async joinPointWithActivePlayers<T extends Point>(

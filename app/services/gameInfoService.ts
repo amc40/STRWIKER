@@ -2,12 +2,14 @@ import { PlayerPoint } from '@prisma/client';
 import { getCurrentGame } from '../repository/gameRepository';
 import { getCurrentPointAndPlayersFromGameOrThrow } from '../repository/pointRepository';
 import { GameInfo } from '../view/CurrentGameInfo';
-import { playerPointWithPlayerAndGoalsScoredToPlayerInfo } from '../view/PlayerInfo';
+import { createPlayerInfo } from '../view/PlayerInfo';
 import { GoalsScored, StatsEngineFwoar } from './statsEngine';
 import { getAllPlayerPointsForPlayersInGame } from '../repository/playerPointRepository';
+import { PointParticipantService } from './pointParticipantService';
 
 export class GameInfoService {
   statsEngine = new StatsEngineFwoar();
+  pointParticipantService = new PointParticipantService();
 
   async isGameInProgress(): Promise<boolean> {
     return (await getCurrentGame()) != null;
@@ -33,6 +35,9 @@ export class GameInfoService {
       );
 
     const currentPointPlayers = currentPointAndPlayers.playerPoints;
+    const participantPlayers =
+      this.pointParticipantService.getParticipatingPlayers(currentPointPlayers);
+
     return {
       gameId: currentGame.id,
       players: currentPointPlayers.map((playerPointWithPlayer) => {
@@ -40,9 +45,15 @@ export class GameInfoService {
           playerPointWithPlayer.playerId,
           allPlayerPointsInGameForCurrentPlayers,
         );
-        return playerPointWithPlayerAndGoalsScoredToPlayerInfo(
+        const isParticipant =
+          participantPlayers.findIndex(
+            (participantPlayer) =>
+              playerPointWithPlayer.playerId === participantPlayer.playerId,
+          ) !== -1;
+        return createPlayerInfo(
           playerPointWithPlayer,
           goalsScored,
+          isParticipant,
         );
       }),
       teamInfo: {
