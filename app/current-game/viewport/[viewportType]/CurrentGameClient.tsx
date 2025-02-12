@@ -255,7 +255,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
         setRotatyStrategy={setRotatyStrategy}
       />
       <div className="h-full flex flex-col">
-        <div className="flex flex-1 flex-row">
+        <div className="flex flex-1 flex-row overflow-y-auto">
           <WrapChildrenInSwiperIfMobile isMobile={isMobile}>
             <Team
               team={$Enums.Team.Blue}
