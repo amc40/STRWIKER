@@ -17,7 +17,7 @@ export class PlayerService {
     const player = players.find((player) => player.id === playerId);
     if (player == null) {
       throw new Error(
-        `Could not find player with id '${playerId}' in ${JSON.stringify(
+        `Could not find player with id '${playerId.toString()}' in ${JSON.stringify(
           players,
         )}`,
       );

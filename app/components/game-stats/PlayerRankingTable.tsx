@@ -106,7 +106,7 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
           const { type } = rowToDisplay;
           if (type === 'truncation') {
             return (
-              <StatsTR key={`truncation-${index}`}>
+              <StatsTR key={`truncation-${index.toFixed()}`}>
                 <StatsTD
                   className="text-center text-lg font-semibold"
                   colSpan={3}

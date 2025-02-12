@@ -15,7 +15,7 @@ export const StartCurrentPointButton: React.FC = () => {
       text="Start Point"
       className="text-md md:text-2xl font-bold"
       onClick={() => {
-        onClick().catch((e) => {
+        onClick().catch((e: unknown) => {
           addErrorMessage('Error starting point', e);
         });
       }}

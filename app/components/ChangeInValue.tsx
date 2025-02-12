@@ -12,7 +12,7 @@ export const ChangeInValue: React.FC<ChangeInValueProps> = ({
   }
 
   const isIncrease = changeInValue > 0;
-  const changeText = `(${isIncrease ? '+' : '-'}${Math.abs(changeInValue)})`;
+  const changeText = `(${isIncrease ? '+' : '-'}${Math.abs(changeInValue).toFixed()})`;
 
   return (
     <span className={` ${isIncrease ? 'text-green-500' : 'text-red-500'}`}>

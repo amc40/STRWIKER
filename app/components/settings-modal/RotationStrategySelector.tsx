@@ -42,7 +42,7 @@ export const RotatyStrategySelector: React.FC<
         setLoading(false);
       }
     };
-    updateRotatyStrategyPromise().catch((e) => {
+    updateRotatyStrategyPromise().catch((e: unknown) => {
       addErrorMessage('Error updating rotaty strategy', e);
     });
   };

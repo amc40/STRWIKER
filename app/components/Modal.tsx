@@ -8,7 +8,7 @@ export interface CustomModalProps {
 
 interface ModalProps extends CustomModalProps {
   title: string | ReactNode;
-  children?: JSX.Element;
+  children?: React.JSX.Element;
 }
 
 const Modal: FC<ModalProps> = ({ title, children, show, onClose }) => {

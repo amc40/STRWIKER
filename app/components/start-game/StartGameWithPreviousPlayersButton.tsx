@@ -20,7 +20,7 @@ export const StartGameWithPreviousPlayersButton: React.FC = () => {
       text="Start Game with Previous Players"
       className="mt-8 text-md md:text-2xl font-bold"
       onClick={() => {
-        onClick().catch((e) => {
+        onClick().catch((e: unknown) => {
           addErrorMessage('Error starting game with previous players', e);
         });
       }}

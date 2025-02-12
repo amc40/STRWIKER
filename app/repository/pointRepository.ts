@@ -11,7 +11,7 @@ export const getCurrentPointFromGameOrThrow = async (
   game: Game,
 ): Promise<Point> => {
   if (!game.currentPointId)
-    throw new Error('No current point for game id ' + game.id);
+    throw new Error(`No current point for game id ${game.id.toFixed()}`);
   return await prisma.point.findFirstOrThrow({
     where: {
       id: game.currentPointId,
@@ -21,7 +21,7 @@ export const getCurrentPointFromGameOrThrow = async (
 
 export const getCurrentPointAndPlayersFromGameOrThrow = async (game: Game) => {
   if (!game.currentPointId)
-    throw new Error('No current point for game id ' + game.id);
+    throw new Error(`No current point for game id ${game.id.toFixed()}`);
   return await getPointAndPlayersFromPointIdOrThrow(game.currentPointId);
 };
 
