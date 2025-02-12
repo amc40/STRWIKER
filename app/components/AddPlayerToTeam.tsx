@@ -35,7 +35,7 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
       const data = await getPlayers();
       setPlayers(data);
     };
-    loadData().catch((e) => {
+    loadData().catch((e: unknown) => {
       addErrorMessage('Failed to fetch players', e);
     });
   }, [addErrorMessage]);

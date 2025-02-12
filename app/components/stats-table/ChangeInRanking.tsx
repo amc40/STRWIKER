@@ -12,7 +12,7 @@ export const ChangeInRanking: React.FC<ChangeInRankingProps> = ({
   }
 
   const isHigherRanking = changeInRanking < 0;
-  const changeText = `(${Math.abs(changeInRanking)}${
+  const changeText = `(${Math.abs(changeInRanking).toFixed()}${
     isHigherRanking ? '⬆️' : '⬇️'
   })`;
 

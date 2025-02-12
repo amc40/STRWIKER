@@ -24,7 +24,7 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      populatePlayers().catch((e) => {
+      populatePlayers().catch((e: unknown) => {
         addErrorMessage('Error populating players', e);
       });
     }, 1000);
@@ -82,7 +82,7 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
           <PrimaryButton
             text="Add Player"
             onClick={() => {
-              handleAddPlayer().catch((e) => {
+              handleAddPlayer().catch((e: unknown) => {
                 addErrorMessage('Error adding new player', e);
               });
             }}

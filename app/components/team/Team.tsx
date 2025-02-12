@@ -46,7 +46,9 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
             const playerId = Number.parseInt(onDragEndResponder.draggableId);
             const playerInfo = members.find((member) => member.id === playerId);
             if (!playerInfo)
-              throw new Error(`There is no team member with id: ${playerId}`);
+              throw new Error(
+                `There is no team member with id: ${playerId.toFixed()}`,
+              );
             reorderPlayer(playerInfo, destinationIndex);
           }}
         >
@@ -60,7 +62,7 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
                 {members.map((member, index) => (
                   <Draggable
                     key={member.id}
-                    draggableId={`${member.id}`}
+                    draggableId={member.id.toFixed()}
                     index={index}
                   >
                     {(provided) => (

@@ -11,7 +11,7 @@ export const Messages: React.FC = () => {
       <div className="justify-center fixed bottom-5 w-4/5 flex flex-col items-center space-y-2 z-50 transition-opacity duration-500">
         {messages.map((message) => (
           <span
-            key={`message-${message.id}`}
+            key={`message-${message.id.toFixed()}`}
             className={`flex gap-2 py-1 px-2 rounded-md text-center border border-black bg-white shadow-md`}
           >
             <div className="flex w-14 md:w-6">

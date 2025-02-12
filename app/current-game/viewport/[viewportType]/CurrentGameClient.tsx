@@ -43,7 +43,7 @@ const updatePlayerOrderAfterReorder = (
         player,
       )}, playerReordered: ${JSON.stringify(
         playerReordered,
-      )}, destinationIndex: ${destinationIndex}`,
+      )}, destinationIndex: ${destinationIndex.toFixed()}`,
     );
   }
 
@@ -113,7 +113,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     const gameEndListener = supabaseClient
       .channel('current-game-end')
       .on('broadcast', { event: 'game-end' }, () => {
-        router.replace(`/game/${serverGameId}/stats`);
+        router.replace(`/game/${serverGameId.toFixed()}/stats`);
       })
       .subscribe();
 
@@ -166,8 +166,8 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
         setAwaitingPlayersResponse(false);
       }
     };
-    action().catch((e) => {
-      addErrorMessage(`Error adding player id ${playerId}`, e);
+    action().catch((e: unknown) => {
+      addErrorMessage(`Error adding player id ${playerId.toFixed()}`, e);
     });
   };
 
@@ -183,8 +183,8 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
         setAwaitingPlayersResponse(false);
       }
     };
-    action().catch((e) => {
-      addErrorMessage(`Error removing player id ${player.id}`, e);
+    action().catch((e: unknown) => {
+      addErrorMessage(`Error removing player id ${player.id.toFixed()}`, e);
     });
   };
 
@@ -209,9 +209,9 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
         setAwaitingPlayersResponse(false);
       }
     };
-    action().catch((e) => {
+    action().catch((e: unknown) => {
       addErrorMessage(
-        `Error reordering player id ${player.id} to position ${destinationIndex}`,
+        `Error reordering player id ${player.id.toFixed()} to position ${destinationIndex.toFixed()}`,
         e,
       );
     });

@@ -60,7 +60,7 @@ export const LongestPointsTable: React.FC<LongestPointsTableProps> = ({
                 </span>
               </StatsTD>
               <StatsTD>
-                <span className="whitespace-nowrap">{`${blueScore} - ${redScore}`}</span>
+                <span className="whitespace-nowrap">{`${blueScore.toFixed()} - ${redScore.toFixed()}`}</span>
               </StatsTD>
               <StatsTD>
                 <span className="flex justify-end items-center gap-2 md:gap-3">

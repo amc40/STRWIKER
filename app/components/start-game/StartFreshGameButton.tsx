@@ -20,7 +20,7 @@ export const StartFreshGameButton: React.FC = () => {
       text="Start Fresh Game"
       className="mt-8 text-md md:text-2xl font-bold"
       onClick={() => {
-        onClick().catch((e) => {
+        onClick().catch((e: unknown) => {
           addErrorMessage('Error starting fresh game', e);
         });
       }}

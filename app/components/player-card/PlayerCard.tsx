@@ -43,7 +43,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const handleGoalClick = () => {
     setRecordingGoal(true);
     recordGoalScored(player, false)
-      .catch((e) => {
+      .catch((e: unknown) => {
         addErrorMessage('Error recording goal', e);
       })
       .finally(() => {
@@ -54,7 +54,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const handleOwnGoalClick = () => {
     setRecordingOwnGoal(true);
     recordGoalScored(player, true)
-      .catch((e) => {
+      .catch((e: unknown) => {
         addErrorMessage('Error recording goal', e);
       })
       .finally(() => {
@@ -83,8 +83,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       <h3 className="text-lg font-bold">{playerName}</h3>
 
       <div className="flex place-content-between">
-        <PlayerCardStat text={`Goals: ${goals}`} />
-        <PlayerCardStat text={`Own Goals: ${ownGoals}`} />
+        <PlayerCardStat text={`Goals: ${goals.toFixed()}`} />
+        <PlayerCardStat text={`Own Goals: ${ownGoals.toFixed()}`} />
       </div>
 
       <div className="flex place-content-between">
