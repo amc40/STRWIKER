@@ -99,13 +99,13 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
   );
   const [pointStarted, setPointStarted] = useState(serverPointStarted);
 
-  const [awaitingPlayersResponse, setAwaitingPlayersResponse] = useState(false);
-  // this prevents the value of awaitingPlayersResponse being captured by the closure in the refresh useEffect
-  const awaitingPlayersResponseRef = useRef(awaitingPlayersResponse);
+  const [awaitingPlayersMutation, setAwaitingPlayersMutation] = useState(false);
+  // this prevents the value of awaitingPlayersMutation being captured by the closure in the refresh useEffect
+  const awaitingPlayersMutationRef = useRef(awaitingPlayersMutation);
 
   useEffect(() => {
-    awaitingPlayersResponseRef.current = awaitingPlayersResponse;
-  }, [awaitingPlayersResponse]);
+    awaitingPlayersMutationRef.current = awaitingPlayersMutation;
+  }, [awaitingPlayersMutation]);
 
   const router = useRouter();
 
@@ -121,12 +121,16 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
       .channel('current-game-state')
       .on('broadcast', { event: 'game-state' }, ({ payload }) => {
         const currentGameInfo = payload as GameInfo;
-        setPlayers(currentGameInfo.players);
-        setRedScore(currentGameInfo.teamInfo.Red.score);
-        setBlueScore(currentGameInfo.teamInfo.Blue.score);
-        setRedRotatyStrategy(currentGameInfo.teamInfo.Red.rotatyStrategy);
-        setBlueRotatyStrategy(currentGameInfo.teamInfo.Blue.rotatyStrategy);
-        setPointStarted(currentGameInfo.pointStarted);
+        // we won't visually update the state while we've got mutations of ourselves waiting to be applied, otherwise they will undo and re-apply when the corresponding state update it made
+        // if we need to update our state based on other user's actions we can wait until we get the state update from our mutation
+        if (!awaitingPlayersMutationRef.current) {
+          setPlayers(currentGameInfo.players);
+          setRedScore(currentGameInfo.teamInfo.Red.score);
+          setBlueScore(currentGameInfo.teamInfo.Blue.score);
+          setRedRotatyStrategy(currentGameInfo.teamInfo.Red.rotatyStrategy);
+          setBlueRotatyStrategy(currentGameInfo.teamInfo.Blue.rotatyStrategy);
+          setPointStarted(currentGameInfo.pointStarted);
+        }
       })
       .subscribe();
 
@@ -136,10 +140,6 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     };
   }, [router, serverGameId]);
 
-  useEffect(() => {
-    awaitingPlayersResponseRef.current = awaitingPlayersResponse;
-  }, [awaitingPlayersResponse]);
-
   const { addErrorMessage } = useMessage();
 
   const addPlayer = (
@@ -147,7 +147,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     playerName: string,
     team: $Enums.Team,
   ) => {
-    setAwaitingPlayersResponse(true);
+    setAwaitingPlayersMutation(true);
     setPlayers((state) => [
       ...state,
       {
@@ -163,7 +163,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
       try {
         await addPlayerToCurrentGame(playerId, team);
       } finally {
-        setAwaitingPlayersResponse(false);
+        setAwaitingPlayersMutation(false);
       }
     };
     action().catch((e: unknown) => {
@@ -172,7 +172,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
   };
 
   const removePlayer = (player: PlayerInfo) => {
-    setAwaitingPlayersResponse(true);
+    setAwaitingPlayersMutation(true);
     setPlayers((state) => {
       return state.filter((playerInfo) => playerInfo.id !== player.id);
     });
@@ -180,7 +180,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
       try {
         await removePlayerFromCurrentGame(player.id);
       } finally {
-        setAwaitingPlayersResponse(false);
+        setAwaitingPlayersMutation(false);
       }
     };
     action().catch((e: unknown) => {
@@ -189,7 +189,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
   };
 
   const reorderPlayer = (player: PlayerInfo, destinationIndex: number) => {
-    setAwaitingPlayersResponse(true);
+    setAwaitingPlayersMutation(true);
 
     setPlayers((state) => {
       try {
@@ -206,7 +206,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
       try {
         await reorderPlayerAction(player.id, destinationIndex);
       } finally {
-        setAwaitingPlayersResponse(false);
+        setAwaitingPlayersMutation(false);
       }
     };
     action().catch((e: unknown) => {
