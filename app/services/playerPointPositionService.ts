@@ -140,11 +140,16 @@ export class PlayerPointPositionService {
   private getNextPlayerPosition(
     previousPosition: number,
     numberOfPlayersOnTeam: number,
+    // the current position of the second participant, as this player will become the new first participant
+    positionOfSecondParticipant: number,
     isTeamRotating: boolean,
   ) {
     if (!isTeamRotating) return previousPosition;
+    const amountRotatingBy = positionOfSecondParticipant;
     const newPosition =
-      previousPosition === 0 ? numberOfPlayersOnTeam - 1 : previousPosition - 1;
+      previousPosition < amountRotatingBy
+        ? numberOfPlayersOnTeam - amountRotatingBy + previousPosition
+        : previousPosition - amountRotatingBy;
     return newPosition;
   }
 

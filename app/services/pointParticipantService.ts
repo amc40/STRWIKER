@@ -27,12 +27,14 @@ export class PointParticipantService {
     ).flat();
   }
 
+  getPositionOfSecondParticipant() {}
+
   private getParticipatingPlayersByTeam<T extends PlayerPoint>(
     playerPoints: T[],
   ): Record<Team, T[]> {
     return {
-      Red: this.getParticipatingPlayersForTeam(playerPoints, 'Red'),
-      Blue: this.getParticipatingPlayersForTeam(playerPoints, 'Blue'),
+      Red: this.getParticipatingPlayersForTeam(playerPoints, Team.Red),
+      Blue: this.getParticipatingPlayersForTeam(playerPoints, Team.Blue),
     };
   }
 
