@@ -18,7 +18,7 @@
     "@hello-pangea/dnd": "^18.0.1",
     "@heroicons/react": "^2.0.18",
     "@prisma/client": "^6.1.0",
-    "@supabase/supabase-js": "^2.43.4",
+    "@supabase/supabase-js": "^2.48.1",
     "@tremor/react": "^3.18.7",
     "@vercel/analytics": "^1.4.1",
     "autoprefixer": "^10.4.18",
