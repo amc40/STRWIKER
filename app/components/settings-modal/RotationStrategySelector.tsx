@@ -1,7 +1,13 @@
 import { RotatyStrategy, Team } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
 import { updateRotatyStrategyAction } from '../../../lib/Game.actions';
-import { Select, SelectOption } from '../Select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useMessage } from '../../context/MessageContext';
 
 interface RotationStrategySelectorProps {
@@ -10,12 +16,7 @@ interface RotationStrategySelectorProps {
   setRotatyStrategy: (team: Team, rotatyStrategy: RotatyStrategy) => void;
 }
 
-const options: SelectOption<RotatyStrategy>[] = Object.values(
-  RotatyStrategy,
-).map((rotatyStrategy) => ({
-  id: rotatyStrategy,
-  label: rotatyStrategy,
-}));
+const options = Object.values(RotatyStrategy);
 
 export const RotatyStrategySelector: React.FC<
   RotationStrategySelectorProps
@@ -37,7 +38,6 @@ export const RotatyStrategySelector: React.FC<
         await updateRotatyStrategyAction(rotatyStrategy, team);
         setSelectedRotatyStrategy(rotatyStrategy);
         setRotatyStrategy(team, rotatyStrategy);
-        // TODO: show confirmation
       } finally {
         setLoading(false);
       }
@@ -49,12 +49,24 @@ export const RotatyStrategySelector: React.FC<
 
   return (
     <Select
-      options={options}
-      selectedId={selectedRotatyStrategy}
-      onChange={(rotatyStrategy) => {
-        updateRotatyStrategy(rotatyStrategy);
+      value={selectedRotatyStrategy}
+      onValueChange={(value) => {
+        updateRotatyStrategy(value as RotatyStrategy);
       }}
-      loading={loading}
-    />
+      disabled={loading}
+    >
+      <SelectTrigger>
+        <SelectValue
+          placeholder={loading ? 'Loading...' : 'Select a strategy'}
+        />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((strategy) => (
+          <SelectItem key={strategy} value={strategy}>
+            {strategy}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
