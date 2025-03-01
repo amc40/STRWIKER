@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { addPlayer, getPlayers } from '../../lib/Player.actions';
 import { useMessage } from '../context/MessageContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface PlayersClientProps {
   serverPlayers: Player[];
@@ -69,15 +70,15 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
       <div className="bg-white p-3">
         <h1 className="text-3xl">Players</h1>
 
-        <div>
-          <input
+        <div className="flex items-center">
+          <Input
             type="text"
             placeholder="Enter player name"
             value={newPlayerName}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setNewPlayerName(e.target.value);
             }}
-            className="my-4 mr-2 p-1.5 border border-black rounded"
+            className="my-4 mr-2"
           />
           <Button
             onClick={() => {
@@ -90,14 +91,14 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
           </Button>
         </div>
 
-        <input
+        <Input
           type="text"
           placeholder="Search players..."
           value={searchTerm}
-          onChange={(e) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setSearchTerm(e.target.value);
           }}
-          className="mb-3 p-2"
+          className="mb-3"
         />
 
         <ul>
