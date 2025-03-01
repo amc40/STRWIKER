@@ -1,19 +1,21 @@
 import React from 'react';
 import { abandonCurrentGame } from '../../lib/Game.actions';
 import { useMessage } from '../context/MessageContext';
+import { Button } from '@/components/ui/button';
 
 export const AbandonGameButton: React.FC = () => {
   const { addErrorMessage } = useMessage();
   return (
-    <button
+    <Button
       onClick={() => {
         abandonCurrentGame().catch((error: unknown) => {
           addErrorMessage('Error abandoning game', error);
         });
       }}
-      className="p-1 rounded border border-red-500 text-red-500 hover:bg-red-500 hover:text-white focus:outline-none"
+      variant="destructive-outline"
+      size="sm"
     >
       Abandon Game
-    </button>
+    </Button>
   );
 };
