@@ -3,8 +3,8 @@
 import { Player } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
 import { addPlayer, getPlayers } from '../../lib/Player.actions';
-import { PrimaryButton } from '../components/PrimaryButton';
 import { useMessage } from '../context/MessageContext';
+import { Button } from '@/components/ui/button';
 
 interface PlayersClientProps {
   serverPlayers: Player[];
@@ -79,14 +79,15 @@ export const PlayersClient: React.FC<PlayersClientProps> = ({
             }}
             className="my-4 mr-2 p-1.5 border border-black rounded"
           />
-          <PrimaryButton
-            text="Add Player"
+          <Button
             onClick={() => {
               handleAddPlayer().catch((e: unknown) => {
                 addErrorMessage('Error adding new player', e);
               });
             }}
-          />
+          >
+            Add Player
+          </Button>
         </div>
 
         <input
