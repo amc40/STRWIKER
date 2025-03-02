@@ -28,7 +28,7 @@
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
-    "copy-webpack-plugin": "^11.0.0",
+    "copy-webpack-plugin": "^13.0.0",
     "http-status-codes": "^2.3.0",
     "lucide-react": "^0.477.0",
     "moment": "^2.30.1",
