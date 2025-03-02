@@ -8,10 +8,7 @@ interface CircleRemoveProps {
 
 export const CircleRemove: React.FC<CircleRemoveProps> = ({ onRemove }) => {
   return (
-    <CircleButton
-      onClick={onRemove}
-      className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-    >
+    <CircleButton onClick={onRemove} variant="destructive-outline">
       <Cross />
     </CircleButton>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PrimaryButton } from '../PrimaryButton';
+import { Button } from '@/components/ui/button';
 
 interface PlayerCardGoalButtonProps {
   text: string;
@@ -8,8 +8,15 @@ interface PlayerCardGoalButtonProps {
   disabled: boolean;
 }
 
-export const PlayerCardGoalButton: React.FC<PlayerCardGoalButtonProps> = (
-  props,
-) => {
-  return <PrimaryButton className="text-sm" {...props} />;
+export const PlayerCardGoalButton: React.FC<PlayerCardGoalButtonProps> = ({
+  text,
+  onClick,
+  loading,
+  disabled,
+}) => {
+  return (
+    <Button size="sm" onClick={onClick} loading={loading} disabled={disabled}>
+      {text}
+    </Button>
+  );
 };

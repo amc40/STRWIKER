@@ -1,6 +1,7 @@
 import React from 'react';
 import { Rotation } from '../icons/Rotation';
 import { RotatyStrategy } from '@prisma/client';
+import { Button } from '@/components/ui/button';
 
 interface RotatyStatusProps {
   rotatyStrategy: RotatyStrategy;
@@ -12,14 +13,9 @@ export const RotatyStrategyStatusButton: React.FC<RotatyStatusProps> = ({
   onClick,
 }) => {
   return (
-    <button
-      className="flex items-center gap-x-0.5 bg-secondary text-black text-base font-normal border border-black rounded-full px-2"
-      onClick={() => {
-        onClick();
-      }}
-    >
+    <Button variant="secondary" shape="badge" onClick={onClick}>
       <Rotation />
       {rotatyStrategy}
-    </button>
+    </Button>
   );
 };

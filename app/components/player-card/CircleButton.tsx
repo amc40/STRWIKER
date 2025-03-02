@@ -1,23 +1,24 @@
-import classNames from 'classnames';
 import React from 'react';
+import { Button, type ButtonProps } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface CircleButtonProps {
   className?: string;
   onClick: () => void;
+  variant?: ButtonProps['variant'];
 }
 
 export const CircleButton: React.FC<
   React.PropsWithChildren<CircleButtonProps>
-> = ({ children, className, onClick }) => {
+> = ({ children, className, onClick, variant = 'outline' }) => {
   return (
-    <button
+    <Button
       onClick={onClick}
-      className={classNames(
-        className,
-        'flex items-center justify-center w-8 h-8 rounded-full border focus:outline-none',
-      )}
+      size="icon"
+      variant={variant}
+      className={cn('rounded-full', className)}
     >
       {children}
-    </button>
+    </Button>
   );
 };
