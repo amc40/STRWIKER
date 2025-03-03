@@ -17,7 +17,7 @@ export const metadata = {
 const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
-      <body className="h-screen flex flex-col">
+      <body className="h-dvh flex flex-col">
         <Suspense>
           <Nav />
         </Suspense>
