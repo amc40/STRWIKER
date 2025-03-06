@@ -6,8 +6,8 @@ export const Logo: React.FC = () => {
     <svg
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlns="http://www.w3.org/2000/svg"
-      width="121.53498mm"
-      height="120.12804mm"
+      width="32"
+      height="32"
       viewBox="0 0 121.53498 120.12805"
       version="1.1"
       id="svg1"
