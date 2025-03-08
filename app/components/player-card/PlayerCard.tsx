@@ -90,6 +90,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
       <div className="flex place-content-between">
         <PlayerCardStat text={`Goals: ${goals.toFixed()}`} />
+        <PlayerCardStat text={`Position: ${player.position.toFixed()}`} />
         <PlayerCardStat text={`Own Goals: ${ownGoals.toFixed()}`} />
       </div>
 
