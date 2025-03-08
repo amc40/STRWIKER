@@ -11,12 +11,16 @@ interface PlayerCardProps {
   player: PlayerInfo;
   removePlayer: (player: PlayerInfo) => void;
   scoringGoalsDisabled: boolean;
+  registerGameStateMutation: () => string;
+  clearGameStateMutation: () => void;
 }
 
 const PlayerCard: React.FC<PlayerCardProps> = ({
   player,
   removePlayer,
   scoringGoalsDisabled,
+  registerGameStateMutation,
+  clearGameStateMutation,
 }) => {
   const {
     name: playerName,
@@ -42,8 +46,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
   const handleGoalClick = () => {
     setRecordingGoal(true);
-    recordGoalScored(player, false)
+    recordGoalScored(player, false, registerGameStateMutation())
       .catch((e: unknown) => {
+        clearGameStateMutation();
         addErrorMessage('Error recording goal', e);
       })
       .finally(() => {
@@ -53,8 +58,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
   const handleOwnGoalClick = () => {
     setRecordingOwnGoal(true);
-    recordGoalScored(player, true)
+    recordGoalScored(player, true, registerGameStateMutation())
       .catch((e: unknown) => {
+        clearGameStateMutation();
         addErrorMessage('Error recording goal', e);
       })
       .finally(() => {
