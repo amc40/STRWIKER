@@ -9,7 +9,7 @@ import {
 } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
-  decrementPlayerPointPositionsInPointAfter,
+  decrementPlayerPointPositionsInPointAndTeamAfter,
   deletePlayerPoint,
   getAllPlayerPointsAndPlayersByPointWherePositionLessThan,
   getAllPlayerPointsByPoint,
@@ -248,8 +248,9 @@ export class GameLogicService {
       );
 
       const decrementPlayerPointPositionssAfterRemovedPlayerPromise =
-        decrementPlayerPointPositionsInPointAfter(
+        decrementPlayerPointPositionsInPointAndTeamAfter(
           currentPlayerPointForPlayer.pointId,
+          currentPlayerPointForPlayer.team,
           currentPlayerPointForPlayer.position,
         );
       await Promise.all([
