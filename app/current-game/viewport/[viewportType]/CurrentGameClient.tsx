@@ -111,7 +111,6 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     return mutationId;
   };
 
-  // TODO: should we instead have a list of outstanding mutation ids and remove only the one which errored?
   // Function to clear a game state mutation (e.g., on error)
   const clearGameStateMutation = () => {
     latestOutstandingLocalGameStateMutationIdRef.current = null;
@@ -135,6 +134,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
         console.log('game state broadcast', gameStateMutationId);
 
         // Only update state if we're not awaiting our own mutation or if this is the response to our latest mutation
+        // prevents the state appearing to apply based on local optimistic updates and then be removed by an earlier update
         if (
           currentGame != null &&
           (latestOutstandingLocalGameStateMutationIdRef.current === null ||
