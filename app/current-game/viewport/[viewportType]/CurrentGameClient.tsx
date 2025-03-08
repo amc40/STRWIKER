@@ -290,6 +290,8 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
               removePlayer={removePlayer}
               reorderPlayer={reorderPlayer}
               openSettingsModal={openSettingsModal}
+              registerGameStateMutation={registerGameStateMutation}
+              clearGameStateMutation={clearGameStateMutation}
             >
               <AddPlayerToTeam
                 team={$Enums.Team.Blue}
@@ -309,6 +311,8 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
               removePlayer={removePlayer}
               reorderPlayer={reorderPlayer}
               openSettingsModal={openSettingsModal}
+              registerGameStateMutation={registerGameStateMutation}
+              clearGameStateMutation={clearGameStateMutation}
             >
               <AddPlayerToTeam
                 team={$Enums.Team.Red}

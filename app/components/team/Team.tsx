@@ -14,6 +14,8 @@ interface TeamProps {
   removePlayer: (player: PlayerInfo) => void;
   reorderPlayer: (player: PlayerInfo, destinationIndex: number) => void;
   openSettingsModal: () => void;
+  registerGameStateMutation: () => string;
+  clearGameStateMutation: () => void;
 }
 
 export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
@@ -25,6 +27,8 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
   removePlayer,
   reorderPlayer,
   openSettingsModal,
+  registerGameStateMutation,
+  clearGameStateMutation,
   children,
 }) => {
   return (
@@ -75,6 +79,8 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
                           player={member}
                           removePlayer={removePlayer}
                           scoringGoalsDisabled={scoringGoalsDisabled}
+                          registerGameStateMutation={registerGameStateMutation}
+                          clearGameStateMutation={clearGameStateMutation}
                         />
                       </li>
                     )}
