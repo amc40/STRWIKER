@@ -7,6 +7,7 @@ import { PlayerInfo } from '../app/view/PlayerInfo';
 import { supabaseClient } from '../app/utils/supabase';
 import { GameInfoService } from '../app/services/gameInfoService';
 import { revalidatePath } from 'next/cache';
+import { GameInfo } from '@/app/view/CurrentGameInfo';
 
 const gameInfoService = new GameInfoService();
 
@@ -28,19 +29,21 @@ export const abandonCurrentGame = async () => {
 export const addPlayerToCurrentGame = async (
   playerId: number,
   team: $Enums.Team,
+  gameStateMutationId: string,
 ) => {
   await new GameLogicService().addPlayerToCurrentPoint(playerId, team);
-  await registerUpdatedGameState();
+  await registerUpdatedGameState(gameStateMutationId);
 };
 
-export const startCurrentPoint = async () => {
+export const startCurrentPoint = async (gameStateMutationId: string) => {
   await new GameLogicService().startCurrentPoint();
-  await registerUpdatedGameState();
+  await registerUpdatedGameState(gameStateMutationId);
 };
 
 export const recordGoalScored = async (
   scorerInfo: PlayerInfo,
   ownGoal: boolean,
+  gameStateMutationId: string,
 ) => {
   const isGameEnd = await new GameLogicService().scoreGoalInCurrentGame(
     scorerInfo.id,
@@ -49,41 +52,58 @@ export const recordGoalScored = async (
   if (isGameEnd == IsGameEnd.GAME_ENDS) {
     await registerGameEnd();
   } else {
-    await registerUpdatedGameState();
+    await registerUpdatedGameState(gameStateMutationId);
   }
 };
 
-export const removePlayerFromCurrentGame = async (playerId: number) => {
+export const removePlayerFromCurrentGame = async (
+  playerId: number,
+  gameStateMutationId: string,
+) => {
   await new GameLogicService().removePlayerFromCurrentPoint(playerId);
-  await registerUpdatedGameState();
+  await registerUpdatedGameState(gameStateMutationId);
 };
 
-export const reorderPlayer = async (playerId: number, newPosition: number) => {
+export const reorderPlayer = async (
+  playerId: number,
+  newPosition: number,
+  gameStateMutationId: string,
+) => {
   await new PlayerPointPositionService().reorderPlayerInCurrentGame(
     playerId,
     newPosition,
   );
-  await registerUpdatedGameState();
+  await registerUpdatedGameState(gameStateMutationId);
 };
 
 export const updateRotatyStrategyAction = async (
   rotatyStrategy: RotatyStrategy,
   team: Team,
+  gameStateMutationId: string,
 ) => {
   await new PlayerPointPositionService().updateRotatyStrategyForTeamInCurrentGame(
     rotatyStrategy,
     team,
   );
-  await registerUpdatedGameState();
+  await registerUpdatedGameState(gameStateMutationId);
 };
 
-const registerUpdatedGameState = async () => {
+export interface GameStateBroadcastPayload {
+  currentGame: GameInfo | null;
+  gameStateMutationId: string | null;
+}
+
+const registerUpdatedGameState = async (gameStateMutationId: string) => {
   const channel = supabaseClient.channel('current-game-state');
   const currentGame = await gameInfoService.getCurrentGameInfo();
+  const payload: GameStateBroadcastPayload = {
+    currentGame,
+    gameStateMutationId,
+  };
   await channel.send({
     type: 'broadcast',
     event: 'game-state',
-    payload: currentGame,
+    payload,
   });
 
   await supabaseClient.removeChannel(channel);

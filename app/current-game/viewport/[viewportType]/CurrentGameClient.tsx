@@ -5,6 +5,7 @@ import { Team } from '../../../components/team/Team';
 import AddPlayerToTeam from '../../../components/AddPlayerToTeam';
 import {
   addPlayerToCurrentGame,
+  GameStateBroadcastPayload,
   removePlayerFromCurrentGame,
   reorderPlayer as reorderPlayerAction,
 } from '../../../../lib/Game.actions';
@@ -15,11 +16,11 @@ import { WrapChildrenInSwiperIfMobile } from './WrapChildrenInSwiperIfMobile';
 import 'swiper/css';
 import { PlayerInfo } from '../../../view/PlayerInfo';
 import { supabaseClient } from '../../../utils/supabase';
-import { GameInfo } from '../../../view/CurrentGameInfo';
 import { useRouter } from 'next/navigation';
 import { useMessage } from '../../../context/MessageContext';
 import { sortArrayByPropertyAsc } from '../../../utils/arrayUtils';
 import { StartCurrentPointOverlay } from '../../../components/start-current-point/StartCurrentPointOverlay';
+import { v4 as uuidv4 } from 'uuid';
 
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
@@ -99,13 +100,22 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
   );
   const [pointStarted, setPointStarted] = useState(serverPointStarted);
 
-  const [awaitingPlayersMutation, setAwaitingPlayersMutation] = useState(false);
-  // this prevents the value of awaitingPlayersMutation being captured by the closure in the refresh useEffect
-  const awaitingPlayersMutationRef = useRef(awaitingPlayersMutation);
+  const latestOutstandingLocalGameStateMutationIdRef = useRef<string | null>(
+    null,
+  );
 
-  useEffect(() => {
-    awaitingPlayersMutationRef.current = awaitingPlayersMutation;
-  }, [awaitingPlayersMutation]);
+  // Function to register a game state mutation and get a mutation ID
+  const registerGameStateMutation = () => {
+    const mutationId = uuidv4();
+    latestOutstandingLocalGameStateMutationIdRef.current = mutationId;
+    return mutationId;
+  };
+
+  // TODO: should we instead have a list of outstanding mutation ids and remove only the one which errored?
+  // Function to clear a game state mutation (e.g., on error)
+  const clearGameStateMutation = () => {
+    latestOutstandingLocalGameStateMutationIdRef.current = null;
+  };
 
   const router = useRouter();
 
@@ -120,16 +130,35 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     const gameStateListener = supabaseClient
       .channel('current-game-state')
       .on('broadcast', { event: 'game-state' }, ({ payload }) => {
-        const currentGameInfo = payload as GameInfo;
-        // we won't visually update the state while we've got mutations of ourselves waiting to be applied, otherwise they will undo and re-apply when the corresponding state update it made
-        // if we need to update our state based on other user's actions we can wait until we get the state update from our mutation
-        if (!awaitingPlayersMutationRef.current) {
-          setPlayers(currentGameInfo.players);
-          setRedScore(currentGameInfo.teamInfo.Red.score);
-          setBlueScore(currentGameInfo.teamInfo.Blue.score);
-          setRedRotatyStrategy(currentGameInfo.teamInfo.Red.rotatyStrategy);
-          setBlueRotatyStrategy(currentGameInfo.teamInfo.Blue.rotatyStrategy);
-          setPointStarted(currentGameInfo.pointStarted);
+        const { currentGame, gameStateMutationId } =
+          payload as GameStateBroadcastPayload;
+        console.log('game state broadcast', gameStateMutationId);
+
+        // Only update state if we're not awaiting our own mutation or if this is the response to our latest mutation
+        if (
+          currentGame != null &&
+          (latestOutstandingLocalGameStateMutationIdRef.current === null ||
+            latestOutstandingLocalGameStateMutationIdRef.current ===
+              gameStateMutationId)
+        ) {
+          setPlayers(currentGame.players);
+          setRedScore(currentGame.teamInfo.Red.score);
+          setBlueScore(currentGame.teamInfo.Blue.score);
+          setRedRotatyStrategy(currentGame.teamInfo.Red.rotatyStrategy);
+          setBlueRotatyStrategy(currentGame.teamInfo.Blue.rotatyStrategy);
+          setPointStarted(currentGame.pointStarted);
+        }
+
+        // If this is a response to our own mutation, clear the mutation ID reference
+        if (
+          gameStateMutationId ===
+          latestOutstandingLocalGameStateMutationIdRef.current
+        ) {
+          console.log(
+            'Received response for our mutation',
+            gameStateMutationId,
+          );
+          latestOutstandingLocalGameStateMutationIdRef.current = null;
         }
       })
       .subscribe();
@@ -147,7 +176,6 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     playerName: string,
     team: $Enums.Team,
   ) => {
-    setAwaitingPlayersMutation(true);
     setPlayers((state) => [
       ...state,
       {
@@ -160,37 +188,30 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
       },
     ]);
     const action = async () => {
-      try {
-        await addPlayerToCurrentGame(playerId, team);
-      } finally {
-        setAwaitingPlayersMutation(false);
-      }
+      const mutationId = registerGameStateMutation();
+      await addPlayerToCurrentGame(playerId, team, mutationId);
     };
     action().catch((e: unknown) => {
+      clearGameStateMutation();
       addErrorMessage(`Error adding player id ${playerId.toFixed()}`, e);
     });
   };
 
   const removePlayer = (player: PlayerInfo) => {
-    setAwaitingPlayersMutation(true);
     setPlayers((state) => {
       return state.filter((playerInfo) => playerInfo.id !== player.id);
     });
     const action = async () => {
-      try {
-        await removePlayerFromCurrentGame(player.id);
-      } finally {
-        setAwaitingPlayersMutation(false);
-      }
+      const mutationId = registerGameStateMutation();
+      await removePlayerFromCurrentGame(player.id, mutationId);
     };
     action().catch((e: unknown) => {
+      clearGameStateMutation();
       addErrorMessage(`Error removing player id ${player.id.toFixed()}`, e);
     });
   };
 
   const reorderPlayer = (player: PlayerInfo, destinationIndex: number) => {
-    setAwaitingPlayersMutation(true);
-
     setPlayers((state) => {
       try {
         return state.map((playerInfo) =>
@@ -203,13 +224,11 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
     });
 
     const action = async () => {
-      try {
-        await reorderPlayerAction(player.id, destinationIndex);
-      } finally {
-        setAwaitingPlayersMutation(false);
-      }
+      const mutationId = registerGameStateMutation();
+      await reorderPlayerAction(player.id, destinationIndex, mutationId);
     };
     action().catch((e: unknown) => {
+      clearGameStateMutation();
       addErrorMessage(
         `Error reordering player id ${player.id.toFixed()} to position ${destinationIndex.toFixed()}`,
         e,
@@ -253,6 +272,8 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
         redRotatyStrategy={redRotatyStrategy}
         blueRotatyStrategy={blueRotatyStrategy}
         setRotatyStrategy={setRotatyStrategy}
+        registerGameStateMutation={registerGameStateMutation}
+        clearGameStateMutation={clearGameStateMutation}
       />
       <div className="h-full flex flex-col">
         <div className="flex flex-1 flex-row overflow-y-auto">

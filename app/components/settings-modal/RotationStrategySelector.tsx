@@ -14,13 +14,21 @@ interface RotationStrategySelectorProps {
   team: Team;
   rotatyStrategy: RotatyStrategy;
   setRotatyStrategy: (team: Team, rotatyStrategy: RotatyStrategy) => void;
+  registerGameStateMutation: () => string;
+  clearGameStateMutation: () => void;
 }
 
 const options = Object.values(RotatyStrategy);
 
 export const RotatyStrategySelector: React.FC<
   RotationStrategySelectorProps
-> = ({ team, rotatyStrategy, setRotatyStrategy }) => {
+> = ({
+  team,
+  rotatyStrategy,
+  setRotatyStrategy,
+  registerGameStateMutation,
+  clearGameStateMutation,
+}) => {
   const [selectedRotatyStrategy, setSelectedRotatyStrategy] =
     useState<RotatyStrategy>(rotatyStrategy);
   const [loading, setLoading] = useState(false);
@@ -35,7 +43,8 @@ export const RotatyStrategySelector: React.FC<
     setLoading(true);
     const updateRotatyStrategyPromise = async () => {
       try {
-        await updateRotatyStrategyAction(rotatyStrategy, team);
+        const mutationId = registerGameStateMutation();
+        await updateRotatyStrategyAction(rotatyStrategy, team, mutationId);
         setSelectedRotatyStrategy(rotatyStrategy);
         setRotatyStrategy(team, rotatyStrategy);
       } finally {
@@ -43,6 +52,7 @@ export const RotatyStrategySelector: React.FC<
       }
     };
     updateRotatyStrategyPromise().catch((e: unknown) => {
+      clearGameStateMutation();
       addErrorMessage('Error updating rotaty strategy', e);
     });
   };

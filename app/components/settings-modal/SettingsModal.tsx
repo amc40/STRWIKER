@@ -11,10 +11,19 @@ interface SettingsModalProps extends CustomModalProps {
   blueRotatyStrategy: RotatyStrategy;
   redRotatyStrategy: RotatyStrategy;
   setRotatyStrategy: (team: Team, rotatyStrategy: RotatyStrategy) => void;
+  registerGameStateMutation: () => string;
+  clearGameStateMutation: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
-  const { blueRotatyStrategy, redRotatyStrategy, setRotatyStrategy } = props;
+  const {
+    blueRotatyStrategy,
+    redRotatyStrategy,
+    setRotatyStrategy,
+    registerGameStateMutation,
+    clearGameStateMutation,
+  } = props;
+
   return (
     <Modal {...props} title="Settings">
       <div className={'max-w-[80vw] w-[40rem]'}>
@@ -36,6 +45,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
               team="Blue"
               rotatyStrategy={blueRotatyStrategy}
               setRotatyStrategy={setRotatyStrategy}
+              registerGameStateMutation={registerGameStateMutation}
+              clearGameStateMutation={clearGameStateMutation}
             />
           </div>
         </div>
@@ -48,6 +59,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
               team="Red"
               rotatyStrategy={redRotatyStrategy}
               setRotatyStrategy={setRotatyStrategy}
+              registerGameStateMutation={registerGameStateMutation}
+              clearGameStateMutation={clearGameStateMutation}
             />
           </div>
         </div>
