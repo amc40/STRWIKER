@@ -19,14 +19,14 @@ export const getCurrentGameOrThrow = async (): Promise<Game> => {
   });
 };
 
-export const updateRotatyStrategy = async (
-  game: Game,
+export const updateRotatyStrategyForTeamAndGameId = async (
+  gameId: number,
   rotatyStrategy: RotatyStrategy,
   team: Team,
 ) => {
   await prisma.game.update({
     where: {
-      id: game.id,
+      id: gameId,
     },
     data: {
       rotatyBlue: team === 'Blue' ? rotatyStrategy : undefined,
