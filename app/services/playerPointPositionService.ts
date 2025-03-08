@@ -10,7 +10,7 @@ import {
 } from '../repository/playerPointRepository';
 import {
   getCurrentGameOrThrow,
-  updateRotatyStrategy,
+  updateRotatyStrategyForTeamAndGameId,
 } from '../repository/gameRepository';
 
 export class PlayerPointPositionService {
@@ -134,7 +134,11 @@ export class PlayerPointPositionService {
     team: Team,
   ) {
     const currentGame = await getCurrentGameOrThrow();
-    await updateRotatyStrategy(currentGame, rotatyStrategy, team);
+    await updateRotatyStrategyForTeamAndGameId(
+      currentGame.id,
+      rotatyStrategy,
+      team,
+    );
   }
 
   private getNextPlayerPosition(

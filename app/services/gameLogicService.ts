@@ -13,7 +13,6 @@ import {
   deletePlayerPoint,
   getAllPlayerPointsAndPlayersByPointWherePositionLessThan,
   getAllPlayerPointsByPoint,
-  getCurrentPlayerPointForPlayerOrThrow,
   getPlayerPointByPlayerAndPointOrThrow,
 } from '../repository/playerPointRepository';
 import { PlayerPointPositionService } from './playerPointPositionService';
@@ -28,6 +27,7 @@ import {
   getCurrentPointOrThrow,
   setPointStartTime,
 } from '../repository/pointRepository';
+import { updateRotatyStrategyForTeamAndGameId } from '../repository/gameRepository';
 import { StatsEngineFwoar } from './statsEngine';
 import { getPlayersWhoParticipatedInGame } from '../repository/playerRepository';
 
@@ -38,9 +38,8 @@ export enum IsGameEnd {
 
 export class GameLogicService {
   NUMBER_OF_POINTS_TO_WIN = 10;
-
-  playerPointPositionService = new PlayerPointPositionService();
-  statsEngine = new StatsEngineFwoar();
+  private playerPointPositionService = new PlayerPointPositionService();
+  private statsEngine = new StatsEngineFwoar();
 
   async startFreshGame() {
     await prisma.$transaction(
@@ -69,12 +68,13 @@ export class GameLogicService {
       throw new Error('Cannot create game as one is already in progress');
     }
 
-    // TODO: set rotaty dependant on number of players
+    const defaultRotationStrategy =
+      this.getDefaultRotationStrategyForTeamSize(0);
     const game = await prisma.game.create({
       data: {
         completed: false,
-        rotatyBlue: rotatyStrategyPerTeam?.Blue ?? 'Always',
-        rotatyRed: rotatyStrategyPerTeam?.Red ?? 'Always',
+        rotatyBlue: rotatyStrategyPerTeam?.Blue ?? defaultRotationStrategy,
+        rotatyRed: rotatyStrategyPerTeam?.Red ?? defaultRotationStrategy,
       },
     });
 
@@ -223,40 +223,51 @@ export class GameLogicService {
   }
 
   private async addPlayerToPoint(playerId: number, team: Team, point: Point) {
-    const position =
-      await this.playerPointPositionService.getNewPlayerPositionForTeam(
-        team,
-        point,
-      );
-    await prisma.playerPoint.create({
-      data: {
-        position,
-        team,
-        playerId,
-        pointId: point.id,
-      },
+    await prisma.$transaction(async () => {
+      const position =
+        await this.playerPointPositionService.getNewPlayerPositionForTeam(
+          team,
+          point,
+        );
+      await prisma.playerPoint.create({
+        data: {
+          position,
+          team,
+          playerId,
+          pointId: point.id,
+        },
+      });
+
+      await this.updateRotationStrategyBasedOnTeamSize(team, point);
     });
   }
 
   async removePlayerFromCurrentPoint(playerId: number) {
-    const currentPlayerPointForPlayer =
-      await getCurrentPlayerPointForPlayerOrThrow(playerId);
+    const currentPoint = await getCurrentPointOrThrow();
+    await this.removePlayerFromPoint(playerId, currentPoint);
+  }
 
+  private async removePlayerFromPoint(playerId: number, point: Point) {
     await prisma.$transaction(async () => {
-      const deletePlayerPointPromise = deletePlayerPoint(
-        currentPlayerPointForPlayer.id,
+      const playerPoint = await getPlayerPointByPlayerAndPointOrThrow(
+        playerId,
+        point.id,
       );
+
+      const deletePlayerPointPromise = deletePlayerPoint(playerPoint.id);
 
       const decrementPlayerPointPositionssAfterRemovedPlayerPromise =
         decrementPlayerPointPositionsInPointAndTeamAfter(
-          currentPlayerPointForPlayer.pointId,
-          currentPlayerPointForPlayer.team,
-          currentPlayerPointForPlayer.position,
+          playerPoint.pointId,
+          playerPoint.team,
+          playerPoint.position,
         );
       await Promise.all([
         deletePlayerPointPromise,
         decrementPlayerPointPositionssAfterRemovedPlayerPromise,
       ]);
+
+      await this.updateRotationStrategyBasedOnTeamSize(playerPoint.team, point);
     });
   }
 
@@ -563,5 +574,25 @@ export class GameLogicService {
       Red: game.rotatyRed,
       Blue: game.rotatyBlue,
     };
+  }
+
+  private async updateRotationStrategyBasedOnTeamSize(
+    team: Team,
+    point: Point,
+  ) {
+    const playerPoints = await getAllPlayerPointsByPoint(point);
+    const numberOfPlayersPerTeam = this.getNumberOfPlayersPerTeam(playerPoints);
+    const teamPlayerCount = numberOfPlayersPerTeam[team];
+
+    const newStrategy =
+      this.getDefaultRotationStrategyForTeamSize(teamPlayerCount);
+
+    await updateRotatyStrategyForTeamAndGameId(point.gameId, newStrategy, team);
+  }
+
+  private getDefaultRotationStrategyForTeamSize(
+    numberOfPlayers: number,
+  ): RotatyStrategy {
+    return numberOfPlayers <= 2 ? RotatyStrategy.Never : RotatyStrategy.Always;
   }
 }
