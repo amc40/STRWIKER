@@ -323,7 +323,12 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
           </WrapChildrenInSwiperIfMobile>
         </div>
 
-        {!pointStarted && <StartCurrentPointOverlay />}
+        {!pointStarted && (
+          <StartCurrentPointOverlay
+            registerGameStateMutation={registerGameStateMutation}
+            clearGameStateMutation={clearGameStateMutation}
+          />
+        )}
       </div>
     </main>
   );
