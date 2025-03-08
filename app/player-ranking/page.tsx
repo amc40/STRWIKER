@@ -18,9 +18,9 @@ const Page: React.FC = async () => {
     <div className="w-screen flex flex-1 container mx-auto p-4">
       <div className="w-full">
         <PlayerRankingTable
-          playersOrderedByDescendingElosWithRanking={[
-            playersOrderedByDescendingElosWithRanking[0],
-          ]}
+          playersOrderedByDescendingElosWithRanking={
+            playersOrderedByDescendingElosWithRanking
+          }
         />
       </div>
     </div>
