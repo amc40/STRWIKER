@@ -1,5 +1,5 @@
 import { RotatyStrategy, Team } from '@prisma/client';
-import { useCallback, useEffect, useOptimistic, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { PlayerInfo } from '../view/PlayerInfo';
 import { GameState } from '../view/GameState';
 import { useGameStateListener } from './useGameStateListener';
@@ -39,11 +39,6 @@ type OptimisticPlayerMutationAction =
       playerToReorder: PlayerInfo;
       destinationIndex: number;
     };
-
-interface OptimisticRotatyStrategyMutationAction {
-  type: 'updateRotatyStrategy';
-  rotatyStrategy: RotatyStrategy;
-}
 
 const updatePlayerOrderAfterReorder = (
   player: PlayerInfo,
@@ -121,13 +116,6 @@ const optimisticPlayersReducer = (
   }
 };
 
-const optimisticRotatyStrategyReducer = (
-  currentRotatyStrategy: RotatyStrategy,
-  update: OptimisticRotatyStrategyMutationAction,
-) => {
-  return update.rotatyStrategy;
-};
-
 export const useGameState = (
   initialGameInfo: GameInfo,
 ): GameStateWithMutations => {
@@ -168,31 +156,19 @@ export const useGameState = (
   const { registerGameStateMutation, onGameStateMutationError } =
     useGameStateListener(setGameState);
 
-  const [optimisticPlayers, updateOptimisticPlayers] = useOptimistic(
-    players,
-    optimisticPlayersReducer,
-  );
-  useEffect(() => {
-    console.log('players changed');
-  }, [players]);
-  console.log('optimisticPlayers', optimisticPlayers);
-
-  const [optimisticRedRotatyStrategy, updateOptimisticRedRotatyStrategy] =
-    useOptimistic(redRotatyStrategy, optimisticRotatyStrategyReducer);
-  const [optimisticBlueRotatyStrategy, updateOptimisticBlueRotatyStrategy] =
-    useOptimistic(blueRotatyStrategy, optimisticRotatyStrategyReducer);
-
   const { addErrorMessage } = useMessage();
 
   const addPlayer = useCallback(
     (playerId: number, playerName: string, team: Team) => {
       const mutationId = registerGameStateMutation();
-      updateOptimisticPlayers({
-        type: 'addPlayer',
-        playerId,
-        playerName,
-        team,
-      });
+      setPlayers((oldPlayers) =>
+        optimisticPlayersReducer(oldPlayers, {
+          type: 'addPlayer',
+          playerId,
+          playerName,
+          team,
+        }),
+      );
       console.log('adding player');
       const action = async () => {
         await addPlayerToCurrentGame(playerId, team, mutationId);
@@ -202,21 +178,18 @@ export const useGameState = (
         addErrorMessage(`Error adding player id ${playerId.toFixed()}`, e);
       });
     },
-    [
-      updateOptimisticPlayers,
-      registerGameStateMutation,
-      onGameStateMutationError,
-      addErrorMessage,
-    ],
+    [registerGameStateMutation, onGameStateMutationError, addErrorMessage],
   );
 
   const removePlayer = useCallback(
     (player: PlayerInfo) => {
       const mutationId = registerGameStateMutation();
-      updateOptimisticPlayers({
-        type: 'removePlayer',
-        playerId: player.id,
-      });
+      setPlayers((oldPlayers) =>
+        optimisticPlayersReducer(oldPlayers, {
+          type: 'removePlayer',
+          playerId: player.id,
+        }),
+      );
       const action = async () => {
         await removePlayerFromCurrentGame(player.id, mutationId);
       };
@@ -225,22 +198,19 @@ export const useGameState = (
         addErrorMessage(`Error removing player id ${player.id.toFixed()}`, e);
       });
     },
-    [
-      updateOptimisticPlayers,
-      registerGameStateMutation,
-      onGameStateMutationError,
-      addErrorMessage,
-    ],
+    [registerGameStateMutation, onGameStateMutationError, addErrorMessage],
   );
 
   const reorderPlayer = useCallback(
     (player: PlayerInfo, destinationIndex: number) => {
       const mutationId = registerGameStateMutation();
-      updateOptimisticPlayers({
-        type: 'reorderPlayer',
-        playerToReorder: player,
-        destinationIndex,
-      });
+      setPlayers((oldPlayers) =>
+        optimisticPlayersReducer(oldPlayers, {
+          type: 'reorderPlayer',
+          playerToReorder: player,
+          destinationIndex,
+        }),
+      );
       const action = async () => {
         await reorderPlayerAction(player.id, destinationIndex, mutationId);
       };
@@ -252,25 +222,16 @@ export const useGameState = (
         );
       });
     },
-    [
-      updateOptimisticPlayers,
-      registerGameStateMutation,
-      onGameStateMutationError,
-      addErrorMessage,
-    ],
+    [registerGameStateMutation, onGameStateMutationError, addErrorMessage],
   );
 
   const updateRotatyStrategy = useCallback(
     (team: Team, rotatyStrategy: RotatyStrategy) => {
       const mutationId = registerGameStateMutation();
-      const updateAction: OptimisticRotatyStrategyMutationAction = {
-        type: 'updateRotatyStrategy',
-        rotatyStrategy,
-      };
       if (team === Team.Red) {
-        updateOptimisticRedRotatyStrategy(updateAction);
+        setRedRotatyStrategy(rotatyStrategy);
       } else {
-        updateOptimisticBlueRotatyStrategy(updateAction);
+        setBlueRotatyStrategy(rotatyStrategy);
       }
 
       const action = async () => {
@@ -281,13 +242,7 @@ export const useGameState = (
         addErrorMessage(`Error updating rotaty strategy for team ${team}`, e);
       });
     },
-    [
-      updateOptimisticRedRotatyStrategy,
-      updateOptimisticBlueRotatyStrategy,
-      registerGameStateMutation,
-      onGameStateMutationError,
-      addErrorMessage,
-    ],
+    [registerGameStateMutation, onGameStateMutationError, addErrorMessage],
   );
 
   // TODO: update goals optimistically too!
@@ -328,11 +283,11 @@ export const useGameState = (
   );
 
   return {
-    players: optimisticPlayers,
+    players,
     redScore,
     blueScore,
-    redRotatyStrategy: optimisticRedRotatyStrategy,
-    blueRotatyStrategy: optimisticBlueRotatyStrategy,
+    redRotatyStrategy,
+    blueRotatyStrategy,
     pointStarted,
     addPlayer,
     removePlayer,
