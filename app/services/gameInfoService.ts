@@ -1,7 +1,7 @@
 import { PlayerPoint } from '@prisma/client';
 import { getCurrentGame } from '../repository/gameRepository';
 import { getCurrentPointAndPlayersFromGameOrThrow } from '../repository/pointRepository';
-import { GameInfo } from '../view/CurrentGameInfo';
+import { GameInfo } from '../view/GameInfo';
 import { playerPointWithPlayerAndGoalsScoredToPlayerInfo } from '../view/PlayerInfo';
 import { GoalsScored, StatsEngineFwoar } from './statsEngine';
 import { getAllPlayerPointsForPlayersInGame } from '../repository/playerPointRepository';

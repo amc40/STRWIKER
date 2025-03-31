@@ -7,7 +7,7 @@ import { PlayerInfo } from '../app/view/PlayerInfo';
 import { supabaseClient } from '../app/utils/supabase';
 import { GameInfoService } from '../app/services/gameInfoService';
 import { revalidatePath } from 'next/cache';
-import { GameInfo } from '@/app/view/CurrentGameInfo';
+import { GameInfo } from '@/app/view/GameInfo';
 
 const gameInfoService = new GameInfoService();
 
