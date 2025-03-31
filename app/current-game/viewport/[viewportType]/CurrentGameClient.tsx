@@ -95,7 +95,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
             </WrapChildrenInSwiperIfMobile>
           </div>
 
-          {/* {!pointStarted && <StartCurrentPointOverlay />} */}
+          {!pointStarted && <StartCurrentPointOverlay />}
         </div>
       </main>
     </GameStateProvider>
