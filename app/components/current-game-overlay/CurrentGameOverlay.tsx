@@ -11,15 +11,14 @@ export const CurrentGameOverlay: React.FC = () => {
     throw new Error('Must be used in GameStateContext');
   }
 
-  const redScore = gameState.redScore;
-  const blueScore = gameState.blueScore;
+  const { pointStarted, redScore, blueScore } = gameState;
 
   useEffect(() => {
     if (redScore === 9 && blueScore === 9) {
       setShowConfetti(true);
       const timer = setTimeout(() => {
         setShowConfetti(false);
-      }, 3000);
+      }, 6000); 
       return () => clearTimeout(timer);
     }
   }, [redScore, blueScore]);
@@ -30,11 +29,18 @@ export const CurrentGameOverlay: React.FC = () => {
         <ReactConfetti
           width={window.innerWidth}
           height={window.innerHeight}
-          numberOfPieces={500}
-          recycle={false}
+          numberOfPieces={500} 
+          recycle={false} 
+          gravity={0.3} 
+          initialVelocityY={30} 
+          initialVelocityX={15} 
+          tweenDuration={6000} 
+          friction={0.95} 
+          wind={0.05} 
+          colors={['#FFD700', '#FF0000', '#00FF00', '#0000FF', '#FF00FF', '#00FFFF']} 
         />
       )}
-      {!gameState.pointStarted && <StartCurrentPointOverlay />}
+      {!pointStarted && <StartCurrentPointOverlay />}
     </>
   );
 };
