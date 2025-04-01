@@ -1,4 +1,6 @@
-import { useRouter } from 'next/router';
+'use client';
+
+import { useRouter } from 'next/navigation';
 import { supabaseClient } from '../utils/supabase';
 import { useCallback, useEffect } from 'react';
 
@@ -6,7 +8,7 @@ export const useGameEndListener = (gameId: number) => {
   const router = useRouter();
 
   const navigateToGameStats = useCallback(() => {
-    void router.replace(`/game/${gameId.toFixed()}/stats`);
+    router.replace(`/game/${gameId.toFixed()}/stats`);
   }, [gameId, router]);
 
   useEffect(() => {
