@@ -1,11 +1,11 @@
 import React from 'react';
 import { StatsTable } from '../stats-table/StatsTable';
 import { StatsTR } from '../stats-table/StatsBodyTR';
-import { StatsHeadTR } from '../stats-table/StatsHeadTR';
-import { StatsTBody } from '../stats-table/StatsTBody';
 import { StatsTD } from '../stats-table/StatsTD';
-import { StatsTH } from '../stats-table/StatsTH';
 import { StatsTHead } from '../stats-table/StatsTHead';
+import { StatsTH } from '../stats-table/StatsTH';
+import { StatsTBody } from '../stats-table/StatsTBody';
+import { StatsHeadTR } from '../stats-table/StatsHeadTR';
 import { EmojiMedalsTD } from '../stats-table/RankingTD';
 import { TopScorerBadge } from '../stats-table/TopScorerBadge';
 import { LongestPointBadge } from '../stats-table/LongestPointBadge';
@@ -25,13 +25,9 @@ type PlayerMaybeWithChangeInElo = PlayerWithoutStatValues & {
   hasMostOwnGoals: boolean;
 };
 
-type MaybeWithChangeInRanking<T> = T & {
+type PlayerRankingInfo = WithRanking<PlayerMaybeWithChangeInElo> & {
   changeInRanking?: number | null;
 };
-
-type PlayerRankingInfo = MaybeWithChangeInRanking<
-  WithRanking<PlayerMaybeWithChangeInElo>
->;
 
 interface PlayerRankingTableProps {
   playersOrderedByDescendingElosWithRanking: PlayerRankingInfo[];
@@ -39,92 +35,31 @@ interface PlayerRankingTableProps {
   maxGoals?: number;
 }
 
-type RowToDisplay =
-  | {
-      type: 'truncation';
-    }
-  | {
-      type: 'playerRanking';
-      playerRankingInfo: PlayerRankingInfo;
-    };
-
 export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
   playersOrderedByDescendingElosWithRanking,
   onlyShowChanges = false,
-  maxGoals = 0,
+  maxGoals = 0
 }) => {
-  const hasEloOrRankingChanged = (
-    changeInElo?: number | null,
-    changeInRanking?: number | null,
-  ) => {
-    return [changeInElo, changeInRanking].some(
-      (change) => change != null && change !== 0,
-    );
-  };
-
-  const playerRankingInfoToRowToDisplay = (
-    playerRankingInfo: PlayerRankingInfo,
-  ): RowToDisplay => ({
-    type: 'playerRanking',
-    playerRankingInfo,
-  });
-
-  const rowsToDisplay: RowToDisplay[] = onlyShowChanges
-    ? playersOrderedByDescendingElosWithRanking.reduce<RowToDisplay[]>(
-        (accumulatingArray, playerRankingInfo) => {
-          const { changeInElo, previousElo, changeInRanking } =
-            playerRankingInfo;
-          const shouldShowPlayer =
-            hasEloOrRankingChanged(changeInElo, changeInRanking) ||
-            // workaround for players who don't have an elo
-            previousElo == null;
-          if (shouldShowPlayer) {
-            accumulatingArray.push(
-              playerRankingInfoToRowToDisplay(playerRankingInfo),
-            );
-            return accumulatingArray;
-          }
-          const previousRowIsTruncation =
-            accumulatingArray.length > 0 &&
-            accumulatingArray[accumulatingArray.length - 1].type ===
-              'truncation';
-          if (previousRowIsTruncation) {
-            return accumulatingArray;
-          }
-          accumulatingArray.push({
-            type: 'truncation',
-          });
-          return accumulatingArray;
-        },
-        [],
-      )
-    : playersOrderedByDescendingElosWithRanking.map(
-        playerRankingInfoToRowToDisplay,
-      );
+  const rowsToDisplay = playersOrderedByDescendingElosWithRanking.map(
+    (playerRankingInfo) => ({
+      playerRankingInfo,
+      shouldDisplay: !onlyShowChanges || playerRankingInfo.changeInElo != null,
+    }),
+  );
 
   return (
     <StatsTable>
       <StatsTHead>
         <StatsHeadTR>
-          <StatsTH></StatsTH>
-          <StatsTH>Player Name</StatsTH>
+          <StatsTH>Rank</StatsTH>
+          <StatsTH>Name</StatsTH>
           <StatsTH>Elo</StatsTH>
         </StatsHeadTR>
       </StatsTHead>
       <StatsTBody>
-        {rowsToDisplay.map((rowToDisplay, index) => {
-          const { type } = rowToDisplay;
-          if (type === 'truncation') {
-            return (
-              <StatsTR key={`truncation-${index.toFixed()}`}>
-                <StatsTD
-                  className="text-center text-lg font-semibold"
-                  colSpan={3}
-                >
-                  ...
-                </StatsTD>
-              </StatsTR>
-            );
+        {rowsToDisplay.map((rowToDisplay) => {
+          if (!rowToDisplay.shouldDisplay) {
+            return null;
           }
           const { id, ranking, changeInRanking, name, elo, changeInElo, totalGoals, inLongestPoint, isSpectator, hasMostOwnGoals } =
             rowToDisplay.playerRankingInfo;
