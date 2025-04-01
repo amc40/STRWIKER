@@ -125,3 +125,51 @@ export const getPlayersInLongestPoint = async () => {
     pointDuration: longestPoint.duration
   }));
 };
+
+export const getPlayersWhoLost10_0 = async () => {
+  // Get all completed games ordered by end time to find most recent
+  const completedGames = await prisma.game.findMany({
+    where: {
+      completed: true,
+      endTime: { not: null },
+      OR: [
+        { finalScoreRed: 10, finalScoreBlue: 0 },
+        { finalScoreRed: 0, finalScoreBlue: 10 }
+      ]
+    },
+    orderBy: {
+      endTime: 'desc'
+    },
+    include: {
+      points: {
+        include: {
+          playerPoints: {
+            include: {
+              player: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  if (completedGames.length === 0) {
+    return [];
+  }
+
+  // Get the most recent 10-0 game
+  const mostRecentGame = completedGames[0];
+  
+  // Determine which team lost (scored 0)
+  const losingTeam = mostRecentGame.finalScoreRed === 0 ? 'Red' : 'Blue';
+
+  // Get all players from the losing team
+  const losingPlayers = mostRecentGame.points[0]?.playerPoints
+    .filter(pp => pp.team === losingTeam)
+    .map(pp => ({
+      ...pp.player,
+      gameEndTime: mostRecentGame.endTime
+    })) || [];
+
+  return losingPlayers;
+};
