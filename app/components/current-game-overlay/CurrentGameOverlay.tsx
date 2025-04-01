@@ -45,8 +45,10 @@ export const CurrentGameOverlay: React.FC = () => {
       setShowConfetti(true);
       const timer = setTimeout(() => {
         setShowConfetti(false);
-      }, 6000);
-      return () => clearTimeout(timer);
+      }, 6000); 
+      return () => {
+        clearTimeout(timer);
+      };
     }
   }, [redScore, blueScore]);
 
