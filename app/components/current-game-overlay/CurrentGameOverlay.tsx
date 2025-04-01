@@ -30,7 +30,7 @@ export const CurrentGameOverlay: React.FC = () => {
         <ReactConfetti
           width={window.innerWidth}
           height={window.innerHeight}
-          numberOfPieces={200}
+          numberOfPieces={500}
           recycle={false}
         />
       )}
