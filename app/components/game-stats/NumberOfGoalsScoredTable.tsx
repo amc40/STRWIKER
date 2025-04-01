@@ -9,7 +9,6 @@ import { StatsTD } from '../stats-table/StatsTD';
 import { Player } from '@prisma/client';
 import { EmojiMedalsTD } from '../stats-table/RankingTD';
 import { WithRanking } from '../../services/statsEngine';
-import { TopScorerBadge } from '../stats-table/TopScorerBadge';
 
 interface PlayersAndNumberOfGoalsScored {
   player: Player;
@@ -52,7 +51,6 @@ export const NumberOfGoalsScoredTable: React.FC<
               <EmojiMedalsTD ranking={ranking} />
               <StatsTD>
                 {player.name}
-                {goalsScored === maxGoals && maxGoals > 0 && <TopScorerBadge />}
               </StatsTD>
               <StatsTD>{goalsScored}</StatsTD>
             </StatsTR>

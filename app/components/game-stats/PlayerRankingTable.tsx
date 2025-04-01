@@ -7,6 +7,7 @@ import { StatsTD } from '../stats-table/StatsTD';
 import { StatsTH } from '../stats-table/StatsTH';
 import { StatsTHead } from '../stats-table/StatsTHead';
 import { EmojiMedalsTD } from '../stats-table/RankingTD';
+import { TopScorerBadge } from '../stats-table/TopScorerBadge';
 import { WithRanking } from '../../services/statsEngine';
 import { ChangeInValue } from '../ChangeInValue';
 import { PlayerWithoutStatValues } from '../../repository/playerRepository';
@@ -15,6 +16,7 @@ type PlayerMaybeWithChangeInElo = PlayerWithoutStatValues & {
   elo: number;
   changeInElo?: number | null;
   previousElo?: number | null;
+  totalGoals: number;
 };
 
 type MaybeWithChangeInRanking<T> = T & {
@@ -28,6 +30,7 @@ type PlayerRankingInfo = MaybeWithChangeInRanking<
 interface PlayerRankingTableProps {
   playersOrderedByDescendingElosWithRanking: PlayerRankingInfo[];
   onlyShowChanges?: boolean;
+  maxGoals?: number;
 }
 
 type RowToDisplay =
@@ -42,6 +45,7 @@ type RowToDisplay =
 export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
   playersOrderedByDescendingElosWithRanking,
   onlyShowChanges = false,
+  maxGoals = 0,
 }) => {
   const hasEloOrRankingChanged = (
     changeInElo?: number | null,
@@ -116,7 +120,7 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
               </StatsTR>
             );
           }
-          const { id, ranking, changeInRanking, name, elo, changeInElo } =
+          const { id, ranking, changeInRanking, name, elo, changeInElo, totalGoals } =
             rowToDisplay.playerRankingInfo;
           return (
             <StatsTR key={id}>
@@ -124,7 +128,10 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
                 ranking={ranking}
                 changeInRanking={changeInRanking}
               />
-              <StatsTD>{name}</StatsTD>
+              <StatsTD>
+                {name}
+                {totalGoals === maxGoals && maxGoals > 0 && <TopScorerBadge />}
+              </StatsTD>
               <StatsTD>
                 <div className="flex gap-1">
                   <span>{elo}</span>

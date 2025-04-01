@@ -60,3 +60,24 @@ export const getPlayersWhoParticipatedInGame = async (
     },
   });
 };
+
+export const getPlayersWithTotalGoals = async () => {
+  const players = await prisma.player.findMany({
+    include: {
+      playerPoints: {
+        where: {
+          scoredGoal: true,
+          ownGoal: false
+        }
+      }
+    },
+    orderBy: {
+      elo: 'desc'
+    }
+  });
+
+  return players.map(player => ({
+    ...player,
+    totalGoals: player.playerPoints.length
+  }));
+};
