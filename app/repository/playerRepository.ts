@@ -67,18 +67,18 @@ export const getPlayersWithTotalGoals = async () => {
       playerPoints: {
         where: {
           scoredGoal: true,
-          ownGoal: false
-        }
-      }
+          ownGoal: false,
+        },
+      },
     },
     orderBy: {
-      elo: 'desc'
-    }
+      elo: 'desc',
+    },
   });
 
-  return players.map(player => ({
+  return players.map((player) => ({
     ...player,
-    totalGoals: player.playerPoints.length
+    totalGoals: player.playerPoints.length,
   }));
 };
 
@@ -88,16 +88,16 @@ export const getPlayersWithOwnGoals = async () => {
     include: {
       playerPoints: {
         where: {
-          ownGoal: true
-        }
-      }
-    }
+          ownGoal: true,
+        },
+      },
+    },
   });
 
   // Map players to include own goals count
-  const playersWithOwnGoals = players.map(player => ({
+  const playersWithOwnGoals = players.map((player) => ({
     ...player,
-    ownGoalsCount: player.playerPoints.length
+    ownGoalsCount: player.playerPoints.length,
   }));
 
   // Sort by own goals count descending to easily find the highest
@@ -109,42 +109,46 @@ export const getPlayersInLongestPoint = async () => {
   const points = await prisma.point.findMany({
     where: {
       startTime: { not: null },
-      endTime: { not: null }
+      endTime: { not: null },
     },
     orderBy: [
       {
-        startTime: 'asc'
-      }
+        startTime: 'asc',
+      },
     ],
     include: {
       playerPoints: {
         include: {
-          player: true
-        }
-      }
-    }
+          player: true,
+        },
+      },
+    },
   });
 
   // Calculate durations and find the longest point
-  const pointsWithDuration = points.map(point => ({
+  const pointsWithDuration = points.map((point) => ({
     ...point,
-    duration: point.endTime && point.startTime 
-      ? point.endTime.getTime() - point.startTime.getTime()
-      : 0
+    duration:
+      point.endTime && point.startTime
+        ? point.endTime.getTime() - point.startTime.getTime()
+        : 0,
   }));
 
-  const longestPoint = pointsWithDuration.reduce((longest, current) => {
-    return current.duration > longest.duration ? current : longest;
-  }, pointsWithDuration[0] || { duration: 0 });
+  const longestPoint = pointsWithDuration.reduce(
+    (longest, current) => {
+      return current.duration > longest.duration ? current : longest;
+    },
+    pointsWithDuration[0] || { duration: 0 },
+  );
 
   if (!longestPoint || !longestPoint.playerPoints) {
     return [];
   }
 
   // Return all players who participated in this point
-  return longestPoint.playerPoints.map(pp => ({
+  return longestPoint.playerPoints.map((pp) => ({
     ...pp.player,
-    pointDuration: longestPoint.duration
+    pointDuration: longestPoint.duration,
   }));
 };
 
@@ -156,23 +160,23 @@ export const getPlayersWhoLost10_0 = async () => {
       endTime: { not: null },
       OR: [
         { finalScoreRed: 10, finalScoreBlue: 0 },
-        { finalScoreRed: 0, finalScoreBlue: 10 }
-      ]
+        { finalScoreRed: 0, finalScoreBlue: 10 },
+      ],
     },
     orderBy: {
-      endTime: 'desc'
+      endTime: 'desc',
     },
     include: {
       points: {
         include: {
           playerPoints: {
             include: {
-              player: true
-            }
-          }
-        }
-      }
-    }
+              player: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   if (completedGames.length === 0) {
@@ -181,17 +185,18 @@ export const getPlayersWhoLost10_0 = async () => {
 
   // Get the most recent 10-0 game
   const mostRecentGame = completedGames[0];
-  
+
   // Determine which team lost (scored 0)
   const losingTeam = mostRecentGame.finalScoreRed === 0 ? 'Red' : 'Blue';
 
   // Get all players from the losing team
-  const losingPlayers = mostRecentGame.points[0]?.playerPoints
-    .filter(pp => pp.team === losingTeam)
-    .map(pp => ({
-      ...pp.player,
-      gameEndTime: mostRecentGame.endTime
-    })) || [];
+  const losingPlayers =
+    mostRecentGame.points[0]?.playerPoints
+      .filter((pp) => pp.team === losingTeam)
+      .map((pp) => ({
+        ...pp.player,
+        gameEndTime: mostRecentGame.endTime,
+      })) || [];
 
   return losingPlayers;
 };

@@ -22,8 +22,6 @@ interface NumberOfGoalsScoredTableProps {
 export const NumberOfGoalsScoredTable: React.FC<
   NumberOfGoalsScoredTableProps
 > = ({ playersAndNumberOfGoalsScoredWithRanking }) => {
-
-
   return (
     <StatsTable>
       <StatsTHead>
@@ -45,9 +43,7 @@ export const NumberOfGoalsScoredTable: React.FC<
           ({ player, goalsScored, ranking }) => (
             <StatsTR key={player.id}>
               <EmojiMedalsTD ranking={ranking} />
-              <StatsTD>
-                {player.name}
-              </StatsTD>
+              <StatsTD>{player.name}</StatsTD>
               <StatsTD>{goalsScored}</StatsTD>
             </StatsTR>
           ),

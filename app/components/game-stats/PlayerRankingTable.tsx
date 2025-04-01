@@ -38,7 +38,7 @@ interface PlayerRankingTableProps {
 export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
   playersOrderedByDescendingElosWithRanking,
   onlyShowChanges = false,
-  maxGoals = 0
+  maxGoals = 0,
 }) => {
   const rowsToDisplay = playersOrderedByDescendingElosWithRanking.map(
     (playerRankingInfo) => ({
@@ -61,8 +61,18 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
           if (!rowToDisplay.shouldDisplay) {
             return null;
           }
-          const { id, ranking, changeInRanking, name, elo, changeInElo, totalGoals, inLongestPoint, isSpectator, hasMostOwnGoals } =
-            rowToDisplay.playerRankingInfo;
+          const {
+            id,
+            ranking,
+            changeInRanking,
+            name,
+            elo,
+            changeInElo,
+            totalGoals,
+            inLongestPoint,
+            isSpectator,
+            hasMostOwnGoals,
+          } = rowToDisplay.playerRankingInfo;
           return (
             <StatsTR key={id}>
               <EmojiMedalsTD
