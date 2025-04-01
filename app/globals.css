@@ -89,3 +89,26 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes banner-fade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.8);
+  }
+}
+
+.banner-animation {
+  animation: banner-fade 6s ease-in-out forwards;
+}
