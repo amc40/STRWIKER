@@ -5,6 +5,7 @@ import {
   getPlayersWithTotalGoals,
   getPlayersInLongestPoint,
   getPlayersWhoLost10_0,
+  getPlayersWithOwnGoals,
 } from '../repository/playerRepository';
 import { StatsEngineFwoar } from '../services/statsEngine';
 
@@ -15,12 +16,14 @@ const Page: React.FC = async () => {
     playersOrderedByDescendingElos, 
     playersWithTotalGoals,
     playersInLongestPoint,
-    playersWhoLost10_0
+    playersWhoLost10_0,
+    playersWithOwnGoals
   ] = await Promise.all([
     getPlayersOrderedByDescendingElos(),
     getPlayersWithTotalGoals(),
     getPlayersInLongestPoint(),
-    getPlayersWhoLost10_0()
+    getPlayersWhoLost10_0(),
+    getPlayersWithOwnGoals()
   ]);
 
   const playersOrderedByDescendingElosWithRanking =
@@ -41,11 +44,22 @@ const Page: React.FC = async () => {
     playersWhoLost10_0.map(player => player.id)
   );
 
+  // Get the highest number of own goals
+  const maxOwnGoals = playersWithOwnGoals.length > 0 ? playersWithOwnGoals[0].ownGoalsCount : 0;
+  
+  // Create a set of player IDs who have the most own goals
+  const mostOwnGoalsSet = new Set(
+    playersWithOwnGoals
+      .filter(p => p.ownGoalsCount === maxOwnGoals && maxOwnGoals > 0)
+      .map(p => p.id)
+  );
+
   const playersWithRankingAndGoals = playersOrderedByDescendingElosWithRanking.map(player => ({
     ...player,
     totalGoals: playerGoalsMap.get(player.id) || 0,
     inLongestPoint: longestPointPlayersSet.has(player.id),
-    isSpectator: spectatorPlayersSet.has(player.id)
+    isSpectator: spectatorPlayersSet.has(player.id),
+    hasMostOwnGoals: mostOwnGoalsSet.has(player.id)
   }));
 
   const maxGoals = Math.max(...playersWithRankingAndGoals.map(p => p.totalGoals));

@@ -82,6 +82,28 @@ export const getPlayersWithTotalGoals = async () => {
   }));
 };
 
+export const getPlayersWithOwnGoals = async () => {
+  // Get all players with their own goals
+  const players = await prisma.player.findMany({
+    include: {
+      playerPoints: {
+        where: {
+          ownGoal: true
+        }
+      }
+    }
+  });
+
+  // Map players to include own goals count
+  const playersWithOwnGoals = players.map(player => ({
+    ...player,
+    ownGoalsCount: player.playerPoints.length
+  }));
+
+  // Sort by own goals count descending to easily find the highest
+  return playersWithOwnGoals.sort((a, b) => b.ownGoalsCount - a.ownGoalsCount);
+};
+
 export const getPlayersInLongestPoint = async () => {
   // Find the point with the longest duration
   const points = await prisma.point.findMany({

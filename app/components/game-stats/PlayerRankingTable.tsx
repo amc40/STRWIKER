@@ -10,6 +10,7 @@ import { EmojiMedalsTD } from '../stats-table/RankingTD';
 import { TopScorerBadge } from '../stats-table/TopScorerBadge';
 import { LongestPointBadge } from '../stats-table/LongestPointBadge';
 import { SpectatorBadge } from '../stats-table/SpectatorBadge';
+import { OopsBadge } from '../stats-table/OopsBadge';
 import { WithRanking } from '../../services/statsEngine';
 import { ChangeInValue } from '../ChangeInValue';
 import { PlayerWithoutStatValues } from '../../repository/playerRepository';
@@ -21,6 +22,7 @@ type PlayerMaybeWithChangeInElo = PlayerWithoutStatValues & {
   totalGoals: number;
   inLongestPoint: boolean;
   isSpectator: boolean;
+  hasMostOwnGoals: boolean;
 };
 
 type MaybeWithChangeInRanking<T> = T & {
@@ -124,7 +126,7 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
               </StatsTR>
             );
           }
-          const { id, ranking, changeInRanking, name, elo, changeInElo, totalGoals, inLongestPoint, isSpectator } =
+          const { id, ranking, changeInRanking, name, elo, changeInElo, totalGoals, inLongestPoint, isSpectator, hasMostOwnGoals } =
             rowToDisplay.playerRankingInfo;
           return (
             <StatsTR key={id}>
@@ -137,6 +139,7 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
                 {totalGoals === maxGoals && maxGoals > 0 && <TopScorerBadge />}
                 {inLongestPoint && <LongestPointBadge />}
                 {isSpectator && <SpectatorBadge />}
+                {hasMostOwnGoals && <OopsBadge />}
               </StatsTD>
               <StatsTD>
                 <div className="flex gap-1">
