@@ -14,6 +14,7 @@ import {
   getAllPlayerPointsAndPlayersByPointWherePositionLessThan,
   getAllPlayerPointsByPoint,
   getPlayerPointByPlayerAndPointOrThrow,
+  updatePlayerPointSkippedStatus,
 } from '../repository/playerPointRepository';
 import { PlayerPointPositionService } from './playerPointPositionService';
 import {
@@ -594,5 +595,25 @@ export class GameLogicService {
     numberOfPlayers: number,
   ): RotatyStrategy {
     return numberOfPlayers <= 2 ? RotatyStrategy.Never : RotatyStrategy.Always;
+  }
+
+  async updatePlayerSkippedStatus(playerId: number, skipped: boolean) {
+    // TODO: add transaction support
+    const currentGame = await getCurrentGameOrThrow();
+
+    const currentPointId = currentGame.currentPointId;
+
+    if (currentPointId == null) {
+      throw new Error(
+        'No current point found when updating player skipped status',
+      );
+    }
+
+    const latestPlayerPoint = await getPlayerPointByPlayerAndPointOrThrow(
+      playerId,
+      currentPointId,
+    );
+
+    await updatePlayerPointSkippedStatus(latestPlayerPoint.id, skipped);
   }
 }

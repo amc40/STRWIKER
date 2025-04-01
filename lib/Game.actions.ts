@@ -88,6 +88,15 @@ export const updateRotatyStrategyAction = async (
   await registerUpdatedGameState(gameStateMutationId);
 };
 
+export const updatePlayerSkippedStatus = async (
+  playerId: number,
+  skipped: boolean,
+  gameStateMutationId: string,
+) => {
+  await new GameLogicService().updatePlayerSkippedStatus(playerId, skipped);
+  await registerUpdatedGameState(gameStateMutationId);
+};
+
 export interface GameStateBroadcastPayload {
   currentGame: GameInfo | null;
   gameStateMutationId: string | null;
