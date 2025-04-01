@@ -15,6 +15,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
     name: playerName,
     goalsScored: goalsScoredProp,
     ownGoalsScored: ownGoalsScoredProp,
+    skipped: skippedProp,
+    id: playerId,
   } = player;
 
   const [goals, setGoals] = useState<number>(goalsScoredProp);
@@ -40,6 +42,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
     playerIdRecordingOwnGoal,
     recordGoalScored,
     removePlayer,
+    updateSkippedStatus,
   } = gameState;
 
   const isScoringGoalsDisabled = !pointStarted || playerIdRecordingGoal != null;
@@ -52,15 +55,13 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
     recordGoalScored(player, true);
   };
 
-  const [skipped, setSkipped] = useState(false);
-
   return (
     <div className="z-0 relative bg-white border-slate-300 rounded-lg p-3 mb-5 w-[200px] shadow-lg text-black flex flex-col gap-2">
       <span className="flex gap-2 right-2 top-2 absolute">
         <CircleSkip
-          skipped={skipped}
+          skipped={skippedProp}
           onSkip={() => {
-            setSkipped((skipped) => !skipped);
+            updateSkippedStatus(playerId, !skippedProp);
           }}
         />
         <CircleRemove
