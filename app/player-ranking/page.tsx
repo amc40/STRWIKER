@@ -3,15 +3,21 @@ import { PlayerRankingTable } from '../components/game-stats/PlayerRankingTable'
 import {
   getPlayersOrderedByDescendingElos,
   getPlayersWithTotalGoals,
+  getPlayersInLongestPoint,
 } from '../repository/playerRepository';
 import { StatsEngineFwoar } from '../services/statsEngine';
 
 const statsEngine = new StatsEngineFwoar();
 
 const Page: React.FC = async () => {
-  const [playersOrderedByDescendingElos, playersWithTotalGoals] = await Promise.all([
+  const [
+    playersOrderedByDescendingElos, 
+    playersWithTotalGoals,
+    playersInLongestPoint
+  ] = await Promise.all([
     getPlayersOrderedByDescendingElos(),
-    getPlayersWithTotalGoals()
+    getPlayersWithTotalGoals(),
+    getPlayersInLongestPoint()
   ]);
 
   const playersOrderedByDescendingElosWithRanking =
@@ -24,9 +30,14 @@ const Page: React.FC = async () => {
     playersWithTotalGoals.map(player => [player.id, player.totalGoals])
   );
 
+  const longestPointPlayersSet = new Set(
+    playersInLongestPoint.map(player => player.id)
+  );
+
   const playersWithRankingAndGoals = playersOrderedByDescendingElosWithRanking.map(player => ({
     ...player,
-    totalGoals: playerGoalsMap.get(player.id) || 0
+    totalGoals: playerGoalsMap.get(player.id) || 0,
+    inLongestPoint: longestPointPlayersSet.has(player.id)
   }));
 
   const maxGoals = Math.max(...playersWithRankingAndGoals.map(p => p.totalGoals));

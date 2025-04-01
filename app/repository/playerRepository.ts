@@ -81,3 +81,47 @@ export const getPlayersWithTotalGoals = async () => {
     totalGoals: player.playerPoints.length
   }));
 };
+
+export const getPlayersInLongestPoint = async () => {
+  // Find the point with the longest duration
+  const points = await prisma.point.findMany({
+    where: {
+      startTime: { not: null },
+      endTime: { not: null }
+    },
+    orderBy: [
+      {
+        startTime: 'asc'
+      }
+    ],
+    include: {
+      playerPoints: {
+        include: {
+          player: true
+        }
+      }
+    }
+  });
+
+  // Calculate durations and find the longest point
+  const pointsWithDuration = points.map(point => ({
+    ...point,
+    duration: point.endTime && point.startTime 
+      ? point.endTime.getTime() - point.startTime.getTime()
+      : 0
+  }));
+
+  const longestPoint = pointsWithDuration.reduce((longest, current) => {
+    return current.duration > longest.duration ? current : longest;
+  }, pointsWithDuration[0] || { duration: 0 });
+
+  if (!longestPoint || !longestPoint.playerPoints) {
+    return [];
+  }
+
+  // Return all players who participated in this point
+  return longestPoint.playerPoints.map(pp => ({
+    ...pp.player,
+    pointDuration: longestPoint.duration
+  }));
+};

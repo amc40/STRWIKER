@@ -8,6 +8,7 @@ import { StatsTH } from '../stats-table/StatsTH';
 import { StatsTHead } from '../stats-table/StatsTHead';
 import { EmojiMedalsTD } from '../stats-table/RankingTD';
 import { TopScorerBadge } from '../stats-table/TopScorerBadge';
+import { LongestPointBadge } from '../stats-table/LongestPointBadge';
 import { WithRanking } from '../../services/statsEngine';
 import { ChangeInValue } from '../ChangeInValue';
 import { PlayerWithoutStatValues } from '../../repository/playerRepository';
@@ -17,6 +18,7 @@ type PlayerMaybeWithChangeInElo = PlayerWithoutStatValues & {
   changeInElo?: number | null;
   previousElo?: number | null;
   totalGoals: number;
+  inLongestPoint: boolean;
 };
 
 type MaybeWithChangeInRanking<T> = T & {
@@ -120,7 +122,7 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
               </StatsTR>
             );
           }
-          const { id, ranking, changeInRanking, name, elo, changeInElo, totalGoals } =
+          const { id, ranking, changeInRanking, name, elo, changeInElo, totalGoals, inLongestPoint } =
             rowToDisplay.playerRankingInfo;
           return (
             <StatsTR key={id}>
@@ -131,6 +133,7 @@ export const PlayerRankingTable: React.FC<PlayerRankingTableProps> = ({
               <StatsTD>
                 {name}
                 {totalGoals === maxGoals && maxGoals > 0 && <TopScorerBadge />}
+                {inLongestPoint && <LongestPointBadge />}
               </StatsTD>
               <StatsTD>
                 <div className="flex gap-1">
