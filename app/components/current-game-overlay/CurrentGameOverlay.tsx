@@ -11,9 +11,8 @@ export const CurrentGameOverlay: React.FC = () => {
     throw new Error('Must be used in GameStateContext');
   }
 
-  const { pointStarted, redScore } = gameState;
-  const redScore = teamInfo.Red.score;
-  const blueScore = teamInfo.Blue.score;
+  const redScore = gameState.redScore;
+  const blueScore = gameState.blueScore;
 
   useEffect(() => {
     if (redScore === 9 && blueScore === 9) {
@@ -35,7 +34,7 @@ export const CurrentGameOverlay: React.FC = () => {
           recycle={false}
         />
       )}
-      {!pointStarted && <StartCurrentPointOverlay />}
+      {!gameState.pointStarted && <StartCurrentPointOverlay />}
     </>
   );
 };
