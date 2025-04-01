@@ -9,6 +9,7 @@ import { StatsTD } from '../stats-table/StatsTD';
 import { Player } from '@prisma/client';
 import { EmojiMedalsTD } from '../stats-table/RankingTD';
 import { WithRanking } from '../../services/statsEngine';
+import { TopScorerBadge } from '../stats-table/TopScorerBadge';
 
 interface PlayersAndNumberOfGoalsScored {
   player: Player;
@@ -22,7 +23,12 @@ interface NumberOfGoalsScoredTableProps {
 export const NumberOfGoalsScoredTable: React.FC<
   NumberOfGoalsScoredTableProps
 > = ({ playersAndNumberOfGoalsScoredWithRanking }) => {
-  // TODO: split by attack and defence goals
+  // Find the highest number of goals
+  const maxGoals = Math.max(
+    ...playersAndNumberOfGoalsScoredWithRanking.map(p => p.goalsScored),
+    0
+  );
+
   return (
     <StatsTable>
       <StatsTHead>
@@ -44,7 +50,10 @@ export const NumberOfGoalsScoredTable: React.FC<
           ({ player, goalsScored, ranking }) => (
             <StatsTR key={player.id}>
               <EmojiMedalsTD ranking={ranking} />
-              <StatsTD>{player.name}</StatsTD>
+              <StatsTD>
+                {player.name}
+                {goalsScored === maxGoals && maxGoals > 0 && <TopScorerBadge />}
+              </StatsTD>
               <StatsTD>{goalsScored}</StatsTD>
             </StatsTR>
           ),
