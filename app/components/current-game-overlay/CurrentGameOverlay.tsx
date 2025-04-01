@@ -45,7 +45,7 @@ export const CurrentGameOverlay: React.FC = () => {
       setShowConfetti(true);
       const timer = setTimeout(() => {
         setShowConfetti(false);
-      }, 6000); 
+      }, 6000);
       return () => {
         clearTimeout(timer);
       };
