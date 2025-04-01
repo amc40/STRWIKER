@@ -11,7 +11,7 @@ export const CurrentGameOverlay: React.FC = () => {
     throw new Error('Must be used in GameStateContext');
   }
 
-  const { pointStarted, teamInfo } = gameState;
+  const { pointStarted, redScore } = gameState;
   const redScore = teamInfo.Red.score;
   const blueScore = teamInfo.Blue.score;
 
