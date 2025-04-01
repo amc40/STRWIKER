@@ -41,7 +41,7 @@ export const CurrentGameOverlay: React.FC = () => {
   const { pointStarted, redScore, blueScore } = gameState;
 
   useEffect(() => {
-    if (redScore === 1 && blueScore === 1) {
+    if (redScore === 9 && blueScore === 9) {
       setShowConfetti(true);
       const timer = setTimeout(() => {
         setShowConfetti(false);
