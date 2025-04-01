@@ -22,11 +22,7 @@ interface NumberOfGoalsScoredTableProps {
 export const NumberOfGoalsScoredTable: React.FC<
   NumberOfGoalsScoredTableProps
 > = ({ playersAndNumberOfGoalsScoredWithRanking }) => {
-  // Find the highest number of goals
-  const maxGoals = Math.max(
-    ...playersAndNumberOfGoalsScoredWithRanking.map(p => p.goalsScored),
-    0
-  );
+
 
   return (
     <StatsTable>
