@@ -1,30 +1,19 @@
-import React from 'react';
-import { useMessage } from '../../context/MessageContext';
-import { startCurrentPoint } from '../../../lib/Game.actions';
+import React, { useContext } from 'react';
 import { Button } from '@/components/ui/button';
+import { GameStateContext } from '@/app/context/GameStateContext';
 
-interface StartCurrentPointButtonProps {
-  registerGameStateMutation: () => string;
-  clearGameStateMutation: () => void;
-}
-
-export const StartCurrentPointButton: React.FC<
-  StartCurrentPointButtonProps
-> = ({ registerGameStateMutation, clearGameStateMutation }) => {
-  const onClick = async () => {
-    await startCurrentPoint(registerGameStateMutation());
-  };
-
-  const { addErrorMessage } = useMessage();
+export const StartCurrentPointButton: React.FC = () => {
+  const gameState = useContext(GameStateContext);
+  if (gameState == null) {
+    throw new Error('Must be used in GameStateContext');
+  }
+  const { startCurrentPoint } = gameState;
 
   return (
     <Button
       size="lg"
       onClick={() => {
-        onClick().catch((e: unknown) => {
-          clearGameStateMutation();
-          addErrorMessage('Error starting point', e);
-        });
+        startCurrentPoint();
       }}
     >
       Start Point

@@ -1,20 +1,10 @@
 import React from 'react';
 import { StartCurrentPointButton } from './StartCurrentPointButton';
 
-interface StartCurrentPointOverlayProps {
-  registerGameStateMutation: () => string;
-  clearGameStateMutation: () => void;
-}
-
-export const StartCurrentPointOverlay: React.FC<
-  StartCurrentPointOverlayProps
-> = ({ registerGameStateMutation, clearGameStateMutation }) => {
+export const StartCurrentPointOverlay: React.FC = () => {
   return (
     <div className="flex justify-center items-center m-4">
-      <StartCurrentPointButton
-        registerGameStateMutation={registerGameStateMutation}
-        clearGameStateMutation={clearGameStateMutation}
-      />
+      <StartCurrentPointButton />
     </div>
   );
 };

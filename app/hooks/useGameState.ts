@@ -10,6 +10,7 @@ import {
   reorderPlayer as reorderPlayerAction,
   updateRotatyStrategyAction,
   recordGoalScored as recordGoalScoredAction,
+  startCurrentPoint as startCurrentPointAction,
 } from '@/lib/Game.actions';
 import { GameInfo } from '../view/GameInfo';
 
@@ -21,6 +22,7 @@ export interface GameStateWithMutations extends GameState {
   playerIdRecordingGoal: number | null;
   playerIdRecordingOwnGoal: number | null;
   recordGoalScored: (player: PlayerInfo, ownGoal: boolean) => void;
+  startCurrentPoint: () => void;
 }
 
 type OptimisticPlayerMutationAction =
@@ -282,6 +284,18 @@ export const useGameState = (
     [addErrorMessage, onGameStateMutationError, registerGameStateMutation],
   );
 
+  const startCurrentPoint = useCallback(() => {
+    const mutationId = registerGameStateMutation();
+
+    const action = async () => {
+      await startCurrentPointAction(mutationId);
+    };
+    action().catch((e: unknown) => {
+      onGameStateMutationError();
+      addErrorMessage(`Error starting point`, e);
+    });
+  }, [addErrorMessage, onGameStateMutationError, registerGameStateMutation]);
+
   return {
     players,
     redScore,
@@ -296,5 +310,6 @@ export const useGameState = (
     playerIdRecordingGoal,
     playerIdRecordingOwnGoal,
     recordGoalScored,
+    startCurrentPoint,
   };
 };

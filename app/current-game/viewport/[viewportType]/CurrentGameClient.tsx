@@ -10,6 +10,7 @@ import 'swiper/css';
 import { PlayerInfo } from '../../../view/PlayerInfo';
 import { GameStateProvider } from '@/app/context/GameStateContext';
 import { GameInfo } from '@/app/view/GameInfo';
+import { CurrentGameOverlay } from '@/app/components/current-game-overlay/CurrentGameOverlay';
 
 interface CurrentGameClientProps {
   serverGameId: number;
@@ -94,8 +95,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
               />
             </WrapChildrenInSwiperIfMobile>
           </div>
-
-          {!pointStarted && <StartCurrentPointOverlay />}
+          <CurrentGameOverlay />
         </div>
       </main>
     </GameStateProvider>
