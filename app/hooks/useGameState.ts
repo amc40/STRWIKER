@@ -11,6 +11,7 @@ import {
   updateRotatyStrategyAction,
   recordGoalScored as recordGoalScoredAction,
   startCurrentPoint as startCurrentPointAction,
+  updatePlayerSkippedStatus as updatePlayerSkippedStatusAction,
 } from '@/lib/Game.actions';
 import { GameInfo } from '../view/GameInfo';
 
@@ -23,6 +24,7 @@ export interface GameStateWithMutations extends GameState {
   playerIdRecordingOwnGoal: number | null;
   recordGoalScored: (player: PlayerInfo, ownGoal: boolean) => void;
   startCurrentPoint: () => void;
+  updateSkippedStatus: (playerId: number, skipped: boolean) => void;
 }
 
 type OptimisticPlayerMutationAction =
@@ -40,6 +42,11 @@ type OptimisticPlayerMutationAction =
       type: 'reorderPlayer';
       playerToReorder: PlayerInfo;
       destinationIndex: number;
+    }
+  | {
+      type: 'updateSkippedStatus';
+      playerId: number;
+      skipped: boolean;
     };
 
 const updatePlayerOrderAfterReorder = (
@@ -91,7 +98,7 @@ const updatePlayerOrderAfterReorder = (
 const optimisticPlayersReducer = (
   currentPlayers: PlayerInfo[],
   update: OptimisticPlayerMutationAction,
-) => {
+): PlayerInfo[] => {
   switch (update.type) {
     case 'addPlayer':
       return [
@@ -100,9 +107,13 @@ const optimisticPlayersReducer = (
           id: update.playerId,
           name: update.playerName,
           team: update.team,
-          position: currentPlayers.length + 1,
+          position:
+            currentPlayers.length > 0
+              ? Math.max(...currentPlayers.map((p) => p.position)) + 1
+              : 0,
           goalsScored: 0,
           ownGoalsScored: 0,
+          skipped: false,
         },
       ];
     case 'removePlayer':
@@ -115,13 +126,19 @@ const optimisticPlayersReducer = (
           update.destinationIndex,
         ),
       );
+    case 'updateSkippedStatus':
+      return currentPlayers.map((player) =>
+        player.id === update.playerId
+          ? { ...player, skipped: update.skipped }
+          : player,
+      );
   }
 };
 
 export const useGameState = (
   initialGameInfo: GameInfo,
 ): GameStateWithMutations => {
-  const [players, setPlayers] = useState(initialGameInfo.players);
+  const [players, setPlayers] = useState<PlayerInfo[]>(initialGameInfo.players);
   const [redScore, setRedScore] = useState(initialGameInfo.teamInfo.Red.score);
   const [blueScore, setBlueScore] = useState(
     initialGameInfo.teamInfo.Blue.score,
@@ -296,6 +313,32 @@ export const useGameState = (
     });
   }, [addErrorMessage, onGameStateMutationError, registerGameStateMutation]);
 
+  const updateSkippedStatus = useCallback(
+    (playerId: number, skipped: boolean) => {
+      const mutationId = registerGameStateMutation();
+      setPlayers((oldPlayers) =>
+        optimisticPlayersReducer(oldPlayers, {
+          type: 'updateSkippedStatus',
+          playerId,
+          skipped,
+        }),
+      );
+
+      const action = async () => {
+        await updatePlayerSkippedStatusAction(playerId, skipped, mutationId);
+      };
+
+      action().catch((e: unknown) => {
+        onGameStateMutationError();
+        addErrorMessage(
+          `Error updating skipped status for player id ${String(playerId)}`,
+          e,
+        );
+      });
+    },
+    [registerGameStateMutation, onGameStateMutationError, addErrorMessage],
+  );
+
   return {
     players,
     redScore,
@@ -311,5 +354,6 @@ export const useGameState = (
     playerIdRecordingOwnGoal,
     recordGoalScored,
     startCurrentPoint,
+    updateSkippedStatus,
   };
 };
