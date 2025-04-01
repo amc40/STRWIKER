@@ -1,27 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { recordGoalScored } from '../../../lib/Game.actions';
+import React, { useContext, useEffect, useState } from 'react';
 import { CircleRemove } from './CircleRemove';
 import { PlayerCardStat } from './PlayerCardStat';
 import { PlayerCardGoalButton } from './PlayerCardGoalButton';
 import { PlayerInfo } from '../../view/PlayerInfo';
-import { useMessage } from '../../context/MessageContext';
 import { CircleSkip } from './CircleSkip';
+import { GameStateContext } from '@/app/context/GameStateContext';
 
 interface PlayerCardProps {
   player: PlayerInfo;
-  removePlayer: (player: PlayerInfo) => void;
-  scoringGoalsDisabled: boolean;
-  registerGameStateMutation: () => string;
-  clearGameStateMutation: () => void;
 }
 
-const PlayerCard: React.FC<PlayerCardProps> = ({
-  player,
-  removePlayer,
-  scoringGoalsDisabled,
-  registerGameStateMutation,
-  clearGameStateMutation,
-}) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
   const {
     name: playerName,
     goalsScored: goalsScoredProp,
@@ -39,33 +28,28 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     setOwnGoals(ownGoalsScoredProp);
   }, [ownGoalsScoredProp]);
 
-  const [recordingGoal, setRecordingGoal] = useState(false);
-  const [recordingOwnGoal, setRecordingOwnGoal] = useState(false);
+  const gameState = useContext(GameStateContext);
 
-  const { addErrorMessage } = useMessage();
+  if (gameState == null) {
+    throw new Error('Must be used in GameStateContext');
+  }
+
+  const {
+    pointStarted,
+    playerIdRecordingGoal,
+    playerIdRecordingOwnGoal,
+    recordGoalScored,
+    removePlayer,
+  } = gameState;
+
+  const isScoringGoalsDisabled = !pointStarted || playerIdRecordingGoal != null;
 
   const handleGoalClick = () => {
-    setRecordingGoal(true);
-    recordGoalScored(player, false, registerGameStateMutation())
-      .catch((e: unknown) => {
-        clearGameStateMutation();
-        addErrorMessage('Error recording goal', e);
-      })
-      .finally(() => {
-        setRecordingGoal(false);
-      });
+    recordGoalScored(player, false);
   };
 
   const handleOwnGoalClick = () => {
-    setRecordingOwnGoal(true);
-    recordGoalScored(player, true, registerGameStateMutation())
-      .catch((e: unknown) => {
-        clearGameStateMutation();
-        addErrorMessage('Error recording goal', e);
-      })
-      .finally(() => {
-        setRecordingOwnGoal(false);
-      });
+    recordGoalScored(player, true);
   };
 
   const [skipped, setSkipped] = useState(false);
@@ -97,14 +81,14 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         <PlayerCardGoalButton
           text="Goal"
           onClick={handleGoalClick}
-          loading={recordingGoal}
-          disabled={scoringGoalsDisabled}
+          loading={playerIdRecordingGoal === player.id}
+          disabled={isScoringGoalsDisabled}
         />
         <PlayerCardGoalButton
           text="Own Goal"
           onClick={handleOwnGoalClick}
-          loading={recordingOwnGoal}
-          disabled={scoringGoalsDisabled}
+          loading={playerIdRecordingOwnGoal === player.id}
+          disabled={isScoringGoalsDisabled}
         />
       </div>
     </div>

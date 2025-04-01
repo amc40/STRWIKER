@@ -5,25 +5,8 @@ import { SettingsModalSectionHeader } from './SettingsModalSectionHeader';
 import { SettingsModalDescription } from './SettingsModalDescription';
 import { RotatyStrategySelector } from './RotationStrategySelector';
 import { SettingsModalSettingHeader } from './SettingsModalSettingHeader';
-import { RotatyStrategy, Team } from '@prisma/client';
 
-interface SettingsModalProps extends CustomModalProps {
-  blueRotatyStrategy: RotatyStrategy;
-  redRotatyStrategy: RotatyStrategy;
-  setRotatyStrategy: (team: Team, rotatyStrategy: RotatyStrategy) => void;
-  registerGameStateMutation: () => string;
-  clearGameStateMutation: () => void;
-}
-
-export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
-  const {
-    blueRotatyStrategy,
-    redRotatyStrategy,
-    setRotatyStrategy,
-    registerGameStateMutation,
-    clearGameStateMutation,
-  } = props;
-
+export const SettingsModal: React.FC<CustomModalProps> = (props) => {
   return (
     <Modal {...props} title="Settings">
       <div className={'max-w-[80vw] w-[40rem]'}>
@@ -41,13 +24,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
           <div>
             <SettingsModalSettingHeader title="Rotation Strategy" />
             <SettingsModalDescription text="Defines whether players auto-rotate after a goal is scored." />
-            <RotatyStrategySelector
-              team="Blue"
-              rotatyStrategy={blueRotatyStrategy}
-              setRotatyStrategy={setRotatyStrategy}
-              registerGameStateMutation={registerGameStateMutation}
-              clearGameStateMutation={clearGameStateMutation}
-            />
+            <RotatyStrategySelector team="Blue" />
           </div>
         </div>
         <div>
@@ -55,13 +32,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
           <div>
             <SettingsModalSettingHeader title="Rotation Strategy" />
             <SettingsModalDescription text="Defines whether players auto-rotate after a goal is scored." />
-            <RotatyStrategySelector
-              team="Red"
-              rotatyStrategy={redRotatyStrategy}
-              setRotatyStrategy={setRotatyStrategy}
-              registerGameStateMutation={registerGameStateMutation}
-              clearGameStateMutation={clearGameStateMutation}
-            />
+            <RotatyStrategySelector team="Red" />
           </div>
         </div>
       </div>

@@ -1,40 +1,47 @@
-import { $Enums, RotatyStrategy } from '@prisma/client';
+import { Team as TeamEnum } from '@prisma/client';
 import PlayerCard from '../player-card/PlayerCard';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { PlayerInfo } from '../../view/PlayerInfo';
 import { TeamHeader } from './TeamHeader';
-import { PropsWithChildren } from 'react';
+import { useContext } from 'react';
+import { sortArrayByPropertyAsc } from '@/app/utils/arrayUtils';
+import { GameStateContext } from '@/app/context/GameStateContext';
+import AddPlayerToTeam from '../AddPlayerToTeam';
 
 interface TeamProps {
-  team: $Enums.Team;
-  members: PlayerInfo[];
-  rotatyStrategy: RotatyStrategy;
-  score: number;
-  scoringGoalsDisabled: boolean;
-  removePlayer: (player: PlayerInfo) => void;
-  reorderPlayer: (player: PlayerInfo, destinationIndex: number) => void;
+  team: TeamEnum;
   openSettingsModal: () => void;
-  registerGameStateMutation: () => string;
-  clearGameStateMutation: () => void;
 }
 
-export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
-  team,
-  members,
-  rotatyStrategy,
-  score,
-  scoringGoalsDisabled,
-  removePlayer,
-  reorderPlayer,
-  openSettingsModal,
-  registerGameStateMutation,
-  clearGameStateMutation,
-  children,
-}) => {
+export const Team: React.FC<TeamProps> = ({ team, openSettingsModal }) => {
+  const gameState = useContext(GameStateContext);
+
+  if (gameState == null) {
+    throw new Error('Must be used in GameStateContext');
+  }
+
+  const {
+    players: allPlayers,
+    redScore,
+    blueScore,
+    redRotatyStrategy,
+    blueRotatyStrategy,
+    reorderPlayer,
+    addPlayer,
+  } = gameState;
+
+  const members = sortArrayByPropertyAsc(
+    allPlayers.filter((player) => player.team === team),
+    ({ position }) => position,
+  );
+
+  const rotatyStrategy =
+    team === TeamEnum.Red ? redRotatyStrategy : blueRotatyStrategy;
+  const score = team === TeamEnum.Red ? redScore : blueScore;
+
   return (
     <div
       className={`flex flex-col flex-1 p-3 border border-slate-300 md:p-5 text-white 
-      ${team === $Enums.Team.Red ? 'bg-team-red' : 'bg-team-blue'}`}
+      ${team === TeamEnum.Red ? 'bg-team-red' : 'bg-team-blue'}`}
     >
       <TeamHeader
         team={team}
@@ -75,13 +82,7 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                       >
-                        <PlayerCard
-                          player={member}
-                          removePlayer={removePlayer}
-                          scoringGoalsDisabled={scoringGoalsDisabled}
-                          registerGameStateMutation={registerGameStateMutation}
-                          clearGameStateMutation={clearGameStateMutation}
-                        />
+                        <PlayerCard player={member} />
                       </li>
                     )}
                   </Draggable>
@@ -91,7 +92,11 @@ export const Team: React.FC<PropsWithChildren<TeamProps>> = ({
             )}
           </Droppable>
         </DragDropContext>
-        {children}
+        <AddPlayerToTeam
+          team={team}
+          addPlayer={addPlayer}
+          existingPlayers={allPlayers}
+        />
       </div>
     </div>
   );

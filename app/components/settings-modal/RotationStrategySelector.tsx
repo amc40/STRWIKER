@@ -1,6 +1,5 @@
 import { RotatyStrategy, Team } from '@prisma/client';
-import React, { useEffect, useState } from 'react';
-import { updateRotatyStrategyAction } from '../../../lib/Game.actions';
+import React, { useContext } from 'react';
 import {
   Select,
   SelectContent,
@@ -8,67 +7,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useMessage } from '../../context/MessageContext';
+import { GameStateContext } from '@/app/context/GameStateContext';
 
 interface RotationStrategySelectorProps {
   team: Team;
-  rotatyStrategy: RotatyStrategy;
-  setRotatyStrategy: (team: Team, rotatyStrategy: RotatyStrategy) => void;
-  registerGameStateMutation: () => string;
-  clearGameStateMutation: () => void;
 }
 
 const options = Object.values(RotatyStrategy);
 
 export const RotatyStrategySelector: React.FC<
   RotationStrategySelectorProps
-> = ({
-  team,
-  rotatyStrategy,
-  setRotatyStrategy,
-  registerGameStateMutation,
-  clearGameStateMutation,
-}) => {
-  const [selectedRotatyStrategy, setSelectedRotatyStrategy] =
-    useState<RotatyStrategy>(rotatyStrategy);
-  const [loading, setLoading] = useState(false);
+> = ({ team }) => {
+  const gameState = useContext(GameStateContext);
+  if (gameState == null) {
+    throw new Error('Must be used in GameStateContext');
+  }
 
-  useEffect(() => {
-    setSelectedRotatyStrategy(rotatyStrategy);
-  }, [rotatyStrategy]);
-
-  const { addErrorMessage } = useMessage();
-
-  const updateRotatyStrategy = (rotatyStrategy: RotatyStrategy) => {
-    setLoading(true);
-    const updateRotatyStrategyPromise = async () => {
-      try {
-        const mutationId = registerGameStateMutation();
-        await updateRotatyStrategyAction(rotatyStrategy, team, mutationId);
-        setSelectedRotatyStrategy(rotatyStrategy);
-        setRotatyStrategy(team, rotatyStrategy);
-      } finally {
-        setLoading(false);
-      }
-    };
-    updateRotatyStrategyPromise().catch((e: unknown) => {
-      clearGameStateMutation();
-      addErrorMessage('Error updating rotaty strategy', e);
-    });
-  };
+  const { blueRotatyStrategy, redRotatyStrategy, updateRotatyStrategy } =
+    gameState;
+  const selectedRotatyStrategy =
+    team === Team.Red ? redRotatyStrategy : blueRotatyStrategy;
 
   return (
     <Select
       value={selectedRotatyStrategy}
       onValueChange={(value) => {
-        updateRotatyStrategy(value as RotatyStrategy);
+        updateRotatyStrategy(team, value as RotatyStrategy);
       }}
-      disabled={loading}
     >
       <SelectTrigger>
-        <SelectValue
-          placeholder={loading ? 'Loading...' : 'Select a strategy'}
-        />
+        <SelectValue placeholder="Select a strategy" />
       </SelectTrigger>
       <SelectContent>
         {options.map((strategy) => (

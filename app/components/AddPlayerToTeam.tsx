@@ -34,6 +34,7 @@ const AddPlayerToTeam: FC<AddPlayerToTeamProps> = ({
 
   useEffect(() => {
     const loadData = async () => {
+      // TODO: this shouldn't be an action - it should be a GET endpoint
       const data = await getPlayers();
       setPlayers(data);
     };
