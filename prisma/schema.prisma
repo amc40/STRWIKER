@@ -75,10 +75,12 @@ model PlayerPoint {
   // Red || Blue
   team     Team
 
-  scoredGoal Boolean @default(false)
-  ownGoal    Boolean @default(false)
-  rattled    Boolean @default(false)
-  skipped    Boolean @default(false)
+  scoredGoal  Boolean @default(false)
+  ownGoal     Boolean @default(false)
+  rattled     Boolean @default(false)
+  skipped     Boolean @default(false)
+  is_striker  Boolean @default(false)
+  is_defender Boolean @default(false)
 
   playerId Int
   pointId  Int
