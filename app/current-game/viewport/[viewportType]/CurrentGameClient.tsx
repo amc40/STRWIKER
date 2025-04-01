@@ -11,6 +11,7 @@ import { PlayerInfo } from '../../../view/PlayerInfo';
 import { GameStateProvider } from '@/app/context/GameStateContext';
 import { GameInfo } from '@/app/view/GameInfo';
 import { CurrentGameOverlay } from '@/app/components/current-game-overlay/CurrentGameOverlay';
+import { useGameEndListener } from '@/app/hooks/useGameEndListener';
 
 interface CurrentGameClientProps {
   serverGameId: number;
@@ -34,6 +35,7 @@ export const CurrentGameClient: React.FC<CurrentGameClientProps> = ({
   isMobile,
 }) => {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  useGameEndListener(serverGameId);
 
   const openSettingsModal = () => {
     setShowSettingsModal(true);
