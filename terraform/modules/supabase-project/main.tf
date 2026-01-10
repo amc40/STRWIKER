@@ -19,3 +19,8 @@ resource "supabase_project" "main" {
     ignore_changes = [database_password]
   }
 }
+
+# Data source to fetch API keys for the project
+data "supabase_apikeys" "main" {
+  project_ref = supabase_project.main.id
+}

@@ -10,17 +10,17 @@ output "project_name" {
 
 output "database_host" {
   description = "Database host"
-  value       = supabase_project.main.database.host
+  value       = "aws-0-${var.region}.pooler.supabase.com"
 }
 
 output "database_name" {
   description = "Database name"
-  value       = supabase_project.main.database.name
+  value       = "postgres"
 }
 
 output "database_user" {
   description = "Database user"
-  value       = supabase_project.main.database.user
+  value       = "postgres.${supabase_project.main.id}"
 }
 
 output "database_password" {
@@ -31,35 +31,35 @@ output "database_password" {
 
 output "database_port" {
   description = "Database port"
-  value       = supabase_project.main.database.port
+  value       = "6543"
 }
 
 output "api_url" {
   description = "Supabase API URL (for NEXT_PUBLIC_SUPABASE_URL)"
-  value       = supabase_project.main.api_url
+  value       = "https://${supabase_project.main.id}.supabase.co"
 }
 
 output "anon_key" {
   description = "Supabase anonymous key (for NEXT_PUBLIC_SUPABASE_ANON_KEY)"
-  value       = supabase_project.main.anon_key
+  value       = data.supabase_apikeys.main.anon_key
   sensitive   = true
 }
 
 output "service_role_key" {
   description = "Supabase service role key (admin access - keep secret)"
-  value       = supabase_project.main.service_role_key
+  value       = data.supabase_apikeys.main.service_role_key
   sensitive   = true
 }
 
 # Convenience outputs for Prisma connection strings
 output "postgres_prisma_url" {
   description = "PostgreSQL connection string for Prisma (pooled)"
-  value       = "postgresql://${supabase_project.main.database.user}:${var.database_password}@${supabase_project.main.database.host}:${supabase_project.main.database.port}/${supabase_project.main.database.name}?pgbouncer=true"
+  value       = "postgresql://postgres.${supabase_project.main.id}:${var.database_password}@aws-0-${var.region}.pooler.supabase.com:6543/postgres"
   sensitive   = true
 }
 
 output "postgres_url_non_pooling" {
   description = "PostgreSQL connection string for Prisma migrations (direct)"
-  value       = "postgresql://${supabase_project.main.database.user}:${var.database_password}@${supabase_project.main.database.host}:${supabase_project.main.database.port}/${supabase_project.main.database.name}"
+  value       = "postgresql://postgres.${supabase_project.main.id}:${var.database_password}@db.${supabase_project.main.id}.supabase.com:5432/postgres"
   sensitive   = true
 }
