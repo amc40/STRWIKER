@@ -10,3 +10,23 @@ variable "github_repository_name" {
   type        = string
   nullable    = false
 }
+
+variable "supabase_access_token" {
+  description = "Supabase access token obtained from https://supabase.com/dashboard/account/tokens"
+  type        = string
+  sensitive   = true
+  nullable    = false
+}
+
+variable "supabase_organization_id" {
+  description = "Supabase organization ID from https://supabase.com/dashboard/org/_/general"
+  type        = string
+  nullable    = false
+}
+
+variable "supabase_database_password" {
+  description = "PostgreSQL database password (min 8 characters)"
+  type        = string
+  sensitive   = true
+  nullable    = false
+}
