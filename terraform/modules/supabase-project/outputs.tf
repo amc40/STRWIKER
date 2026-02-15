@@ -54,12 +54,12 @@ output "service_role_key" {
 # Convenience outputs for Prisma connection strings
 output "postgres_prisma_url" {
   description = "PostgreSQL connection string for Prisma (pooled)"
-  value       = "postgresql://postgres.${supabase_project.main.id}:${var.database_password}@aws-0-${var.region}.pooler.supabase.com:6543/postgres"
+  value       = "postgresql://postgres.${supabase_project.main.id}:${var.database_password}@aws-1-${var.region}.pooler.supabase.com:6543/postgres?pgbouncer=true"
   sensitive   = true
 }
 
 output "postgres_url_non_pooling" {
   description = "PostgreSQL connection string for Prisma migrations (direct)"
-  value       = "postgresql://postgres.${supabase_project.main.id}:${var.database_password}@db.${supabase_project.main.id}.supabase.com:5432/postgres"
+  value       = "postgresql://postgres.${supabase_project.main.id}:${var.database_password}@aws-1-${var.region}.pooler.supabase.com:5432/postgres"
   sensitive   = true
 }
