@@ -24,8 +24,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: latest
-      
-      - name: Apply db migrations 
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Apply db migrations
         run: npx prisma migrate deploy
         env:
           POSTGRES_PRISMA_URL: ${{secrets.DATABASE_URL}}
