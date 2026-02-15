@@ -384,7 +384,7 @@ export class StatsEngineFwoar {
     return orderedByBestStatFirst.map((element, index) => {
       const currentStat = getStatFromElement(element);
       const currentRanking =
-        prevStatAndRanking === null || currentStat != prevStatAndRanking.stat
+        currentStat != prevStatAndRanking?.stat
           ? index + 1
           : prevStatAndRanking.ranking;
 
@@ -418,7 +418,7 @@ export class StatsEngineFwoar {
       }
 
       const currentRanking =
-        prevStatAndRanking === null || currentStat != prevStatAndRanking.stat
+        currentStat != prevStatAndRanking?.stat
           ? index + 1
           : prevStatAndRanking.ranking;
 
