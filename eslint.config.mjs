@@ -31,7 +31,7 @@ const eslintConfig = defineConfig([
     ...tseslint.configs.disableTypeChecked,
   },
   eslintConfigPrettier,
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts', 'next.config.js']),
 ]);
 
 export default eslintConfig;

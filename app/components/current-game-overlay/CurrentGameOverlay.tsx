@@ -42,6 +42,7 @@ export const CurrentGameOverlay: React.FC = () => {
 
   useEffect(() => {
     if (redScore === 9 && blueScore === 9) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: trigger confetti on score change
       setShowConfetti(true);
       const timer = setTimeout(() => {
         setShowConfetti(false);
