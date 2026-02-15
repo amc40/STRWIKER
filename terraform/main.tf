@@ -16,10 +16,6 @@ terraform {
       source  = "supabase/supabase"
       version = "~> 1.0"
     }
-    github = {
-      source  = "integrations/github"
-      version = "~> 6.0"
-    }
   }
 }
 
@@ -29,11 +25,6 @@ provider "vercel" {
 
 provider "supabase" {
   access_token = var.supabase_access_token
-}
-
-provider "github" {
-  token = var.github_access_token
-  owner = var.github_owner
 }
 
 module "supabase_project" {
@@ -52,12 +43,3 @@ module "vercel_project_custom" {
   supabase_url             = module.supabase_project.api_url
   supabase_anon_key        = module.supabase_project.anon_key
 }
-
-module "github_secrets" {
-  source                   = "./modules/github-secrets"
-  repository_name          = "${var.github_owner}/${var.github_repository_name}"
-  environment_name         = "production"
-  postgres_prisma_url      = module.supabase_project.postgres_prisma_url
-  postgres_url_non_pooling = module.supabase_project.postgres_url_non_pooling
-}
-

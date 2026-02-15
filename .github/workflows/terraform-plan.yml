@@ -39,7 +39,6 @@ jobs:
             vercel_api_token = "${{secrets.VERCEL_TERRAFORM_API_TOKEN}}"
             github_owner = "${{github.repository_owner}}"
             github_repository_name = "${{github.event.repository.name}}"
-            github_access_token = "${{secrets.RW_GH_SECRETS_GH_TOKEN}}"
             supabase_access_token = "${{secrets.SUPABASE_ACCESS_TOKEN}}"
             supabase_organization_id = "${{secrets.SUPABASE_ORGANIZATION_ID}}"
             supabase_database_password = "${{secrets.SUPABASE_DATABASE_PASSWORD}}"
