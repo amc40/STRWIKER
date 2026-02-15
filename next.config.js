@@ -1,5 +1,3 @@
-const CopyPlugin = require('copy-webpack-plugin');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -31,18 +29,6 @@ const nextConfig = {
         permanent: true,
       },
     ];
-  },
-  webpack: (config) => {
-    config.plugins.push(
-      new CopyPlugin({
-        patterns: [
-          { from: 'node_modules/vanilla-tilt/dist', to: '../public' },
-          { from: 'app/images', to: '../public/images' },
-        ],
-      }),
-    );
-
-    return config;
   },
 };
 
