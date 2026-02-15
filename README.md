@@ -20,6 +20,14 @@ Tech:
 1. Run the application using `npm run dev`
 1. If you want to inspect the supabase project (e.g. DB table contents) you can do so at http://127.0.0.1:54323
 
+## Setup from scratch
+
+1. Setup a [Terraform cloud](https://app.terraform.io/) project and update (./terraform/main.tf) `terraform->cloud`
+1. Set the `TF_CLOUD_TOKEN` [secret](https://github.com/amc40/STRWIKER/settings/secrets/actions) to a new access token for the terraform cloud project
+1. Generate a db password, store it in a password manager and set the `SUPABASE_DATABASE_PASSWORD` [Actions secret](https://github.com/amc40/STRWIKER/settings/secrets/actions) to that value
+1. Apply current terraform using the GH Action workflows or in [terraform cloud](https://app.terraform.io/)
+1. Set the `DIRECT_URL` and `DATABASE_URL` to the urls obtained by navigating to [the supabase project](https://supabase.com/dashboard/) -> Database -> Connect -> ORMs -> Prisma
+
 ## DB Migrations
 
 We use prisma as an ORM and for managing DB migrations.
