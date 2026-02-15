@@ -19,8 +19,6 @@ jobs:
   apply:
     runs-on: ubuntu-latest
     name: Apply Terraform
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
