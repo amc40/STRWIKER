@@ -33,7 +33,7 @@ jobs:
           path: terraform
       
       - name: terraform plan
-        uses: dflook/terraform-plan@v1
+        uses: dflook/terraform-plan@v2
         with:
           path: terraform
           workspace: STRWIKER
