@@ -5,9 +5,22 @@ variable "vercel_api_token" {
   nullable    = false
 }
 
+variable "github_owner" {
+  description = "The GitHub organization or user that owns the repository"
+  type        = string
+  nullable    = false
+}
+
 variable "github_repository_name" {
   description = "The name of the GitHub repository"
   type        = string
+  nullable    = false
+}
+
+variable "github_token" {
+  description = "GitHub Personal Access Token with repo and admin:repo_hook permissions"
+  type        = string
+  sensitive   = true
   nullable    = false
 }
 
