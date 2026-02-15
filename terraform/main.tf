@@ -32,7 +32,7 @@ provider "supabase" {
 }
 
 provider "github" {
-  token = var.github_token
+  token = var.github_access_token
   owner = var.github_owner
 }
 

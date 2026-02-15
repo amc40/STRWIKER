@@ -17,8 +17,8 @@ variable "github_repository_name" {
   nullable    = false
 }
 
-variable "github_token" {
-  description = "GitHub Personal Access Token with repo and admin:repo_hook permissions"
+variable "github_access_token" {
+  description = "GitHub Personal Access Token with read and write secrets permission from https://github.com/settings/personal-access-tokens/new"
   type        = string
   sensitive   = true
   nullable    = false
