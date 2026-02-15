@@ -1,4 +1,12 @@
 terraform {
+  cloud {
+    organization = "amc40-hobby-projects"
+
+    workspaces {
+      name = "STRWIKER"
+    }
+  }
+
   required_providers {
     vercel = {
       source  = "vercel/vercel"
