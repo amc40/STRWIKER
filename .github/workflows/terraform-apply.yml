@@ -27,6 +27,7 @@ jobs:
         uses: dflook/terraform-apply@v1
         with:
           path: terraform
+          workspace: STRWIKER
           variables: |
             vercel_api_token = "${{secrets.VERCEL_TERRAFORM_API_TOKEN}}"
             github_owner = "${{github.repository_owner}}"
