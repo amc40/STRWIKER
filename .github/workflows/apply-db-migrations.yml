@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'prisma/migrations/**'
+      - 'prisma/schema.prisma'
+  workflow_run:
+    workflows: ["Terraform Apply"]
+    types:
+      - completed
 
 jobs:
   apply_db_migrations:
