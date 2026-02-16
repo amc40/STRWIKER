@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function Page({
   params,
 }: {
-  params: { viewportType: string };
+  params: Promise<{ viewportType: string }>;
 }) {
   const currentGameInfo = await gameInfoService.getCurrentGameInfo();
 
@@ -17,7 +17,8 @@ export default async function Page({
     redirect('/no-game-in-progress');
   }
 
-  const isMobile = params.viewportType !== 'desktop';
+  const { viewportType } = await params;
+  const isMobile = viewportType !== 'desktop';
 
   return (
     <CurrentGameClient

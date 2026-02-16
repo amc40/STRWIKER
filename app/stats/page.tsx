@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { getPlayers } from '../../lib/Player.actions';
 import { Player } from '@prisma/client';
 import { useMessage } from '../context/MessageContext';
+import TiltCard from '../components/TiltCard';
 
 const Stats: React.FC = () => {
   // TODO: pass in initial data from server
@@ -57,12 +58,8 @@ const PlayerCard = ({
 }) => {
   return (
     <>
-      <div
-        data-tilt
-        data-tilt-glare
-        data-tilt-max-glare="0.8"
-        data-tilt-scale="1.1"
-        className={`p-2 rounded-md w-[150px] h-[200px] border-blue-500 border-2 mb-5 
+      <TiltCard
+        className={`p-2 rounded-md w-[150px] h-[200px] border-blue-500 border-2 mb-5
         ${rarity === Rarity.HOLOGRAPHIC ? 'bg-yellow-400' : 'bg-slate-300'}`}
       >
         <div
@@ -102,7 +99,7 @@ const PlayerCard = ({
             </StatsColumn>
           </div>
         </div>
-      </div>
+      </TiltCard>
     </>
   );
 };

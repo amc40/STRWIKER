@@ -9,12 +9,10 @@ import { PlayerRankingTable } from '../../../components/game-stats/PlayerRanking
 import { LongestPointsTable } from '../../../components/game-stats/LongestPointsTable';
 import { GameLogicService } from '../../../services/gameLogicService';
 
-interface GameServerParams {
-  gameId: string;
-}
+export const dynamic = 'force-dynamic';
 
 interface GameServerProps {
-  params: GameServerParams;
+  params: Promise<{ gameId: string }>;
 }
 
 const statsEngine = new StatsEngineFwoar();
@@ -23,7 +21,7 @@ const gameLogicService = new GameLogicService();
 const NUMBER_OF_LONGEST_POINTS_TO_DISPLAY = 5;
 
 const GameServer: React.FC<GameServerProps> = async ({ params }) => {
-  const { gameId: gameIdString } = params;
+  const { gameId: gameIdString } = await params;
   const gameId = Number.parseInt(gameIdString);
 
   if (isNaN(gameId)) {

@@ -6,7 +6,6 @@ export default {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './node_modules/@tremor/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     transparent: 'transparent',
@@ -68,17 +67,17 @@ export default {
       {
         pattern:
           '/^(bg-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/',
-        variants: ['hover', 'ui-selected'],
+        variants: ['hover'],
       },
       {
         pattern:
           '/^(text-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/',
-        variants: ['hover', 'ui-selected'],
+        variants: ['hover'],
       },
       {
         pattern:
           '/^(border-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/',
-        variants: ['hover', 'ui-selected'],
+        variants: ['hover'],
       },
       {
         pattern:
@@ -94,5 +93,6 @@ export default {
       },
     ],
   },
-  plugins: [require('@headlessui/tailwindcss'), require('tailwindcss-animate')],
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  plugins: [require('tailwindcss-animate')],
 } satisfies Config;

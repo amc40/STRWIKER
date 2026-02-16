@@ -3,7 +3,6 @@ import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import Nav from './nav';
 import { Suspense } from 'react';
-import Script from 'next/script';
 import React from 'react';
 import { MessageProvider } from './context/MessageContext';
 import { Toaster } from '@/components/ui/sonner';
@@ -24,7 +23,6 @@ const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         <MessageProvider>{children}</MessageProvider>
         <Toaster />
         <Analytics />
-        <Script type="module" src="vanilla-tilt.js" strategy="lazyOnload" />
       </body>
     </html>
   );

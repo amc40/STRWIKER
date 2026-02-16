@@ -3,6 +3,8 @@ import { PlayerRankingTable } from '../components/game-stats/PlayerRankingTable'
 import { getPlayersOrderedByDescendingElos } from '../repository/playerRepository';
 import { StatsEngineFwoar } from '../services/statsEngine';
 
+export const dynamic = 'force-dynamic';
+
 const statsEngine = new StatsEngineFwoar();
 
 const Page: React.FC = async () => {
