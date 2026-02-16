@@ -7,7 +7,7 @@
     "start": "next start",
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint --fix . && prettier --write .",
-    "postinstall": "prisma generate && cp node_modules/vanilla-tilt/dist/vanilla-tilt.js public/"
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
