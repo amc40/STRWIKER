@@ -23,7 +23,9 @@ export default function TiltCard({
     if (!el) return;
     VanillaTilt.init(el, { glare, 'max-glare': maxGlare, scale });
     return () => {
-      (el as unknown as { vanillaTilt?: { destroy: () => void } }).vanillaTilt?.destroy();
+      (
+        el as unknown as { vanillaTilt?: { destroy: () => void } }
+      ).vanillaTilt?.destroy();
     };
   }, [glare, maxGlare, scale]);
 
