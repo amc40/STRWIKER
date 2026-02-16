@@ -215,3 +215,36 @@ export async function getPlayerPointByPlayerAndPointOrThrow(
     },
   });
 }
+
+export async function getAllPlayerPointsForTeamInPoint(
+  pointId: number,
+  team: Team,
+): Promise<PlayerPoint[]> {
+  return await prisma.playerPoint.findMany({
+    where: {
+      pointId,
+      team,
+    },
+  });
+}
+
+export async function clearSkippedForPlayerPoints(playerPointIds: number[]) {
+  if (playerPointIds.length === 0) return;
+  await prisma.playerPoint.updateMany({
+    where: { id: { in: playerPointIds } },
+    data: { skipped: false },
+  });
+}
+
+export async function updateStrikerDefenderFlagsForPlayerPoints(
+  updates: { id: number; isStriker: boolean; isDefender: boolean }[],
+) {
+  await Promise.all(
+    updates.map(({ id, isStriker, isDefender }) =>
+      prisma.playerPoint.update({
+        where: { id },
+        data: { isStriker, isDefender },
+      }),
+    ),
+  );
+}

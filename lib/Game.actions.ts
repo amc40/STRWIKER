@@ -8,6 +8,9 @@ import { supabaseClient } from '../app/utils/supabase';
 import { GameInfoService } from '../app/services/gameInfoService';
 import { revalidatePath } from 'next/cache';
 import { GameInfo } from '@/app/view/GameInfo';
+import { getCurrentGameOrThrow } from '../app/repository/gameRepository';
+import { getCurrentPointOrThrow } from '../app/repository/pointRepository';
+import { getCurrentPlayerPointForPlayerOrThrow } from '../app/repository/playerPointRepository';
 
 const gameInfoService = new GameInfoService();
 
@@ -73,6 +76,23 @@ export const reorderPlayer = async (
     playerId,
     newPosition,
   );
+  // Recompute striker/defender flags after reorder
+  const currentGame = await getCurrentGameOrThrow();
+  const currentPoint = await getCurrentPointOrThrow();
+  const playerPoint = await getCurrentPlayerPointForPlayerOrThrow(playerId);
+  await new GameLogicService().recomputeStrikerDefenderFlagsForTeam(
+    currentPoint.id,
+    playerPoint.team,
+    currentGame.strikerPosition,
+  );
+  await registerUpdatedGameState(gameStateMutationId);
+};
+
+export const toggleSkipPlayer = async (
+  playerId: number,
+  gameStateMutationId: string,
+) => {
+  await new GameLogicService().toggleSkipForPlayerInCurrentPoint(playerId);
   await registerUpdatedGameState(gameStateMutationId);
 };
 
