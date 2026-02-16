@@ -1,9 +1,7 @@
 'use client';
 
 import { useRef, useEffect, type HTMLAttributes } from 'react';
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const VanillaTilt = require('vanilla-tilt');
+import VanillaTilt, { type HTMLVanillaTiltElement } from 'vanilla-tilt';
 
 export default function TiltCard({
   children,
@@ -23,9 +21,7 @@ export default function TiltCard({
     if (!el) return;
     VanillaTilt.init(el, { glare, 'max-glare': maxGlare, scale });
     return () => {
-      (
-        el as unknown as { vanillaTilt?: { destroy: () => void } }
-      ).vanillaTilt?.destroy();
+      (el as unknown as HTMLVanillaTiltElement).vanillaTilt.destroy();
     };
   }, [glare, maxGlare, scale]);
 
