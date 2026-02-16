@@ -43,6 +43,7 @@ model Game {
 **Role assignment logic:**
 
 Given a team and the game's `StrikerPosition` setting:
+
 - **Blue team, `BlueStrikerAtPositionZero`:** first non-skipped player = striker, second = defender
 - **Blue team, `RedStrikerAtPositionZero`:** first non-skipped player = defender, second = striker
 - **Red team:** the inverse of Blue in each case
@@ -75,6 +76,7 @@ Add `skipped: boolean` to the `PlayerInfo` interface and update the `playerPoint
 **File:** `lib/Game.actions.ts`
 
 New exported action:
+
 ```ts
 export const toggleSkipPlayer = async (
   playerId: number,
@@ -114,13 +116,14 @@ Add a method like `calculateRotatedPositionsForTeam` that takes the full list of
    ```ts
    interface RotationResult {
      positionsByPlayerId: Map<number, number>;
-     playerIdsToUnskip: Set<number>;   // players rotated to back whose skip should clear
+     playerIdsToUnskip: Set<number>; // players rotated to back whose skip should clear
    }
    ```
 
 **Example:**
+
 - Before: `[A, B(skip), C(skip), D, E]` — splitIndex = 3
-- After:  `[D, E, A, B, C]` — playerIdsToUnskip = {B, C}
+- After: `[D, E, A, B, C]` — playerIdsToUnskip = {B, C}
 
 ### 4b. Steps 2 & 3: Update positions then clear skips — in `setupNextPoint`
 
@@ -164,6 +167,7 @@ computeStrikerDefenderFlags(
 ```
 
 Logic:
+
 1. Sort by position ascending.
 2. Find the first non-skipped player and the second non-skipped player.
 3. Determine which one is striker vs defender based on the team and the game's `StrikerPosition` enum:
@@ -176,6 +180,7 @@ Logic:
 4. All other players get both flags `false`.
 
 **When to call this:**
+
 - When creating `PlayerPoint` records for a new point (`setupNextPoint`, `startGameFromPrevious*`) — after step 3 (clear skips)
 - After toggling skip on a player (step 3a)
 - After adding a player (`addPlayerToPoint`)
@@ -249,15 +254,15 @@ When building `PlayerInfo` objects, include the `skipped` field from the current
 
 ## Summary of Files Modified
 
-| File | Changes |
-|------|---------|
-| `prisma/schema.prisma` | Add `isStriker`, `isDefender` to `PlayerPoint`; add `StrikerPosition` enum and field to `Game` |
-| `app/view/PlayerInfo.ts` | Add `skipped` field |
-| `app/services/gameLogicService.ts` | New `toggleSkip` method (with all-skipped validation), update `setupNextPoint` with 3-step rotation, update `startGameFromPreviousCompletedGame`, update `getParticipatingPlayersInPoint`, add striker/defender flag computation, call flag recomputation after add/remove |
-| `app/services/playerPointPositionService.ts` | New `calculateRotatedPositionsForTeam` method returning positions + playerIdsToUnskip |
-| `app/services/gameInfoService.ts` | Include `skipped` in PlayerInfo assembly |
-| `lib/Game.actions.ts` | New `toggleSkipPlayer` action |
-| `app/hooks/useGameState.ts` | Add `skipPlayer` mutation with optimistic update + error revert |
-| `app/components/player-card/PlayerCard.tsx` | Wire skip button to game state instead of local state |
-| `app/view/GameState.ts` | No changes needed (players already carry PlayerInfo) |
-| `app/repository/playerPointRepository.ts` | Possibly new query helpers for updating striker/defender flags and clearing skips |
+| File                                         | Changes                                                                                                                                                                                                                                                                    |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prisma/schema.prisma`                       | Add `isStriker`, `isDefender` to `PlayerPoint`; add `StrikerPosition` enum and field to `Game`                                                                                                                                                                             |
+| `app/view/PlayerInfo.ts`                     | Add `skipped` field                                                                                                                                                                                                                                                        |
+| `app/services/gameLogicService.ts`           | New `toggleSkip` method (with all-skipped validation), update `setupNextPoint` with 3-step rotation, update `startGameFromPreviousCompletedGame`, update `getParticipatingPlayersInPoint`, add striker/defender flag computation, call flag recomputation after add/remove |
+| `app/services/playerPointPositionService.ts` | New `calculateRotatedPositionsForTeam` method returning positions + playerIdsToUnskip                                                                                                                                                                                      |
+| `app/services/gameInfoService.ts`            | Include `skipped` in PlayerInfo assembly                                                                                                                                                                                                                                   |
+| `lib/Game.actions.ts`                        | New `toggleSkipPlayer` action                                                                                                                                                                                                                                              |
+| `app/hooks/useGameState.ts`                  | Add `skipPlayer` mutation with optimistic update + error revert                                                                                                                                                                                                            |
+| `app/components/player-card/PlayerCard.tsx`  | Wire skip button to game state instead of local state                                                                                                                                                                                                                      |
+| `app/view/GameState.ts`                      | No changes needed (players already carry PlayerInfo)                                                                                                                                                                                                                       |
+| `app/repository/playerPointRepository.ts`    | Possibly new query helpers for updating striker/defender flags and clearing skips                                                                                                                                                                                          |
