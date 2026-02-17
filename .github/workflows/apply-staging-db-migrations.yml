@@ -2,8 +2,6 @@ name: Apply staging db migrations
 
 on:
   push:
-    branches-ignore:
-      - main
     paths:
       - 'prisma/migrations/**'
       - 'prisma/schema.prisma'
