@@ -35,11 +35,23 @@ module "supabase_project" {
   region            = "eu-west-2"
 }
 
+module "supabase_staging_project" {
+  source            = "./modules/supabase-project"
+  organization_id   = var.supabase_organization_id
+  project_name      = "strwiker-staging"
+  database_password = var.supabase_staging_database_password
+  region            = "eu-west-2"
+}
+
 module "vercel_project_custom" {
-  source                   = "./modules/vercel-project"
-  github_repository_name   = var.github_repository_name
-  postgres_prisma_url      = module.supabase_project.postgres_prisma_url
-  postgres_url_non_pooling = module.supabase_project.postgres_url_non_pooling
-  supabase_url             = module.supabase_project.api_url
-  supabase_anon_key        = module.supabase_project.anon_key
+  source                           = "./modules/vercel-project"
+  github_repository_name           = var.github_repository_name
+  postgres_prisma_url              = module.supabase_project.postgres_prisma_url
+  postgres_url_non_pooling         = module.supabase_project.postgres_url_non_pooling
+  supabase_url                     = module.supabase_project.api_url
+  supabase_anon_key                = module.supabase_project.anon_key
+  staging_postgres_prisma_url      = module.supabase_staging_project.postgres_prisma_url
+  staging_postgres_url_non_pooling = module.supabase_staging_project.postgres_url_non_pooling
+  staging_supabase_url             = module.supabase_staging_project.api_url
+  staging_supabase_anon_key        = module.supabase_staging_project.anon_key
 }
