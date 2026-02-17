@@ -44,14 +44,20 @@ module "supabase_staging_project" {
 }
 
 module "vercel_project_custom" {
-  source                           = "./modules/vercel-project"
-  github_repository_name           = var.github_repository_name
-  postgres_prisma_url              = module.supabase_project.postgres_prisma_url
-  postgres_url_non_pooling         = module.supabase_project.postgres_url_non_pooling
-  supabase_url                     = module.supabase_project.api_url
-  supabase_anon_key                = module.supabase_project.anon_key
-  staging_postgres_prisma_url      = module.supabase_staging_project.postgres_prisma_url
-  staging_postgres_url_non_pooling = module.supabase_staging_project.postgres_url_non_pooling
-  staging_supabase_url             = module.supabase_staging_project.api_url
-  staging_supabase_anon_key        = module.supabase_staging_project.anon_key
+  source                 = "./modules/vercel-project"
+  github_repository_name = var.github_repository_name
+  env_config = {
+    production = {
+      postgres_prisma_url      = module.supabase_project.postgres_prisma_url
+      postgres_url_non_pooling = module.supabase_project.postgres_url_non_pooling
+      supabase_url             = module.supabase_project.api_url
+      supabase_anon_key        = module.supabase_project.anon_key
+    }
+    preview = {
+      postgres_prisma_url      = module.supabase_staging_project.postgres_prisma_url
+      postgres_url_non_pooling = module.supabase_staging_project.postgres_url_non_pooling
+      supabase_url             = module.supabase_staging_project.api_url
+      supabase_anon_key        = module.supabase_staging_project.anon_key
+    }
+  }
 }
