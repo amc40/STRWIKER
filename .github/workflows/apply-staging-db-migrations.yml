@@ -1,0 +1,36 @@
+name: Apply staging db migrations
+
+on:
+  push:
+    paths:
+      - 'prisma/migrations/**'
+      - 'prisma/schema.prisma'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Terraform Apply"]
+    types:
+      - completed
+
+jobs:
+  apply_staging_db_migrations:
+    runs-on: ubuntu-latest
+    environment: staging
+    # For workflow_run trigger, only run if the Terraform Apply succeeded
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Reset staging DB, apply migrations, and seed
+        run: npx prisma migrate reset --force
+        env:
+          POSTGRES_PRISMA_URL: ${{ secrets.DATABASE_URL }}
+          POSTGRES_URL_NON_POOLING: ${{ secrets.DIRECT_URL }}

@@ -36,3 +36,10 @@ variable "supabase_database_password" {
   sensitive   = true
   nullable    = false
 }
+
+variable "supabase_staging_database_password" {
+  description = "PostgreSQL database password for the staging Supabase project (min 8 characters)"
+  type        = string
+  sensitive   = true
+  nullable    = false
+}
