@@ -28,9 +28,7 @@ function makePlayerPoint(
 }
 
 /** Convenience to extract the position map as a plain object for easier assertions. */
-function positionsToObject(
-  result: RotationResult,
-): Record<number, number> {
+function positionsToObject(result: RotationResult): Record<number, number> {
   const obj: Record<number, number> = {};
   result.positionsByPlayerId.forEach((pos, id) => {
     obj[id] = pos;
@@ -430,46 +428,42 @@ describe('PlayerPointPositionService', () => {
     ];
 
     it('rotates when strategy is Always', () => {
-      const result =
-        service.calculateRotatedPositionsForTeamWithRotatyStrategy(
-          pps,
-          'Red',
-          'Blue',
-          'Always',
-        );
+      const result = service.calculateRotatedPositionsForTeamWithRotatyStrategy(
+        pps,
+        'Red',
+        'Blue',
+        'Always',
+      );
       expect(positionsToObject(result)).toEqual({ 1: 2, 2: 0, 3: 1 });
     });
 
     it('does not rotate when strategy is Never', () => {
-      const result =
-        service.calculateRotatedPositionsForTeamWithRotatyStrategy(
-          pps,
-          'Red',
-          'Blue',
-          'Never',
-        );
+      const result = service.calculateRotatedPositionsForTeamWithRotatyStrategy(
+        pps,
+        'Red',
+        'Blue',
+        'Never',
+      );
       expect(positionsToObject(result)).toEqual({ 1: 0, 2: 1, 3: 2 });
     });
 
     it('rotates when strategy is OnConcede and team conceded', () => {
-      const result =
-        service.calculateRotatedPositionsForTeamWithRotatyStrategy(
-          pps,
-          'Red',
-          'Blue', // Blue scored, so Red conceded
-          'OnConcede',
-        );
+      const result = service.calculateRotatedPositionsForTeamWithRotatyStrategy(
+        pps,
+        'Red',
+        'Blue', // Blue scored, so Red conceded
+        'OnConcede',
+      );
       expect(positionsToObject(result)).toEqual({ 1: 2, 2: 0, 3: 1 });
     });
 
     it('does not rotate when strategy is OnConcede and team scored', () => {
-      const result =
-        service.calculateRotatedPositionsForTeamWithRotatyStrategy(
-          pps,
-          'Red',
-          'Red', // Red scored, so Red did not concede
-          'OnConcede',
-        );
+      const result = service.calculateRotatedPositionsForTeamWithRotatyStrategy(
+        pps,
+        'Red',
+        'Red', // Red scored, so Red did not concede
+        'OnConcede',
+      );
       expect(positionsToObject(result)).toEqual({ 1: 0, 2: 1, 3: 2 });
     });
   });
