@@ -7,6 +7,7 @@
     "start": "next start",
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint --fix . && prettier --write .",
+    "test": "vitest run",
     "postinstall": "prisma generate"
   },
   "prisma": {
@@ -63,7 +64,8 @@
     "supabase": "^2.20.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.24.0"
+    "typescript-eslint": "^8.24.0",
+    "vitest": "^4.0.18"
   },
   "overrides": {
     "@types/react": "19.2.14",
