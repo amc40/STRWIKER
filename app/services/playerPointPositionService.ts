@@ -285,8 +285,7 @@ export class PlayerPointPositionService {
 
     // Determine whether first non-skipped player is striker or defender for this team
     const firstIsStriker =
-      (team === 'Blue' &&
-        strikerPosition === 'BlueStrikerAtPositionZero') ||
+      (team === 'Blue' && strikerPosition === 'BlueStrikerAtPositionZero') ||
       (team === 'Red' && strikerPosition === 'RedStrikerAtPositionZero');
 
     const firstNonSkipped = nonSkipped[0];

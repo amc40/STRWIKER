@@ -323,10 +323,7 @@ export const useGameState = (
       };
       action().catch((e: unknown) => {
         onGameStateMutationError();
-        addErrorMessage(
-          `Error toggling skip for player ${player.name}`,
-          e,
-        );
+        addErrorMessage(`Error toggling skip for player ${player.name}`, e);
       });
     },
     [registerGameStateMutation, onGameStateMutationError, addErrorMessage],

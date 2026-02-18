@@ -646,12 +646,11 @@ export class GameLogicService {
       pointId,
       team,
     );
-    const flags =
-      this.playerPointPositionService.computeStrikerDefenderFlags(
-        teamPlayerPoints,
-        team,
-        strikerPosition,
-      );
+    const flags = this.playerPointPositionService.computeStrikerDefenderFlags(
+      teamPlayerPoints,
+      team,
+      strikerPosition,
+    );
 
     const updates = teamPlayerPoints.map((pp) => ({
       id: pp.id,
