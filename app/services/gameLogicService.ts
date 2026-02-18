@@ -5,17 +5,24 @@ import {
   Point,
   Prisma,
   RotatyStrategy,
+  StrikerPosition,
   Team,
 } from '@prisma/client';
 import prisma from '../../lib/planetscale';
 import {
+  clearSkippedForPlayerPoints,
   decrementPlayerPointPositionsInPointAndTeamAfter,
   deletePlayerPoint,
   getAllPlayerPointsAndPlayersByPointWherePositionLessThan,
   getAllPlayerPointsByPoint,
+  getAllPlayerPointsForTeamInPoint,
   getPlayerPointByPlayerAndPointOrThrow,
+  updateStrikerDefenderFlagsForPlayerPoints,
 } from '../repository/playerPointRepository';
-import { PlayerPointPositionService } from './playerPointPositionService';
+import {
+  PlayerPointPositionService,
+  RotationResult,
+} from './playerPointPositionService';
 import {
   getCurrentGameOrThrow,
   getMostRecentFinishedGameWithLastPointAndParticipatingPlayers,
@@ -165,10 +172,6 @@ export class GameLogicService {
     const initialPoint =
       await this.startGameWithNoPlayerPointsAndGetInitialPoint(rotatyStrategy);
 
-    const numberOfPlayersPerTeam = this.getNumberOfPlayersPerTeam(
-      playerPointsFromLastPointOfPreviousGame,
-    );
-
     const playerPointWhoScoredLastPoint =
       playerPointsFromLastPointOfPreviousGame.find(
         ({ scoredGoal, ownGoal }) => scoredGoal || ownGoal,
@@ -183,19 +186,29 @@ export class GameLogicService {
       playerPointWhoScoredLastPoint.ownGoal,
     );
 
+    // Step 1: Calculate rotated positions using same skip-aware logic
+    const rotationResults = this.calculateRotationResultsPerTeam(
+      playerPointsFromLastPointOfPreviousGame,
+      (team) =>
+        this.playerPointPositionService.calculateRotatedPositionsForTeamWithRotatyStrategy(
+          playerPointsFromLastPointOfPreviousGame.filter(
+            (pp) => pp.team === team,
+          ),
+          team,
+          teamWhoWonLastPointOfPreviousGame,
+          rotatyStrategy[team],
+        ),
+    );
+
+    // Step 2: Create new PlayerPoints with calculated positions (preserving skipped flag)
     const newPlayerPointsCreateInput: Prisma.PlayerPointCreateManyInput[] =
       playerPointsFromLastPointOfPreviousGame.map(
-        ({ team, playerId, position: previousPosition }) => ({
+        ({ team, playerId, skipped }) => ({
           team,
           playerId,
+          skipped,
           position:
-            this.playerPointPositionService.getNextPlayerPositionForTeamWithRotatyStrategy(
-              previousPosition,
-              team,
-              numberOfPlayersPerTeam,
-              teamWhoWonLastPointOfPreviousGame,
-              rotatyStrategy[team],
-            ),
+            rotationResults[team].positionsByPlayerId.get(playerId) ?? 0,
           pointId: initialPoint.id,
         }),
       );
@@ -203,6 +216,17 @@ export class GameLogicService {
     await prisma.playerPoint.createMany({
       data: newPlayerPointsCreateInput,
     });
+
+    // Step 3: Clear skipped flag for players that were rotated to the back
+    await this.clearSkipsForRotatedPlayers(initialPoint.id, rotationResults);
+
+    // Compute and set striker/defender flags
+    // New game gets default striker position
+    const newGame = await getCurrentGameOrThrow();
+    await this.recomputeStrikerDefenderFlagsForAllTeams(
+      initialPoint.id,
+      newGame.strikerPosition,
+    );
   }
 
   private async createInitialPoint(game: Game) {
@@ -239,6 +263,13 @@ export class GameLogicService {
       });
 
       await this.updateRotationStrategyBasedOnTeamSize(team, point);
+
+      const currentGame = await getCurrentGameOrThrow();
+      await this.recomputeStrikerDefenderFlagsForTeam(
+        point.id,
+        team,
+        currentGame.strikerPosition,
+      );
     });
   }
 
@@ -268,6 +299,13 @@ export class GameLogicService {
       ]);
 
       await this.updateRotationStrategyBasedOnTeamSize(playerPoint.team, point);
+
+      const currentGame = await getCurrentGameOrThrow();
+      await this.recomputeStrikerDefenderFlagsForTeam(
+        point.id,
+        playerPoint.team,
+        currentGame.strikerPosition,
+      );
     });
   }
 
@@ -275,6 +313,44 @@ export class GameLogicService {
     const currentPoint = await getCurrentPointOrThrow();
     const startTime = new Date();
     await setPointStartTime(currentPoint.id, startTime);
+  }
+
+  async toggleSkipForPlayerInCurrentPoint(playerId: number) {
+    const currentGame = await getCurrentGameOrThrow();
+    const currentPoint = await getCurrentPointOrThrow();
+    const playerPoint = await getPlayerPointByPlayerAndPointOrThrow(
+      playerId,
+      currentPoint.id,
+    );
+
+    const newSkipped = !playerPoint.skipped;
+
+    // Validate: don't allow all players on a team to become skipped
+    if (newSkipped) {
+      const teamPlayerPoints = await getAllPlayerPointsForTeamInPoint(
+        currentPoint.id,
+        playerPoint.team,
+      );
+      const nonSkippedCount = teamPlayerPoints.filter(
+        (pp) => !pp.skipped && pp.playerId !== playerId,
+      ).length;
+      if (nonSkippedCount === 0) {
+        throw new Error(
+          'Cannot skip: at least one player on the team must remain active',
+        );
+      }
+    }
+
+    await prisma.playerPoint.update({
+      where: { id: playerPoint.id },
+      data: { skipped: newSkipped },
+    });
+
+    await this.recomputeStrikerDefenderFlagsForTeam(
+      currentPoint.id,
+      playerPoint.team,
+      currentGame.strikerPosition,
+    );
   }
 
   async scoreGoalInCurrentGame(
@@ -398,29 +474,45 @@ export class GameLogicService {
     });
     const oldPlayerPoints = await getAllPlayerPointsByPoint(finishedPoint);
 
-    const numberOfPlayersPerTeam =
-      this.getNumberOfPlayersPerTeam(oldPlayerPoints);
+    // Step 1: Calculate rotated positions for each team
+    const rotationResults = this.calculateRotationResultsPerTeam(
+      oldPlayerPoints,
+      (team) =>
+        this.playerPointPositionService.calculateRotatedPositionsForTeamInGame(
+          oldPlayerPoints.filter((pp) => pp.team === team),
+          team,
+          scoringTeam,
+          game,
+        ),
+    );
 
+    // Step 2: Create new PlayerPoints with calculated positions (preserving skipped flag)
     const newPlayerPointsToCreate = oldPlayerPoints.map((oldPlayerPoint) => ({
       playerId: oldPlayerPoint.playerId,
       pointId: newPoint.id,
       ownGoal: false,
       scoredGoal: false,
       rattled: false,
+      skipped: oldPlayerPoint.skipped,
       team: oldPlayerPoint.team,
       position:
-        this.playerPointPositionService.getNextPlayerPositionForTeamInGame(
-          oldPlayerPoint.position,
-          oldPlayerPoint.team,
-          numberOfPlayersPerTeam,
-          scoringTeam,
-          game,
-        ),
+        rotationResults[oldPlayerPoint.team].positionsByPlayerId.get(
+          oldPlayerPoint.playerId,
+        ) ?? oldPlayerPoint.position,
     }));
 
     await prisma.playerPoint.createMany({
       data: newPlayerPointsToCreate,
     });
+
+    // Step 3: Clear skipped flag for players that were rotated to the back
+    await this.clearSkipsForRotatedPlayers(newPoint.id, rotationResults);
+
+    // Compute and set striker/defender flags
+    await this.recomputeStrikerDefenderFlagsForAllTeams(
+      newPoint.id,
+      game.strikerPosition,
+    );
 
     await prisma.game.update({
       where: {
@@ -507,7 +599,7 @@ export class GameLogicService {
       await getPointAndPlayersFromPointIdOrThrow(pointId);
     const participatingPlayerPointsAndPlayersInPoint =
       allPlayersPointsAndPlayersInPoint.filter(
-        (playerPoint) => playerPoint.position <= 1,
+        (playerPoint) => playerPoint.isStriker || playerPoint.isDefender,
       );
     return participatingPlayerPointsAndPlayersInPoint.map((playerPoint) => ({
       ...playerPoint.player,
@@ -543,6 +635,92 @@ export class GameLogicService {
       blueActivePlayers,
       redActivePlayers,
     };
+  }
+
+  async recomputeStrikerDefenderFlagsForTeam(
+    pointId: number,
+    team: Team,
+    strikerPosition: StrikerPosition,
+  ) {
+    const teamPlayerPoints = await getAllPlayerPointsForTeamInPoint(
+      pointId,
+      team,
+    );
+    const flags = this.playerPointPositionService.computeStrikerDefenderFlags(
+      teamPlayerPoints,
+      team,
+      strikerPosition,
+    );
+
+    const updates = teamPlayerPoints.map((pp) => ({
+      id: pp.id,
+      isStriker: flags.get(pp.playerId)?.isStriker ?? false,
+      isDefender: flags.get(pp.playerId)?.isDefender ?? false,
+    }));
+
+    await updateStrikerDefenderFlagsForPlayerPoints(updates);
+  }
+
+  private async recomputeStrikerDefenderFlagsForAllTeams(
+    pointId: number,
+    strikerPosition: StrikerPosition,
+  ) {
+    await Promise.all([
+      this.recomputeStrikerDefenderFlagsForTeam(
+        pointId,
+        Team.Red,
+        strikerPosition,
+      ),
+      this.recomputeStrikerDefenderFlagsForTeam(
+        pointId,
+        Team.Blue,
+        strikerPosition,
+      ),
+    ]);
+  }
+
+  private calculateRotationResultsPerTeam(
+    allPlayerPoints: PlayerPoint[],
+    calculateForTeam: (team: Team) => RotationResult,
+  ): Record<Team, RotationResult> {
+    const teams: Team[] = [Team.Red, Team.Blue];
+    const results = {} as Record<Team, RotationResult>;
+    for (const team of teams) {
+      const teamHasPlayers = allPlayerPoints.some((pp) => pp.team === team);
+      if (teamHasPlayers) {
+        results[team] = calculateForTeam(team);
+      } else {
+        results[team] = {
+          positionsByPlayerId: new Map(),
+          playerIdsToUnskip: new Set(),
+        };
+      }
+    }
+    return results;
+  }
+
+  private async clearSkipsForRotatedPlayers(
+    newPointId: number,
+    rotationResults: Record<Team, RotationResult>,
+  ) {
+    const allPlayerIdsToUnskip: number[] = [];
+    for (const team of [Team.Red, Team.Blue] as Team[]) {
+      rotationResults[team].playerIdsToUnskip.forEach((playerId) => {
+        allPlayerIdsToUnskip.push(playerId);
+      });
+    }
+
+    if (allPlayerIdsToUnskip.length === 0) return;
+
+    // Find the new PlayerPoint IDs for the players that need unskipping
+    const newPointPlayerPoints = await prisma.playerPoint.findMany({
+      where: {
+        pointId: newPointId,
+        playerId: { in: allPlayerIdsToUnskip },
+      },
+    });
+
+    await clearSkippedForPlayerPoints(newPointPlayerPoints.map((pp) => pp.id));
   }
 
   private opposingTeam(team: Team) {

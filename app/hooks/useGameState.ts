@@ -11,6 +11,7 @@ import {
   updateRotatyStrategyAction,
   recordGoalScored as recordGoalScoredAction,
   startCurrentPoint as startCurrentPointAction,
+  toggleSkipPlayer as toggleSkipPlayerAction,
 } from '@/lib/Game.actions';
 import { GameInfo } from '../view/GameInfo';
 
@@ -23,6 +24,7 @@ export interface GameStateWithMutations extends GameState {
   playerIdRecordingOwnGoal: number | null;
   recordGoalScored: (player: PlayerInfo, ownGoal: boolean) => void;
   startCurrentPoint: () => void;
+  skipPlayer: (player: PlayerInfo) => void;
 }
 
 type OptimisticPlayerMutationAction =
@@ -40,6 +42,10 @@ type OptimisticPlayerMutationAction =
       type: 'reorderPlayer';
       playerToReorder: PlayerInfo;
       destinationIndex: number;
+    }
+  | {
+      type: 'skipPlayer';
+      playerId: number;
     };
 
 const updatePlayerOrderAfterReorder = (
@@ -103,6 +109,7 @@ const optimisticPlayersReducer = (
           position: currentPlayers.length + 1,
           goalsScored: 0,
           ownGoalsScored: 0,
+          skipped: false,
         },
       ];
     case 'removePlayer':
@@ -114,6 +121,12 @@ const optimisticPlayersReducer = (
           update.playerToReorder,
           update.destinationIndex,
         ),
+      );
+    case 'skipPlayer':
+      return currentPlayers.map((player) =>
+        player.id === update.playerId
+          ? { ...player, skipped: !player.skipped }
+          : player,
       );
   }
 };
@@ -296,6 +309,26 @@ export const useGameState = (
     });
   }, [addErrorMessage, onGameStateMutationError, registerGameStateMutation]);
 
+  const skipPlayer = useCallback(
+    (player: PlayerInfo) => {
+      const mutationId = registerGameStateMutation();
+      setPlayers((oldPlayers) =>
+        optimisticPlayersReducer(oldPlayers, {
+          type: 'skipPlayer',
+          playerId: player.id,
+        }),
+      );
+      const action = async () => {
+        await toggleSkipPlayerAction(player.id, mutationId);
+      };
+      action().catch((e: unknown) => {
+        onGameStateMutationError();
+        addErrorMessage(`Error toggling skip for player ${player.name}`, e);
+      });
+    },
+    [registerGameStateMutation, onGameStateMutationError, addErrorMessage],
+  );
+
   return {
     players,
     redScore,
@@ -311,5 +344,6 @@ export const useGameState = (
     playerIdRecordingOwnGoal,
     recordGoalScored,
     startCurrentPoint,
+    skipPlayer,
   };
 };

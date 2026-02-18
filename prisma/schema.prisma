@@ -35,6 +35,7 @@ model Game {
   points                        Point[]                 @relation(name: "pointGame")
   rotatyRed                     RotatyStrategy
   rotatyBlue                    RotatyStrategy
+  strikerPosition               StrikerPosition         @default(BlueStrikerAtPositionZero)
   historicalPlayerStatsFromGame HistoricalPlayerStats[]
 
   @@index([startTime])
@@ -45,6 +46,11 @@ enum RotatyStrategy {
   Never
   OnConcede
   Always
+}
+
+enum StrikerPosition {
+  BlueStrikerAtPositionZero
+  RedStrikerAtPositionZero
 }
 
 model Point {
@@ -79,6 +85,8 @@ model PlayerPoint {
   ownGoal    Boolean @default(false)
   rattled    Boolean @default(false)
   skipped    Boolean @default(false)
+  isStriker  Boolean @default(false)
+  isDefender Boolean @default(false)
 
   playerId Int
   pointId  Int
